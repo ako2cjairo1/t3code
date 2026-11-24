@@ -59,18 +59,7 @@ function HaloThreadOrbLive({
   className: string | undefined;
 }) {
   const m = useMessages();
-  const thread = useThreadShell(threadRef);
-  const localLastVisitedAt = useUiStateStore(
-    (state) => state.threadLastVisitedAtById[scopedThreadKey(threadRef)],
-  );
-  const pill = thread
-    ? resolveThreadStatusPill({
-        thread: {
-          ...thread,
-          lastVisitedAt: resolveThreadLastVisitedAt(thread.lastVisitedAt, localLastVisitedAt),
-        },
-      })
-    : null;
+  const pill = useHaloThreadPill(threadRef);
   const orb = <HaloOrb state={resolveHaloOrbState(pill)} className={className} />;
   if (!pill) return orb;
   const label = m(pill.label);
@@ -82,4 +71,20 @@ function HaloThreadOrbLive({
       <TooltipPopup side="bottom">{label}</TooltipPopup>
     </Tooltip>
   );
+}
+
+/** The sidebar's status pill for a thread, so every Halo surface agrees with the sidebar. */
+export function useHaloThreadPill(threadRef: ScopedThreadRef) {
+  const thread = useThreadShell(threadRef);
+  const localLastVisitedAt = useUiStateStore(
+    (state) => state.threadLastVisitedAtById[scopedThreadKey(threadRef)],
+  );
+  return thread
+    ? resolveThreadStatusPill({
+        thread: {
+          ...thread,
+          lastVisitedAt: resolveThreadLastVisitedAt(thread.lastVisitedAt, localLastVisitedAt),
+        },
+      })
+    : null;
 }

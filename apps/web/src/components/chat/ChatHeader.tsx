@@ -45,7 +45,9 @@ import { cn } from "~/lib/utils";
 import { textDirection } from "~/textDirection";
 import { useClientSettings } from "../../hooks/useSettings";
 import { GuestShareIndicator } from "./GuestShareControls";
-import { HaloThreadOrb } from "../halo/HaloOrb";
+import { HaloHeaderControls } from "../halo/HaloHeaderControls";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import type { DraftId } from "~/composerDraftStore";
 
 interface ChatHeaderProps {
   activeThreadEnvironmentId: EnvironmentId;
@@ -60,6 +62,10 @@ interface ChatHeaderProps {
   onNewThreadInProject: () => void;
   onOpenProjectSettings?: (() => void) | undefined;
   onFindInThread?: ((threadRef: ScopedThreadRef) => void) | undefined;
+  /** Liquid Halo header only: the active work's start, git folder and draft. */
+  workStartedAt?: string | null;
+  gitCwd?: string | null;
+  draftId?: DraftId | null;
 }
 
 function resolveRenameCommit(input: {
@@ -85,11 +91,16 @@ export const ChatHeader = memo(function ChatHeader({
   onNewThreadInProject,
   onOpenProjectSettings,
   onFindInThread,
+  workStartedAt = null,
+  gitCwd = null,
+  draftId = null,
 }: ChatHeaderProps) {
   const gt = useGT();
   const activeProjectName = activeProject?.isScratch ? gt("No project") : activeProject?.title;
   const activeProjectCwd = activeProject?.workspaceRoot ?? null;
   const interfaceFont = useClientSettings((settings) => settings.fontFamilySans);
+  // Halo header controls collapse by this row's width, which the side panels change.
+  const haloExperience = useHaloExperience();
   const breadcrumbContainerRef = useRef<HTMLDivElement>(null);
   const [collapseParentTitle, setCollapseParentTitle] = useState(false);
   const activeThreadRef = scopeThreadRef(activeThreadEnvironmentId, activeThreadId);
@@ -256,11 +267,11 @@ export const ChatHeader = memo(function ChatHeader({
       ref={breadcrumbContainerRef}
       className={cn(
         "flex min-w-0 flex-1 items-center gap-2 sm:gap-3",
+        haloExperience && "@container/chat-header",
         rightPanelOpen ? "pr-10" : "pr-24",
       )}
       onContextMenu={handleHeaderContextMenu}
     >
-      <HaloThreadOrb threadRef={activeThreadRef} />
       <WorkspaceBreadcrumb
         ariaLabel={gt("Thread breadcrumb")}
         className="flex-1 overflow-clip [overflow-clip-margin:2px]"
@@ -415,6 +426,14 @@ export const ChatHeader = memo(function ChatHeader({
           ) : null}
         </WorkspaceBreadcrumbItem>
       </WorkspaceBreadcrumb>
+      <HaloHeaderControls
+        threadRef={activeThreadRef}
+        isServerThread={isServerThread}
+        workStartedAt={workStartedAt}
+        gitCwd={gitCwd}
+        projectName={activeProject?.title ?? ""}
+        draftId={draftId}
+      />
       {isServerThread ? <GuestShareIndicator threadRef={activeThreadRef} /> : null}
     </div>
   );

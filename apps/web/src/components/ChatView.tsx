@@ -324,8 +324,8 @@ import { useOpenSurfaceInMainView } from "../hooks/useOpenSurfaceInMainView";
 import { useRemoteOpenState } from "~/remoteOpen";
 import { shouldShowOpenInPicker } from "./chat/OpenInPicker.logic";
 import { useOpenFavoriteEditorShortcut } from "./chat/OpenInPickerShortcut";
+import { HaloPanelLayoutControls } from "./halo/HaloOverflowMenu";
 import {
-  PanelLayoutControls,
   type PanelLayoutControlsProps,
   RightPanelMaximizeControl,
   ThreadPanelHeaderControl,
@@ -3531,7 +3531,7 @@ export default function ChatView(props: ChatViewProps) {
     onToggleRightPanel: toggleRightPanelStable,
   } satisfies PanelLayoutControlsProps;
   const panelToggleControls = (
-    <PanelLayoutControls
+    <HaloPanelLayoutControls
       {...panelToggleControlProps}
       showThreadPanelControl={!inlineRightPanelOwnsTitleBar}
     />
@@ -3617,6 +3617,9 @@ export default function ChatView(props: ChatViewProps) {
                 ? { onOpenProjectSettings: handleOpenDraftProjectSettingsStable }
                 : {})}
               {...(threadFindEnabled ? { onFindInThread: openThreadFindStable } : {})}
+              workStartedAt={activeWorkStartedAt}
+              gitCwd={gitCwd}
+              draftId={draftId}
             />
           </header>
         )}

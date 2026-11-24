@@ -199,3 +199,80 @@ html[data-theme-id="liquid-halo"] [data-work-entry-id]:not(:has([aria-expanded="
   background: linear-gradient(var(--border) 0 2px, transparent 2px 22px, var(--border) 22px);
   pointer-events: none;
 }
+
+/* Depth: Thread ↔ Inbox ↔ Trace. Only the main pane moves; the sidebar stays put.
+   The router starts these with the `halo-depth` view transition type. */
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-old(root),
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-new(root) {
+  animation: none;
+}
+html[data-theme-id="liquid-halo"]:active-view-transition-type(halo-depth)
+  [data-slot="sidebar-inset"] {
+  view-transition-name: halo-view;
+}
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-group(halo-view) {
+  animation-duration: 0.7s;
+}
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-old(halo-view) {
+  animation: halo-depth-out 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-new(halo-view) {
+  animation: halo-depth-in 0.7s cubic-bezier(0.2, 1.2, 0.4, 1) 0.04s both;
+}
+@keyframes halo-depth-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(12px);
+  }
+}
+@keyframes halo-depth-in {
+  from {
+    opacity: 0;
+    transform: translateY(34px) scale(1.02);
+    filter: blur(8px);
+  }
+}
+
+/* Inbox drag: the lifted card springs up once; tilt follows pointer velocity via --halo-tilt. */
+[data-halo-card-lifted] {
+  animation: halo-lift 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes halo-lift {
+  from {
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-card-lifted] {
+    animation: none;
+    rotate: none;
+  }
+}
+
+/* Inbox and Trace sit on the same violet halo as the conversation canvas. */
+html[data-theme-id="liquid-halo"] [data-halo-page] {
+  background:
+    radial-gradient(
+      70% 45% at 50% -10%,
+      color-mix(in oklab, var(--primary) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 30% at 100% 100%,
+      color-mix(in oklab, var(--primary) 7%, transparent),
+      transparent 70%
+    ),
+    var(--background);
+}
