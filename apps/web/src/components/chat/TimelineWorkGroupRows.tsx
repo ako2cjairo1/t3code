@@ -12,6 +12,8 @@ import { useAssetUrls } from "~/assets/assetUrls";
 import { observeResize } from "~/lib/observeResize";
 import { tickTextContent } from "~/lib/tickTextContent";
 import { observeVisibleAnimation } from "../../lib/visibleAnimation";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { HaloThinkingPill } from "../halo/HaloThinkingPill";
 import { T, useGT, useMessages } from "gt-react";
 import { memo, use, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { LegendList, type LegendListRef } from "@legendapp/list/react";
@@ -451,17 +453,20 @@ export function ThinkingTimelineRow({ row }: { row: Extract<TimelineRow, { kind:
     providerStartingLabel,
     providerStarting,
   } = use(TimelineRowActivityCtx);
+  const halo = useHaloExperience();
   if (isPreparingWorktree || isCompacting) return <WorkLogRow label="" />;
   // A failed group keeps this disclosure while an approval waits, but nothing is thinking then.
   const live = ctx.pendingApprovals.size === 0;
-  const activity = (
+  const label =
+    (providerStartingLabel === null ? null : m(providerStartingLabel)) ??
+    row.label ??
+    liveAnswerPreview ??
+    gt("Thinking");
+  const activity = halo ? (
+    <HaloThinkingPill label={label} live={live} />
+  ) : (
     <LiveActivityRow
-      label={
-        (providerStartingLabel === null ? null : m(providerStartingLabel)) ??
-        row.label ??
-        liveAnswerPreview ??
-        gt("Thinking")
-      }
+      label={label}
       iconName="brain"
       iconNode={
         providerStarting === null ? undefined : (

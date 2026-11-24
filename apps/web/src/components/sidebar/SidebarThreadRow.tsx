@@ -130,6 +130,9 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import { MiddleTruncate } from "../ui/middle-truncate";
 import { ActivityShimmerOverlay } from "../chat/TimelineRowParts";
 import { observeVisibleAnimation } from "~/lib/visibleAnimation";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { HaloOrb } from "../halo/HaloOrb";
+import type { HaloOrbState } from "../halo/halo.logic";
 import { useThreadHasUnsentDraft } from "../../composerDraftStore";
 import { ThreadDetailsIssueRows } from "../chat/ThreadDetailsIssueRows";
 import { IssueGlyph, issueStatePresentation } from "../issue/issuePresentation";
@@ -575,7 +578,28 @@ const TOP_STATUS_ICONS = {
   woke: AlarmClockIcon,
 } as const;
 
+const TOP_STATUS_HALO_STATES = {
+  working: "working",
+  waiting: "thinking",
+  input: "input",
+  request: "input",
+  approval: "approval",
+  failed: "error",
+  done: "done",
+  woke: "input",
+} as const satisfies Record<keyof typeof TOP_STATUS_ICONS, HaloOrbState>;
+
 function TopStatusIcon(props: { icon: keyof typeof TOP_STATUS_ICONS; className: string }) {
+  const halo = useHaloExperience();
+  if (halo) {
+    return (
+      <HaloOrb
+        state={TOP_STATUS_HALO_STATES[props.icon]}
+        className={props.className}
+        data-thread-status={props.icon}
+      />
+    );
+  }
   const Icon = TOP_STATUS_ICONS[props.icon];
   return <Icon aria-hidden className={cn("shrink-0", props.className)} />;
 }

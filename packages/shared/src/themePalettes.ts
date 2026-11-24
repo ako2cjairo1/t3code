@@ -1,4 +1,11 @@
-export const BUILT_IN_THEME_IDS = ["t3-chat", "grove", "ocean", "ember", "iris"] as const;
+export const BUILT_IN_THEME_IDS = [
+  "t3-chat",
+  "grove",
+  "ocean",
+  "ember",
+  "iris",
+  "liquid-halo",
+] as const;
 
 export const MOBILE_DEFAULT_THEME_ID = "t3-code";
 
@@ -102,6 +109,8 @@ export type ThemeDefinition = Readonly<{
   variants?: ThemeVariants;
   collection?: Readonly<{ id: string; label: string }>;
   sidebarArtwork?: boolean;
+  /** Built-in only: turns on the Liquid Halo interface (orb, status island, inbox board, trace). */
+  haloExperience?: boolean;
   managed?: boolean;
   /** Custom styles for web and desktop. */
   css?: string;
@@ -910,12 +919,264 @@ export const IRIS_THEME: ThemeDefinition = {
   sidebarArtwork: true,
 };
 
+/** Frosted glass and soft depth with a single violet accent. Restyles only stable theme hooks
+ * and keeps to transitions: an always-running animation here would cost GPU on every frame. */
+const LIQUID_HALO_CSS = `
+:root {
+  --radius: 0.75rem;
+  --glass-blur: 20px;
+  --glass-saturation: 1.35;
+  --halo: color-mix(in oklab, var(--primary) 16%, transparent);
+  --halo-strong: color-mix(in oklab, var(--primary) 34%, transparent);
+  --halo-depth: 0 1px 2px rgb(18 16 40 / 6%), 0 16px 40px -16px color-mix(in oklab, var(--primary) 28%, transparent);
+  --spring: linear(0, 0.078, 0.249, 0.448, 0.633, 0.786, 0.899, 0.975, 1.02, 1.042, 1.048, 1.045, 1.037, 1.027, 1.018, 1.011, 1.005, 1.001, 0.999, 0.998, 1);
+  --spring-settle: linear(0, 0.142, 0.383, 0.596, 0.752, 0.855, 0.919, 0.956, 0.977, 0.988, 0.994, 0.997, 0.999, 1);
+}
+.dark {
+  --halo-depth: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 20px 48px -20px rgb(0 0 0 / 70%), 0 0 0 1px rgb(255 255 255 / 5%);
+}
+[data-workspace-area="conversation"] {
+  background:
+    radial-gradient(70% 45% at 50% -10%, var(--halo), transparent 70%),
+    radial-gradient(40% 30% at 100% 100%, color-mix(in oklab, var(--primary) 7%, transparent), transparent 70%),
+    var(--background);
+}
+[data-slot="composer-host"] {
+  border-radius: 22px !important;
+  box-shadow: 0 0 0 1px var(--halo), var(--halo-depth) !important;
+  transition: box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-slot="composer-host"]:focus-within {
+  box-shadow: 0 0 0 1px var(--halo-strong), 0 0 0 5px var(--halo), var(--halo-depth) !important;
+}
+[data-user-message-bubble] {
+  border-radius: 20px;
+}
+:is([data-slot="popover-popup"], [data-slot="menu-popup"], [data-slot="dialog-popup"]) {
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--popover) 82%, transparent) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  box-shadow: 0 0 0 1px var(--halo), var(--halo-depth);
+}
+[data-thread-details-card] {
+  border-radius: 18px;
+  box-shadow: 0 0 0 1px var(--halo), var(--halo-depth);
+}
+[data-slot="tooltip-popup"] {
+  border-radius: 10px;
+}
+[data-thread-item] > * {
+  border-radius: 10px;
+  transition: background-color 160ms ease-out, box-shadow 220ms ease-out;
+}
+[data-thread-item] > [aria-current="page"] {
+  background: var(--app-theme-accent-surface);
+  box-shadow: 0 0 0 1px var(--halo-strong), 0 6px 18px -10px var(--halo-strong);
+}
+[data-slot="sidebar-inner"] {
+  -webkit-backdrop-filter: saturate(var(--glass-saturation));
+  backdrop-filter: saturate(var(--glass-saturation));
+}
+[data-chat-composer-form] {
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+}
+[data-approval-card] {
+  margin-block: 6px;
+  padding: 10px 12px 8px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--card) 72%, transparent);
+  box-shadow: 0 0 0 1px var(--halo-strong), var(--halo-depth);
+}
+[data-approval-card] code {
+  margin-block: 2px 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--muted) 70%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+[data-command-palette] {
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--popover) 80%, transparent) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  backdrop-filter: blur(28px) saturate(1.5);
+  box-shadow: 0 0 0 1px var(--halo-strong), 0 40px 80px -24px color-mix(in oklab, var(--primary) 36%, transparent), var(--halo-depth);
+}
+[data-slot="toast-viewport"] {
+  --toast-footer-offset: 7.5rem;
+}
+[data-slot="toast-viewport"] > * {
+  border-radius: 18px;
+  box-shadow: 0 0 0 1px var(--halo), var(--halo-depth);
+  transition-timing-function: var(--spring), ease-out, ease-out;
+}
+[data-slot="toast-viewport"] > [data-ending-style] {
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+[data-terminal-drawer-frame] {
+  transition-timing-function: var(--spring);
+}
+:is([data-right-panel-shell], [data-slot="sidebar-gap"], [data-slot="sidebar-container"]) {
+  transition-timing-function: var(--spring-settle);
+}
+:root:not(.dark) [data-slot="composer-host"],
+:root:not(.dark) [data-thread-details-card] {
+  border-color: transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is([data-slot="composer-host"], [data-thread-item] > *) {
+    transition: none;
+  }
+  :is([data-slot="toast-viewport"] > *, [data-terminal-drawer-frame]) {
+    transition-timing-function: ease-out;
+  }
+}
+`;
+
+export const LIQUID_HALO_THEME: ThemeDefinition = {
+  id: "liquid-halo",
+  label: "Liquid Halo",
+  appearance: "light",
+  colors: {
+    canvas: "#f5f5f9",
+    chrome: "#f5f5f9",
+    toolbar: "#f5f5f9",
+    toolbarForeground: "#16171f",
+    toolbarBorder: "#e3e3ec",
+    toolbarControl: "#ffffff",
+    toolbarControlForeground: "#16171f",
+    toolbarControlHover: "#ececf3",
+    surface: "#ffffff",
+    surfaceRaised: "#fafafd",
+    surfaceOverlay: "#ffffff",
+    text: "#16171f",
+    textMuted: "#62657a",
+    border: "#e3e3ec",
+    input: "#d5d5e2",
+    focus: "#604edd",
+    accent: "#604edd",
+    accentForeground: "#ffffff",
+    secondary: "#ececf3",
+    secondaryForeground: "#16171f",
+    muted: "#f0f0f5",
+    mutedForeground: "#62657a",
+    placeholder: "#62657a",
+    secondaryLabel: "#62657a",
+    iconMuted: "#62657a",
+    error: "#d64545",
+    errorForeground: "#b42318",
+    errorSurface: "#fbeceb",
+    warning: "#d9930f",
+    warningForeground: "#8a5a00",
+    warningSurface: "#faf1e1",
+    update: "#604edd",
+    updateForeground: "#4a39c4",
+    updateSurface: "#ebe8fb",
+    accentSurface: "#ebe8fb",
+    accentSurfaceForeground: "#16171f",
+    messageSurface: "#ebe8fb",
+    messageForeground: "#16171f",
+    messageAction: "#4a39c4",
+    messageActionForeground: "#ffffff",
+    messageActionHover: "#5545d0",
+    codeBackground: "#fafafd",
+    codeForeground: "#16171f",
+    searchMatchBackground: "#ffde8b",
+    searchMatchForeground: "#21180a",
+    searchMatchActiveBackground: "#eea52b",
+    searchMatchActiveForeground: "#21180a",
+    sidebar: "#eeeef4",
+    sidebarForeground: "#16171f",
+    sidebarMutedForeground: "#62657a",
+    sidebarControlSurface: "#e6e6ef",
+    sidebarRowHover: "#e6e6ef",
+    sidebarRowActive: "#ffffff",
+    sidebarRowSelected: "#ffffff",
+    sidebarBorder: "#e3e3ec",
+    terminalBackground: "#fafafd",
+    terminalForeground: "#16171f",
+    terminalCursor: "#604edd",
+    terminalSelection: "#d9d4f7",
+    terminalScrollbar: "#d5d5e2",
+    terminalScrollbarHover: "#b9b9cc",
+  },
+  variants: {
+    dark: {
+      canvas: "#0e1017",
+      chrome: "#0e1017",
+      toolbar: "#0e1017",
+      toolbarForeground: "#ecedf3",
+      toolbarBorder: "#252836",
+      toolbarControl: "#1b1e28",
+      toolbarControlForeground: "#ecedf3",
+      toolbarControlHover: "#232634",
+      surface: "#151821",
+      surfaceRaised: "#1b1e28",
+      surfaceOverlay: "#1f2230",
+      text: "#ecedf3",
+      textMuted: "#8f94a3",
+      border: "#252836",
+      input: "#2e3242",
+      focus: "#8b7cff",
+      accent: "#8b7cff",
+      accentForeground: "#0e1017",
+      secondary: "#1f2230",
+      secondaryForeground: "#ecedf3",
+      muted: "#1b1e28",
+      mutedForeground: "#8f94a3",
+      placeholder: "#8a8fa0",
+      secondaryLabel: "#8f94a3",
+      iconMuted: "#8f94a3",
+      error: "#d48a8a",
+      errorForeground: "#f0a3a3",
+      errorSurface: "#2a1719",
+      warning: "#d9a957",
+      warningForeground: "#e9c27d",
+      warningSurface: "#2a2215",
+      update: "#8b7cff",
+      updateForeground: "#b3a9ff",
+      updateSurface: "#262341",
+      accentSurface: "#262341",
+      accentSurfaceForeground: "#ecedf3",
+      messageSurface: "#262341",
+      messageForeground: "#ecedf3",
+      messageAction: "#b3a9ff",
+      messageActionForeground: "#0e1017",
+      messageActionHover: "#c4bcff",
+      codeBackground: "#12141c",
+      codeForeground: "#ecedf3",
+      searchMatchBackground: "oklch(0.55 0.1 85)",
+      searchMatchForeground: "oklch(0.970151 0 0)",
+      searchMatchActiveBackground: "oklch(0.774202 0.151946 74.331)",
+      searchMatchActiveForeground: "oklch(0.216164 0.028283 77.423)",
+      sidebar: "#12141c",
+      sidebarForeground: "#ecedf3",
+      sidebarMutedForeground: "#8f94a3",
+      sidebarControlSurface: "#1b1e28",
+      sidebarRowHover: "#1b1e28",
+      sidebarRowActive: "#211f36",
+      sidebarRowSelected: "#262341",
+      sidebarBorder: "#252836",
+      terminalBackground: "#0e1017",
+      terminalForeground: "#ecedf3",
+      terminalCursor: "#8b7cff",
+      terminalSelection: "#2f2a55",
+      terminalScrollbar: "#2e3242",
+      terminalScrollbarHover: "#454a5e",
+    },
+  },
+  css: LIQUID_HALO_CSS,
+  haloExperience: true,
+};
+
 export const BUILT_IN_THEMES: ReadonlyArray<ThemeDefinition> = [
   T3_CHAT_THEME,
   GROVE_THEME,
   OCEAN_THEME,
   EMBER_THEME,
   IRIS_THEME,
+  LIQUID_HALO_THEME,
 ];
 
 export function getThemeColorsForAppearance(

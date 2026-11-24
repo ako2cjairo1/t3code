@@ -200,6 +200,7 @@ export const PersistentThreadTerminalDrawer = memo(function PersistentThreadTerm
 
   return (
     <div
+      data-terminal-drawer-frame
       className={cn(
         "grid shrink-0 overflow-clip",
         active ? (visible ? "grid-rows-[1fr]" : "grid-rows-[0fr]") : "hidden",

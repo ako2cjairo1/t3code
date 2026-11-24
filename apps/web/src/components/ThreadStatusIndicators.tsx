@@ -7,6 +7,9 @@ import {
 } from "@t3tools/client-runtime/environment";
 import { useSupportsMultiplePullRequests } from "~/hooks/useSupportsMultiplePullRequests";
 import { useStableCallback } from "~/hooks/useStableCallback";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { HaloOrb } from "./halo/HaloOrb";
+import { resolveHaloOrbState } from "./halo/halo.logic";
 
 import { pullRequestDetailToVcsStatus } from "@t3tools/client-runtime/state/pull-requests";
 import type { EnvironmentThreadShell } from "@t3tools/client-runtime/state/shell";
@@ -777,6 +780,7 @@ function ThreadStatusLabel({
   compact?: boolean;
 }) {
   const m = useMessages();
+  const halo = useHaloExperience();
   const label = m(status.label);
   if (compact) {
     return (
@@ -790,11 +794,16 @@ function ThreadStatusLabel({
             />
           }
         >
-          <span
-            className={`size-[9px] rounded-full ${status.dotClass} ${
-              status.pulse ? "motion-safe:animate-status-pulse" : ""
-            }`}
-          />
+          {halo ? (
+            <HaloOrb state={resolveHaloOrbState(status)} data-thread-status={status.kind} />
+          ) : (
+            <span
+              data-thread-status={status.kind}
+              className={`size-[9px] rounded-full ${status.dotClass} ${
+                status.pulse ? "motion-safe:animate-status-pulse" : ""
+              }`}
+            />
+          )}
         </TooltipTrigger>
         <TooltipPopup side="top">{label}</TooltipPopup>
       </Tooltip>
@@ -812,11 +821,20 @@ function ThreadStatusLabel({
           />
         }
       >
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${status.dotClass} ${
-            status.pulse ? "motion-safe:animate-status-pulse" : ""
-          }`}
-        />
+        {halo ? (
+          <HaloOrb
+            state={resolveHaloOrbState(status)}
+            className="size-3"
+            data-thread-status={status.kind}
+          />
+        ) : (
+          <span
+            data-thread-status={status.kind}
+            className={`h-1.5 w-1.5 rounded-full ${status.dotClass} ${
+              status.pulse ? "motion-safe:animate-status-pulse" : ""
+            }`}
+          />
+        )}
         <span className="hidden md:inline">{label}</span>
       </TooltipTrigger>
       <TooltipPopup side="top">{label}</TooltipPopup>

@@ -1,0 +1,201 @@
+/* Liquid Halo only: these elements render solely while useHaloExperience() is true.
+   Loops animate transform/opacity and play only via observeVisibleAnimation. */
+
+[data-halo-orb] {
+  --halo-color: var(--ring);
+}
+[data-halo-orb][data-state="approval"] {
+  --halo-color: var(--warning);
+}
+[data-halo-orb][data-state="error"] {
+  --halo-color: var(--destructive);
+}
+[data-halo-orb] > i {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+}
+[data-halo-orb] [data-halo-glow] {
+  inset: -32%;
+  background: radial-gradient(circle, var(--halo-color) 0%, transparent 64%);
+  opacity: 0.22;
+}
+[data-halo-orb] [data-halo-ring] {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 10%,
+    var(--halo-color) 45%,
+    transparent 60%,
+    var(--halo-color) 85%,
+    transparent
+  );
+  mask: radial-gradient(circle, transparent 55%, #000 58%, #000 70%, transparent 73%);
+  opacity: 0.28;
+}
+[data-halo-orb] [data-halo-core] {
+  inset: 24%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    #fff 0%,
+    color-mix(in srgb, var(--halo-color) 50%, #fff) 30%,
+    var(--halo-color) 76%
+  );
+  box-shadow: 0 0 4px color-mix(in srgb, var(--halo-color) 70%, transparent);
+}
+[data-halo-orb] [data-halo-pulse] {
+  border: 1.5px solid var(--halo-color);
+  opacity: 0;
+}
+[data-halo-orb] [data-halo-check] {
+  position: absolute;
+  inset: 22%;
+  width: 56%;
+  height: 56%;
+  color: var(--primary-foreground);
+}
+
+[data-halo-orb][data-state="working"] [data-halo-ring] {
+  opacity: 0.9;
+  animation: halo-spin 2.2s linear infinite;
+}
+[data-halo-orb][data-state="working"] [data-halo-glow] {
+  opacity: 0.36;
+}
+[data-halo-orb][data-state="working"] [data-halo-core] {
+  animation: halo-breathe 4s ease-in-out infinite;
+}
+[data-halo-orb][data-state="thinking"] [data-halo-ring] {
+  opacity: 1;
+  animation: halo-spin 1.1s linear infinite;
+}
+[data-halo-orb][data-state="thinking"] [data-halo-glow] {
+  opacity: 0.45;
+}
+[data-halo-orb][data-state="thinking"] [data-halo-core] {
+  animation: halo-swirl 1.6s ease-in-out infinite;
+}
+[data-halo-orb]:is([data-state="approval"], [data-state="input"]) [data-halo-ring] {
+  opacity: 1;
+  animation: halo-spin 4.5s linear infinite;
+}
+[data-halo-orb]:is([data-state="approval"], [data-state="input"]) [data-halo-glow] {
+  opacity: 0.62;
+}
+[data-halo-orb]:is([data-state="approval"], [data-state="input"]) [data-halo-core] {
+  inset: 18%;
+  animation: halo-breathe 1.5s ease-in-out infinite;
+}
+[data-halo-orb]:is([data-state="approval"], [data-state="input"]) [data-halo-pulse] {
+  animation: halo-pulse 1.5s ease-out infinite;
+}
+[data-halo-orb][data-state="error"] [data-halo-ring] {
+  opacity: 0.6;
+}
+[data-halo-orb][data-state="done"] [data-halo-ring] {
+  opacity: 0;
+}
+[data-halo-orb][data-state="done"] [data-halo-glow] {
+  opacity: 0.14;
+}
+[data-halo-orb][data-state="done"] [data-halo-core] {
+  inset: 6%;
+  background: var(--halo-color);
+  box-shadow: none;
+}
+
+/* After every `animation` shorthand, which would otherwise reset play-state to running. */
+[data-halo-orb][data-state] > i:is([data-halo-ring], [data-halo-core], [data-halo-pulse]) {
+  animation-play-state: var(--visible-animation-state, paused);
+  will-change: var(--visible-animation-will-change, auto);
+}
+
+@keyframes halo-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@keyframes halo-breathe {
+  0%,
+  100% {
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+@keyframes halo-swirl {
+  0%,
+  100% {
+    transform: scale(0.86) rotate(0);
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+  }
+}
+@keyframes halo-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+/* Thinking pill: a 5x3 LED matrix whose columns light in a sweep. */
+[data-halo-led] > i {
+  width: 3px;
+  height: 3px;
+  border-radius: 1px;
+  background: var(--ring);
+  opacity: 0.18;
+}
+[data-halo-thinking] [data-halo-led] > i {
+  animation: halo-led 1.2s steps(6) infinite;
+  animation-play-state: var(--visible-animation-state, paused);
+}
+[data-halo-led] > i:nth-child(5n + 2) {
+  animation-delay: 120ms;
+}
+[data-halo-led] > i:nth-child(5n + 3) {
+  animation-delay: 240ms;
+}
+[data-halo-led] > i:nth-child(5n + 4) {
+  animation-delay: 360ms;
+}
+[data-halo-led] > i:nth-child(5n) {
+  animation-delay: 480ms;
+}
+@keyframes halo-led {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-orb] > i,
+  [data-halo-led] > i {
+    animation: none !important;
+  }
+  /* Static lit pattern: the center column. */
+  [data-halo-led] > i:nth-child(5n + 3) {
+    opacity: 1;
+  }
+}
+
+/* Agent trail: a vertical line through the work-row icons, broken around each icon node. */
+html[data-theme-id="liquid-halo"] [data-work-entry-id]:not(:has([aria-expanded="true"]))::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(0.125rem + 0.75rem - 0.5px);
+  width: 1px;
+  background: linear-gradient(var(--border) 0 2px, transparent 2px 22px, var(--border) 22px);
+  pointer-events: none;
+}

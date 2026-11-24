@@ -12,6 +12,7 @@ import {
   EMBER_THEME,
   GROVE_THEME,
   IRIS_THEME,
+  LIQUID_HALO_THEME,
   OCEAN_THEME,
   T3_CHAT_THEME,
   T3_CODE_LIGHT_THEME_COLORS,
@@ -36,7 +37,15 @@ import { applyThemeBackground } from "./themeBackground";
 import { applyThemeCss } from "./themeCss";
 import { themeServerEnvironmentThemesAtom } from "./state/server";
 
-export { EMBER_THEME, GROVE_THEME, IRIS_THEME, OCEAN_THEME, T3_CHAT_THEME, THEME_COLOR_ROLES };
+export {
+  EMBER_THEME,
+  GROVE_THEME,
+  IRIS_THEME,
+  LIQUID_HALO_THEME,
+  OCEAN_THEME,
+  T3_CHAT_THEME,
+  THEME_COLOR_ROLES,
+};
 export type { ThemeAppearance, ThemeColorRole, ThemeColors, ThemeDefinition, ThemeVariants };
 
 const T3_CHAT_THEME_ID = "t3-chat" as const;
@@ -1242,6 +1251,15 @@ export function themeAllowsSidebarArtwork(theme: ThemePreference): boolean {
   const themeId = themeIdFromPreference(theme);
   return (
     BUILT_IN_THEME_DEFINITIONS.find((definition) => definition.id === themeId)?.sidebarArtwork ===
+    true
+  );
+}
+
+/** Built-in only, like sidebar artwork: a copied or imported theme cannot switch on app behavior. */
+export function themeEnablesHaloExperience(theme: ThemePreference): boolean {
+  const themeId = themeIdFromPreference(theme);
+  return (
+    BUILT_IN_THEME_DEFINITIONS.find((definition) => definition.id === themeId)?.haloExperience ===
     true
   );
 }

@@ -77,6 +77,22 @@ export const THEME_CSS_HOOKS = [
   { selector: ".composer-tiptap", styles: "composer text" },
   { selector: "[data-thread-details-card]", styles: "thread details card" },
   { selector: "[data-thread-terminal-drawer]", styles: "terminal drawer" },
+  {
+    selector: "[data-terminal-drawer-frame]",
+    styles: "terminal drawer frame; animates grid-template-rows on open",
+  },
+  { selector: "[data-right-panel-shell]", styles: "right panel; animates width on open" },
+  { selector: '[data-slot="sidebar-gap"]', styles: "sidebar spacer; animates width" },
+  {
+    selector: '[data-slot="sidebar-container"]',
+    styles: "fixed sidebar frame; animates left, right, and width",
+  },
+  { selector: "[data-approval-card]", styles: "pending approval in the chat" },
+  { selector: "[data-command-palette]", styles: "command palette dialog" },
+  {
+    selector: '[data-slot="toast-viewport"]',
+    styles: "toast area; --toast-footer-offset lifts bottom toasts, its children are toasts",
+  },
   { selector: "[data-settings-page-scroll]", styles: "settings page" },
   { selector: '[data-slot="button"]', styles: "button" },
   { selector: '[data-slot="input"]', styles: "text input" },

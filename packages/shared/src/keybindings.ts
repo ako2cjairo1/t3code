@@ -110,6 +110,12 @@ export const DEFAULT_KEYBINDINGS: ReadonlyArray<KeybindingRule> = [
     command: "composer.sendAndNewThread",
     when: "composerFocus && !draftThreadRoute",
   },
+  // Liquid Halo only; ChatView also approves from composer.sendAlternate for configs saved before this.
+  {
+    key: "mod+enter",
+    command: "thread.approve",
+    when: "approvalPending && haloExperience && (!editableFocus || composerEmpty)",
+  },
   { key: "mod+n", command: "chat.new", when: "!terminalFocus" },
   { key: "mod+shift+o", command: "chat.new", when: "!terminalFocus" },
   { key: "mod+shift+n", command: "chat.newLocal", when: "!terminalFocus" },

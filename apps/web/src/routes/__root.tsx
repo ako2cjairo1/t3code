@@ -42,6 +42,7 @@ import { StandalonePage, StandalonePageHeader } from "../components/ui/standalon
 import { AnchoredToastProvider, ToastProvider } from "../components/ui/toast";
 import { isElectron } from "../env";
 import { useClientSettings } from "../hooks/useSettings";
+import { useHaloExperience } from "../hooks/useHaloExperience";
 import {
   deriveLogicalProjectKeyFromSettings,
   derivePhysicalProjectKeyFromPath,
@@ -139,8 +140,9 @@ function RootRouteNotFoundView() {
 function RootRouteView() {
   // Above every branch: app services raise toasts for the whole page, so the surface they write to
   // must not unmount when the root switches branches (for example /welcome to the app shell).
+  const toastPosition = useHaloExperience() ? "bottom-right" : "top-right";
   return (
-    <ToastProvider>
+    <ToastProvider position={toastPosition}>
       <AnchoredToastProvider>
         <RootRouteBranch />
       </AnchoredToastProvider>

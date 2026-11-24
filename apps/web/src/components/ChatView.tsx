@@ -175,6 +175,8 @@ import { useWorkspaceRevision } from "../hooks/useWorkspaceRevision";
 import { DEFAULT_INTERACTION_MODE, type ChatMessage } from "../types";
 import { buildThreadRouteParams } from "../threadRoutes";
 import { useTheme } from "../hooks/useTheme";
+import { useHaloExperience } from "../hooks/useHaloExperience";
+import { approvalRequestForShortcut } from "./chat/approvalShortcut";
 import { copyThreadReference } from "../lib/copyThreadReference";
 import { subscribeSnapShotComposerFocus } from "../lib/desktopSnapShot";
 import { useMediaQuery } from "../hooks/useMediaQuery";
@@ -639,6 +641,7 @@ export default function ChatView(props: ChatViewProps) {
   useSideChatCitationReveal(embedded ? null : routeThreadRef, locationCitation, citationActivation);
   const citationHistory = useCitedHistory(citationRequest);
   const { resolvedTheme } = useTheme();
+  const haloExperience = useHaloExperience();
   const composerRuntimeMode = useComposerDraftStore(
     (store) => store.getComposerDraft(composerDraftTarget)?.runtimeMode ?? null,
   );
@@ -2912,6 +2915,8 @@ export default function ChatView(props: ChatViewProps) {
       !composerHasNonPromptContent &&
       promptRef.current.trim().length === 0,
     composerRequiresModifier: composerRequiresModifier(settings.sendShortcut, promptRef.current),
+    approvalPending: activePendingApproval !== null,
+    haloExperience,
     isWeb: !isElectron,
     isDesktop: isElectron,
   });
@@ -2926,6 +2931,18 @@ export default function ChatView(props: ChatViewProps) {
       openThreadFind(activeThreadKey);
     }
   });
+
+  const approveByShortcut = ({ event }: { readonly event: KeyboardEvent }) => {
+    const requestId = approvalRequestForShortcut({
+      haloExperience,
+      approval: activePendingApproval,
+      canOperateThread,
+      respondingRequestIds,
+      repeat: event.repeat,
+    });
+    if (requestId === null) return false;
+    void onRespondToApprovalStable(requestId, "accept");
+  };
 
   useChatShortcuts({
     enabled: activeThreadId !== null && !backgroundThread,
@@ -2969,6 +2986,10 @@ export default function ChatView(props: ChatViewProps) {
         routeKind !== "draft" &&
         composerRef.current?.isCaretAtStart() === true &&
         queuedRunsControlRef.current?.editLatest(event.repeat) === true,
+      "thread.approve": approveByShortcut,
+      // A keybindings file saved before thread.approve keeps Mod+Enter here; only an empty composer approves.
+      "composer.sendAlternate": (context) =>
+        getShortcutContext(context.event.target).composerEmpty && approveByShortcut(context),
       "thread.stop": ({ event }) => {
         if (!canInterruptRunningThread) return false;
         if (!event.repeat) void onInterruptStable();

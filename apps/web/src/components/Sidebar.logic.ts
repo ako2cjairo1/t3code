@@ -641,7 +641,19 @@ export function buildBulkUnpinContextMenuItem(input: {
   return { id: "unpin", label: m(msg("Unpin ({count})", { count: input.pinnedCount })) };
 }
 
+export type ThreadStatusKind =
+  | "approval"
+  | "input"
+  | "guest"
+  | "working"
+  | "connecting"
+  | "waiting"
+  | "failed"
+  | "plan-ready"
+  | "completed";
+
 export interface ThreadStatusPill {
+  kind: ThreadStatusKind;
   /** A `msg()` string; render it through `useMessages()`. */
   label: string;
   colorClass: string;
@@ -1237,6 +1249,7 @@ export function resolveThreadStatusPill(input: {
 
   if (thread.hasPendingApprovals || thread.pendingSubagentRequest === "approval") {
     return {
+      kind: "approval",
       label: msg("Pending Approval"),
       colorClass: "text-amber-600 dark:text-amber-300/90",
       dotClass: "bg-amber-500 dark:bg-amber-300/90",
@@ -1246,6 +1259,7 @@ export function resolveThreadStatusPill(input: {
 
   if (thread.hasPendingUserInput || thread.pendingSubagentRequest === "user_input") {
     return {
+      kind: "input",
       label: msg("Awaiting Input"),
       colorClass: "text-indigo-600 dark:text-indigo-300/90",
       dotClass: "bg-indigo-500 dark:bg-indigo-300/90",
@@ -1255,6 +1269,7 @@ export function resolveThreadStatusPill(input: {
 
   if ((thread.pendingGuestMessageCount ?? 0) > 0) {
     return {
+      kind: "guest",
       label: msg("Guest Request"),
       colorClass: "text-guest-foreground",
       dotClass: "bg-guest",
@@ -1267,6 +1282,7 @@ export function resolveThreadStatusPill(input: {
     thread.runtime?.status === "waiting"
   ) {
     return {
+      kind: "working",
       label: msg("Working"),
       colorClass: "text-sky-600 dark:text-sky-300/80",
       dotClass: "bg-sky-500 dark:bg-sky-300/80",
@@ -1280,6 +1296,7 @@ export function resolveThreadStatusPill(input: {
     thread.runtime?.status === "queued"
   ) {
     return {
+      kind: "connecting",
       label: msg("Connecting"),
       colorClass: "text-sky-600 dark:text-sky-300/80",
       dotClass: "bg-sky-500 dark:bg-sky-300/80",
@@ -1287,7 +1304,8 @@ export function resolveThreadStatusPill(input: {
     };
   }
 
-  const waiting = {
+  const waiting: ThreadStatusPill = {
+    kind: "waiting",
     label: msg("Waiting"),
     colorClass: "text-sidebar-muted-foreground",
     dotClass: "bg-sidebar-muted-foreground",
@@ -1298,6 +1316,7 @@ export function resolveThreadStatusPill(input: {
   // A failed run goes to the inbox even while background work holds the thread.
   if (hasUnseenRunFailure(thread)) {
     return {
+      kind: "failed",
       label: msg("Failed"),
       colorClass: "text-red-600 dark:text-red-300/90",
       dotClass: "bg-red-500 dark:bg-red-300/90",
@@ -1314,6 +1333,7 @@ export function resolveThreadStatusPill(input: {
     thread.hasActionableProposedPlan;
   if (hasPlanReadyPrompt) {
     return {
+      kind: "plan-ready",
       label: msg("Plan Ready"),
       colorClass: "text-violet-600 dark:text-violet-300/90",
       dotClass: "bg-violet-500 dark:bg-violet-300/90",
@@ -1323,6 +1343,7 @@ export function resolveThreadStatusPill(input: {
 
   if (hasUnseenCompletion(thread)) {
     return {
+      kind: "completed",
       label: msg("Completed"),
       colorClass: "text-emerald-600 dark:text-emerald-300/90",
       dotClass: "bg-emerald-500 dark:bg-emerald-300/90",

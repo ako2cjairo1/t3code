@@ -54,6 +54,7 @@ export const TimelinePendingApprovalRow = memo(function TimelinePendingApprovalR
       role="group"
       aria-label={m(presentation.label)}
       data-v2-item-type="approval_request"
+      data-approval-card="pending"
       wrapLabel
       icon={
         <ToolActivityIconView

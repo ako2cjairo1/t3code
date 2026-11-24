@@ -39,6 +39,9 @@ import type { ExpandedImagePreview } from "./ExpandedImagePreview";
 import { workGroupImageGallery } from "./markdownImageGallery";
 import { McpSignInAction } from "./McpSignInAction";
 import * as DateTime from "effect/DateTime";
+import { formatDuration } from "@t3tools/shared/orchestrationTimingCopy";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { turnItemDurationMs } from "../halo/halo.logic";
 import { ChevronRightIcon, CircleAlertIcon, XIcon, RotateCcwIcon } from "lucide-react";
 import { Button, InlineButton } from "../ui/button";
 import { useAssetUrls } from "../../assets/assetUrls";
@@ -289,6 +292,9 @@ function WorkEntryLogRow(props: WorkEntryRowProps) {
   const { threadRef, onImageExpand, timestampFormat } = ctx;
   const { retryableWorkspacePreparationRunIds, onRetryWorkspacePreparation } = ctx;
   const threadTarget = useThreadReadTarget(workEntry, ctx.activeThreadEnvironmentId);
+  const halo = useHaloExperience();
+  const stepDurationMs =
+    halo && workEntry.projectedItem ? turnItemDurationMs(workEntry.projectedItem.item) : null;
   const createdThread =
     workEntry.projectedItem?.item.type === "thread_created"
       ? workEntry.projectedItem.item
@@ -633,6 +639,11 @@ function WorkEntryLogRow(props: WorkEntryRowProps) {
               createdAt={workEntry.createdAt}
               timestampFormat={timestampFormat}
             />
+          ) : null}
+          {stepDurationMs !== null ? (
+            <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+              {formatDuration(stepDurationMs, m)}
+            </span>
           ) : null}
           {createdThread ? (
             <button
