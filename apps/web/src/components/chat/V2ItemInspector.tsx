@@ -24,6 +24,9 @@ import { Button } from "../ui/button";
 import ChatMarkdown from "../ChatMarkdown";
 import { ChatMarkdownAssetImage } from "./ChatMarkdownMedia";
 import { RenderErrorBoundary } from "../RenderErrorBoundary";
+import * as DateTime from "effect/DateTime";
+import { turnItemDurationMs } from "../halo/halo.logic";
+import { HaloTestRunOutput } from "../halo/HaloTestRunCard";
 import { CommandOutputPanel, useCommandOutputStreaming } from "./CommandOutputPanel";
 import { resolveExternalWebLinkHref } from "./externalLinkContextMenu";
 import type { ExpandedImagePreview } from "./ExpandedImagePreview";
@@ -289,8 +292,24 @@ export const V2ItemInspector = memo(function V2ItemInspector(props: V2ItemInspec
                 threadId={props.projectedItem.sourceThreadId}
                 itemId={props.projectedItem.sourceItemId}
                 source={props.source?.commandOutput}
+                command={item.input}
+                exitCode={item.exitCode}
+                startedAt={item.startedAt === null ? null : DateTime.formatIso(item.startedAt)}
+                settledMs={turnItemDurationMs(item)}
               />
-            ) : undefined
+            ) : (
+              <HaloTestRunOutput
+                command={item.input}
+                output={outputState.output}
+                running={item.status === "running" || item.status === "pending"}
+                exitCode={item.exitCode}
+                startedAt={item.startedAt === null ? null : DateTime.formatIso(item.startedAt)}
+                settledMs={turnItemDurationMs(item)}
+                environmentId={props.environmentId}
+              >
+                <ToolOutput {...outputState} onImageExpand={props.onImageExpand} />
+              </HaloTestRunOutput>
+            )
           }
         />
       ) : null}

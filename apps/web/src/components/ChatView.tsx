@@ -80,7 +80,9 @@ import {
   type MessageId,
   type ModelSelection,
   type PreviewAnnotationPayload,
+  type ProviderApprovalDecision,
   ProviderInstanceId,
+  type RuntimeRequestId,
   type ServerProvider,
   type ScopedThreadRef,
   type ThreadId,
@@ -325,6 +327,8 @@ import { useRemoteOpenState } from "~/remoteOpen";
 import { shouldShowOpenInPicker } from "./chat/OpenInPicker.logic";
 import { useOpenFavoriteEditorShortcut } from "./chat/OpenInPickerShortcut";
 import { HaloPanelLayoutControls } from "./halo/HaloOverflowMenu";
+import { haloDeclineAskBannerItem } from "./halo/HaloDeclineAskBanner";
+import { haloDeclineAskVisible, type HaloDeclineAsk } from "./halo/haloDeclineAsk.logic";
 import {
   type PanelLayoutControlsProps,
   RightPanelMaximizeControl,
@@ -1981,6 +1985,29 @@ export default function ChatView(props: ChatViewProps) {
 
   const { focusComposer: focusComposerStable, scheduleComposerFocus: scheduleComposerFocusStable } =
     useComposerFocus(composerRef);
+  // Liquid Halo: a declined approval asks how to proceed from the composer.
+  const [haloDeclineAsk, setHaloDeclineAsk] = useState<HaloDeclineAsk | null>(null);
+  const respondToApprovalFromTimeline = async (
+    requestId: RuntimeRequestId,
+    decision: ProviderApprovalDecision,
+  ) => {
+    const result = await onRespondToApprovalStable(requestId, decision);
+    if (
+      haloExperience &&
+      decision === "decline" &&
+      result?._tag === "Success" &&
+      activeThreadKey !== null
+    ) {
+      setHaloDeclineAsk({ threadKey: activeThreadKey, runId: activeLatestRun?.runId ?? null });
+      focusComposerStable();
+    }
+    return result;
+  };
+  const respondToApprovalFromTimelineStable = useStableCallback(respondToApprovalFromTimeline);
+  const replyToHaloDeclineAskStable = useStableCallback((text: string) => {
+    composerRef.current?.insertTextAtEnd(text, { ensureLeadingBoundary: true });
+    focusComposerStable();
+  });
   const canInterruptRunningThread =
     canOperateThread && deriveCanInterruptRunningThread(activeThread !== undefined, activeRuntime);
   const onInterrupt = async () => {
@@ -2773,6 +2800,22 @@ export default function ChatView(props: ChatViewProps) {
     messages,
   );
   const composerBannerItems = (() => {
+    const haloDeclineAskItems = haloDeclineAskVisible(haloDeclineAsk, {
+      haloExperience,
+      threadKey: activeThreadKey,
+      runId: activeLatestRun?.runId ?? null,
+      approvalPending: activePendingApproval !== null,
+    })
+      ? [
+          haloDeclineAskBannerItem(
+            {
+              onReply: replyToHaloDeclineAskStable,
+              onDismiss: () => setHaloDeclineAsk(null),
+            },
+            messages,
+          ),
+        ]
+      : [];
     const fallbackSelection = draftFallback?.selection;
     const defaultSelection =
       draftDefaultModelSelection ??
@@ -2850,6 +2893,7 @@ export default function ChatView(props: ChatViewProps) {
         ...usageLimitsItems,
         ...projectCloneItems,
         ...freshSessionItems,
+        ...haloDeclineAskItems,
         ...heldSendItems,
         ...systemComposerBannerItems,
       ];
@@ -2862,6 +2906,7 @@ export default function ChatView(props: ChatViewProps) {
       ...usageLimitsItems,
       ...projectCloneItems,
       ...freshSessionItems,
+      ...haloDeclineAskItems,
       ...heldSendItems,
       ...systemComposerBannerItems,
       branchMismatchBannerItem(
@@ -3234,7 +3279,10 @@ export default function ChatView(props: ChatViewProps) {
     });
   };
   const onWorktreeSetupWorkLocallyStable = useStableCallback(onWorktreeSetupWorkLocally);
-  const onComposerSendStable = useStableCallback(onSend);
+  const onComposerSendStable = useStableCallback((...args: Parameters<typeof onSend>) => {
+    setHaloDeclineAsk(null);
+    return onSend(...args);
+  });
   const sendPreviewAnnotation = (
     annotation: PreviewAnnotationPayload,
     image: ComposerImageAttachment | null,
@@ -3671,7 +3719,7 @@ export default function ChatView(props: ChatViewProps) {
                   pendingApprovals={pendingApprovals}
                   heldApprovalRequestIds={heldApprovalRequestIds}
                   respondingRequestIds={respondingRequestIds}
-                  onRespondToApproval={onRespondToApprovalStable}
+                  onRespondToApproval={respondToApprovalFromTimelineStable}
                   canOperateThread={canOperateThread}
                   threadDetailRef={routeThreadDetailRef}
                   entriesInput={timelineEntriesInput}

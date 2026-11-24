@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useEnvironmentScope } from "../../state/session";
 import { childThreadApprovalsAtom, threadEnvironment } from "../../state/threads";
 import { useAtomCommand } from "../../state/use-atom-command";
+import { HaloThreadFleet } from "../halo/graph/HaloGraphStage";
 import { ComposerPendingApprovalActions } from "./ComposerPendingApprovalActions";
 
 function ChildApproval({ entry }: { entry: ChildThreadApproval }) {
@@ -86,19 +87,23 @@ function ChildApproval({ entry }: { entry: ChildThreadApproval }) {
 
 export function ChildThreadApprovals({ threadRef }: { threadRef: ScopedThreadRef | null }) {
   const approvals = useAtomValue(childThreadApprovalsAtom(threadRef));
-  if (approvals.length === 0) return null;
   return (
-    <div className="mb-2 flex max-h-80 flex-col gap-2 overflow-auto">
-      {approvals.map((entry) => (
-        <ChildApproval
-          key={JSON.stringify([
-            entry.thread.environmentId,
-            entry.thread.threadId,
-            entry.approval.requestId,
-          ])}
-          entry={entry}
-        />
-      ))}
-    </div>
+    <>
+      <HaloThreadFleet threadRef={threadRef} />
+      {approvals.length === 0 ? null : (
+        <div className="mb-2 flex max-h-80 flex-col gap-2 overflow-auto">
+          {approvals.map((entry) => (
+            <ChildApproval
+              key={JSON.stringify([
+                entry.thread.environmentId,
+                entry.thread.threadId,
+                entry.approval.requestId,
+              ])}
+              entry={entry}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 }

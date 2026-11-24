@@ -12852,5 +12852,20 @@
   "0ae36cce53bbca5f": "View",
   "d3a545c8973a9d73": "Thread",
   "790f1f0e7e9eab9e": "Inbox",
-  "505c62fac140e7cd": "Trace"
+  "505c62fac140e7cd": "Trace",
+  "f99cc6a043c05c3a": "Try a different approach",
+  "ad793cbc134048bf": "Explain the change first",
+  "a6d8b3b4fc2d5052": "Stop here",
+  "d49d02022b8d804b": "You declined, so the agent stopped",
+  "5a990a4e959fb283": "How should it proceed?",
+  "bfb4d6c0899ca814": "Running tests",
+  "61b4eb004afeddb5": "{count, plural, one {# test failed} other {# tests failed}}",
+  "257442b387e4b9ae": "All {count} passed",
+  "a031783a9de8cda6": "{count, plural, one {# file} other {# files}}",
+  "4e36b14381bc0a80": "+{count} more files",
+  "621e91705ae1e354": "{count} passed",
+  "89bb4ae50b1bb4c2": "of {count}",
+  "7bb7da1a192254e8": "Hide output",
+  "3f5636e095cddf39": "Show output",
+  "1291d2d26dff3d25": "Fleet"
 }

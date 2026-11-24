@@ -12843,5 +12843,20 @@
   "0ae36cce53bbca5f": "Vue",
   "d3a545c8973a9d73": "Fil",
   "790f1f0e7e9eab9e": "Boîte de réception",
-  "505c62fac140e7cd": "Trace"
+  "505c62fac140e7cd": "Trace",
+  "f99cc6a043c05c3a": "Essayer une autre approche",
+  "ad793cbc134048bf": "Expliquer d’abord la modification",
+  "a6d8b3b4fc2d5052": "S’arrêter ici",
+  "d49d02022b8d804b": "Vous avez refusé, l’agent s’est donc arrêté",
+  "5a990a4e959fb283": "Comment doit-il continuer ?",
+  "bfb4d6c0899ca814": "Exécution des tests",
+  "61b4eb004afeddb5": "{count, plural, one {# test a échoué} other {# tests ont échoué}}",
+  "257442b387e4b9ae": "Les {count} ont réussi",
+  "a031783a9de8cda6": "{count, plural, one {# fichier} other {# fichiers}}",
+  "4e36b14381bc0a80": "+{count} fichiers de plus",
+  "621e91705ae1e354": "{count} réussis",
+  "89bb4ae50b1bb4c2": "sur {count}",
+  "7bb7da1a192254e8": "Masquer la sortie",
+  "3f5636e095cddf39": "Afficher la sortie",
+  "1291d2d26dff3d25": "Flotte"
 }

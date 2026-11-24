@@ -12838,5 +12838,20 @@
   "0ae36cce53bbca5f": "Vista",
   "d3a545c8973a9d73": "Hilo",
   "790f1f0e7e9eab9e": "Bandeja",
-  "505c62fac140e7cd": "Traza"
+  "505c62fac140e7cd": "Traza",
+  "f99cc6a043c05c3a": "Probar otro enfoque",
+  "ad793cbc134048bf": "Explica primero el cambio",
+  "a6d8b3b4fc2d5052": "Detenerse aquí",
+  "d49d02022b8d804b": "Lo rechazaste, así que el agente se detuvo",
+  "5a990a4e959fb283": "¿Cómo debe continuar?",
+  "bfb4d6c0899ca814": "Ejecutando pruebas",
+  "61b4eb004afeddb5": "{count, plural, one {# prueba falló} other {# pruebas fallaron}}",
+  "257442b387e4b9ae": "Las {count} pasaron",
+  "a031783a9de8cda6": "{count, plural, one {# archivo} other {# archivos}}",
+  "4e36b14381bc0a80": "+{count} archivos más",
+  "621e91705ae1e354": "{count} superadas",
+  "89bb4ae50b1bb4c2": "de {count}",
+  "7bb7da1a192254e8": "Ocultar salida",
+  "3f5636e095cddf39": "Mostrar salida",
+  "1291d2d26dff3d25": "Flota"
 }

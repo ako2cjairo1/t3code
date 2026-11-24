@@ -2,13 +2,12 @@ import {
   deriveLatestContextWindowSnapshot,
   latestProviderTurnTokenUsage,
 } from "@t3tools/client-runtime/state/context-window";
-import { promptTitle } from "@t3tools/client-runtime/state/subagentRuntime";
 import {
   deriveThreadActivityRun,
   deriveThreadStructureRuntime,
 } from "@t3tools/client-runtime/state/thread-execution";
 import { deriveThreadTurnSubagents } from "@t3tools/client-runtime/state/thread-subagents";
-import type { OrchestrationV2Subagent, ScopedThreadRef } from "@t3tools/contracts";
+import type { ScopedThreadRef } from "@t3tools/contracts";
 import { formatDuration } from "@t3tools/shared/orchestrationTimingCopy";
 import { msg, useGT, useMessages } from "gt-react";
 import { AlertCircleIcon, CheckIcon, ChevronRightIcon, ShieldIcon } from "lucide-react";
@@ -30,6 +29,7 @@ import { formatWorkingTimerNow } from "../chat/TimelineWorkGroupRows.logic";
 import { ThreadDetailsContext, ThreadDetailsUsage } from "../chat/ThreadDetailsUsage";
 import { SidebarInset } from "../ui/sidebar";
 import { WorkspacePageHeader } from "../WorkspacePageHeader";
+import { HaloGraphStage } from "./graph/HaloGraphStage";
 import { resolveHaloOrbState } from "./halo.logic";
 import { HaloOrb, useHaloThreadPill } from "./HaloOrb";
 import { deriveHaloRunStages, type HaloRunStages, type HaloStageId } from "./haloStages.logic";
@@ -151,14 +151,20 @@ export function HaloTracePage({ threadRef }: { threadRef: ScopedThreadRef }) {
           <div className="flex min-w-0 flex-col gap-3">
             <HaloTraceCard title={gt("Stages", { $context: "run trace card" })}>
               <HaloStageBars stages={stages} />
-              {fleet ? (
-                <ul className="mt-4 flex flex-col gap-1.5">
-                  {fleet.subagents.map((subagent) => (
-                    <HaloFleetRow key={subagent.id} subagent={subagent} />
-                  ))}
-                </ul>
-              ) : null}
             </HaloTraceCard>
+            {fleet ? (
+              <HaloTraceCard title={gt("Fleet", { $context: "run trace card: subagent graph" })}>
+                <HaloGraphStage
+                  environmentId={environmentId}
+                  subagents={fleet.subagents}
+                  main={{
+                    state: resolveHaloOrbState(pill),
+                    label: shell?.title ?? "",
+                    detail: shell?.modelSelection.model ?? null,
+                  }}
+                />
+              </HaloTraceCard>
+            ) : null}
             <HaloTraceCard title={gt("Usage", { $context: "run trace card" })}>
               {shell ? (
                 <ThreadDetailsUsage
@@ -266,37 +272,5 @@ function HaloStageBars({ stages }: { stages: HaloRunStages }) {
         </li>
       ))}
     </ol>
-  );
-}
-
-function HaloFleetRow({ subagent }: { subagent: OrchestrationV2Subagent }) {
-  const gt = useGT();
-  const status = subagent.status;
-  const running = status === "running" || status === "pending" || status === "waiting";
-  const label = running
-    ? gt("Running", { $context: "subagent status" })
-    : status === "completed"
-      ? gt("Done", { $context: "subagent status" })
-      : status === "failed"
-        ? gt("Failed", { $context: "subagent status" })
-        : status === "idle"
-          ? gt("Idle", { $context: "subagent status" })
-          : gt("Stopped", { $context: "subagent status" });
-  return (
-    <li className="flex min-h-6 items-center gap-2 text-xs text-muted-foreground">
-      <span className="w-24 shrink-0 truncate font-medium text-foreground">
-        {subagent.title ?? promptTitle(subagent.prompt)}
-      </span>
-      <span className="truncate font-mono">{subagent.executedModel ?? subagent.model}</span>
-      <span
-        className={cn(
-          "ms-auto shrink-0 font-medium",
-          running && "text-info-foreground",
-          status === "failed" && "text-destructive-foreground",
-        )}
-      >
-        {label}
-      </span>
-    </li>
   );
 }

@@ -276,3 +276,40 @@ html[data-theme-id="liquid-halo"] [data-halo-page] {
     ),
     var(--background);
 }
+
+/* Graph stage: live wires flow from the main agent toward the subagent. */
+[data-halo-wire][data-live] {
+  stroke-dasharray: 4 6;
+  animation: halo-wire-flow 1.2s linear infinite;
+  animation-play-state: var(--visible-animation-state, paused);
+}
+@keyframes halo-wire-flow {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-wire] {
+    animation: none;
+  }
+}
+
+/* Test-run card: the cell of the test in flight pulses while its card is visible. */
+[data-halo-test-cell="running"] {
+  animation: halo-cell-shimmer 1.2s ease-in-out infinite;
+  animation-play-state: var(--visible-animation-state, paused);
+}
+@keyframes halo-cell-shimmer {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-test-cell="running"] {
+    animation: none;
+  }
+}

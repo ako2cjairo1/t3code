@@ -12843,5 +12843,20 @@
   "0ae36cce53bbca5f": "Visualização",
   "d3a545c8973a9d73": "Thread",
   "790f1f0e7e9eab9e": "Caixa de entrada",
-  "505c62fac140e7cd": "Trace"
+  "505c62fac140e7cd": "Trace",
+  "f99cc6a043c05c3a": "Tentar outra abordagem",
+  "ad793cbc134048bf": "Explicar a mudança primeiro",
+  "a6d8b3b4fc2d5052": "Parar aqui",
+  "d49d02022b8d804b": "Você recusou, então o agente parou",
+  "5a990a4e959fb283": "Como ele deve prosseguir?",
+  "bfb4d6c0899ca814": "Executando testes",
+  "61b4eb004afeddb5": "{count, plural, one {# teste falhou} other {# testes falharam}}",
+  "257442b387e4b9ae": "Todos os {count} passaram",
+  "a031783a9de8cda6": "{count, plural, one {# arquivo} other {# arquivos}}",
+  "4e36b14381bc0a80": "+{count} arquivos",
+  "621e91705ae1e354": "{count} aprovados",
+  "89bb4ae50b1bb4c2": "de {count}",
+  "7bb7da1a192254e8": "Ocultar saída",
+  "3f5636e095cddf39": "Mostrar saída",
+  "1291d2d26dff3d25": "Frota"
 }

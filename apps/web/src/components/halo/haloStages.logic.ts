@@ -74,7 +74,7 @@ const COMMAND_TOOL_NAMES = new Set(["bash", "shell", "exec", "run_command", "ter
 // Matched at the start of each command segment, so `rg "git commit"` stays a read.
 const COMMIT_COMMAND = /^(?:git\s+(?:commit|push)|gh\s+pr\s+create|jj\s+(?:commit|git\s+push))\b/;
 const TEST_COMMAND =
-  /^(?:(?:npx|pnpx|bunx|pnpm\s+exec|yarn\s+exec)\s+)?(?:vitest|jest|mocha|ava|playwright\s+test|cypress\s+run|pytest|py\.test|tox|nox|phpunit|rspec|go\s+test|cargo\s+(?:test|nextest)|deno\s+test|swift\s+test|dotnet\s+test|mix\s+test|ctest|(?:mvn|\.\/mvnw)\s+(?:\S+\s+)*test|(?:gradle|\.\/gradlew)\s+(?:\S+\s+)*test|(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?test(?::\S+)?|(?:vp|\S*\/vp)\s+(?:run\s+)?test|python3?\s+-m\s+(?:pytest|unittest))\b/;
+  /^(?:(?:npx|pnpx|bunx|pnpm\s+exec|yarn\s+exec)\s+)?(?:vitest|jest|mocha|ava|playwright\s+test|cypress\s+run|pytest|py\.test|tox|nox|phpunit|rspec|go\s+test|cargo\s+(?:test|nextest)|deno\s+test|swift\s+test|dotnet\s+test|mix\s+test|ctest|(?:mvn|\.\/mvnw)\s+(?:\S+\s+)*test|(?:gradle|\.\/gradlew)\s+(?:\S+\s+)*test|(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?test(?::\S+)?|(?:vp|\S*\/vp)\s+(?:run\s+)?test|node\s+(?:\S+\s+)*--test|python3?\s+-m\s+(?:pytest|unittest))\b/;
 const READ_COMMAND =
   /^(?:cat|head|tail|less|ls|tree|find|fd|rg|grep|ag|sed\s+-n|wc|file|stat|pwd|git\s+(?:status|diff|log|show|blame|grep|branch))\b/;
 const ENV_ASSIGNMENT = /^(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)+/;
@@ -90,6 +90,11 @@ function commandSegments(command: string): string[] {
         .replace(ENV_ASSIGNMENT, ""),
     )
     .filter((segment) => segment.length > 0 && !/^cd(?:\s|$)/.test(segment));
+}
+
+/** Whether any segment of a shell command runs a test runner. */
+export function isHaloTestCommand(command: string): boolean {
+  return commandSegments(command).some((segment) => TEST_COMMAND.test(segment));
 }
 
 /** Commit beats Test beats Plan, so `vitest && git commit` counts as a commit. */

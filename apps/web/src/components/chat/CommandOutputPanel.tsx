@@ -6,6 +6,7 @@ import { useLayoutEffect, useRef } from "react";
 
 import { useTheme } from "../../hooks/useTheme";
 import { useServerConfigs } from "../../state/entities";
+import { HaloTestRunOutput } from "../halo/HaloTestRunCard";
 import { orchestrationEnvironment } from "../../state/orchestration";
 import { useEnvironmentQuery } from "../../state/query";
 import { useInitialOutputReady, type TurnItemSource } from "./timelineRowContext";
@@ -30,6 +31,11 @@ export function CommandOutputPanel(props: {
   readonly threadId: ThreadId;
   readonly itemId: TurnItemId;
   readonly source?: TurnItemSource["commandOutput"] | undefined;
+  /** The command line, for the Liquid Halo test-run card. */
+  readonly command?: string | undefined;
+  readonly exitCode?: number | undefined;
+  readonly startedAt?: string | null;
+  readonly settledMs?: number | null;
 }) {
   const input = { threadId: props.threadId, itemId: props.itemId };
   const { data, error } = useEnvironmentQuery<CommandOutputView, unknown>(
@@ -74,7 +80,7 @@ export function CommandOutputPanel(props: {
   }
   // Parse after all hooks to preserve the text/theme compiler cache.
   const spans = terminalOutputSpans(text, TERMINAL_PALETTES[resolvedTheme]);
-  return (
+  const raw = (
     <div
       ref={scrollRef}
       onScroll={(event) => {
@@ -101,5 +107,18 @@ export function CommandOutputPanel(props: {
         ),
       )}
     </div>
+  );
+  return (
+    <HaloTestRunOutput
+      command={props.command}
+      output={text}
+      running={data?.running ?? true}
+      exitCode={props.exitCode}
+      startedAt={props.startedAt ?? null}
+      settledMs={props.settledMs ?? null}
+      environmentId={props.environmentId}
+    >
+      {raw}
+    </HaloTestRunOutput>
   );
 }
