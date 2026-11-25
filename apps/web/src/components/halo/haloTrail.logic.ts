@@ -1,3 +1,6 @@
+import type { MessagesTimelineRow } from "../chat/MessagesTimeline.logic";
+import { workEntryDisplayIndicatesToolFailure } from "../../session-logic";
+
 /** Timeline row kinds that sit inside Liquid Halo's "Agent trail" card. Thinking stays outside. */
 const TRAIL_KINDS = new Set(["work", "work-live", "work-toggle"]);
 
@@ -35,4 +38,35 @@ export function haloTrailSlots(
     }
     return { position, head };
   });
+}
+
+export type HaloTrailStepState = "active" | "wait" | "bad" | "stopped" | "note" | "done";
+
+/** A row's node on the trail; null for expanded tool lists, which carry only the connector. */
+export function haloTrailStepState(
+  row: MessagesTimelineRow,
+  pendingApprovals: ReadonlyMap<string, unknown>,
+): HaloTrailStepState | null {
+  if (row.kind === "work-live") return row.active ? "active" : "done";
+  if (row.kind === "work-toggle") return row.hasFailure ? "bad" : row.stopped ? "stopped" : "done";
+  if (row.kind !== "work" || row.isExpandedToolGroup) return null;
+  const entries = row.groupedEntries;
+  if (
+    entries.some((entry) => {
+      const item = entry.projectedItem?.item;
+      return item?.type === "approval_request" && pendingApprovals.has(item.requestId);
+    })
+  )
+    return "wait";
+  if (
+    entries.some(
+      (entry) =>
+        entry.sourceActivityKind === "runtime.error" || workEntryDisplayIndicatesToolFailure(entry),
+    )
+  )
+    return "bad";
+  // A runtime warning isn't a step the agent finished; it keeps the plain hollow node.
+  if (entries.some((entry) => entry.sourceActivityKind === "runtime.warning")) return "note";
+  // A step the user's Stop cut short; tools that finished before it stay done.
+  return entries.some((entry) => entry.toolLifecycleStatus === "stopped") ? "stopped" : "done";
 }

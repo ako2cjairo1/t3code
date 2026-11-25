@@ -585,10 +585,17 @@ const ConversationTimeline = memo(function ConversationTimeline({
     });
   };
   const onToggleWorkGroup = (groupId: string, anchorKey: string) => {
+    const expanding = !expandedWorkGroupIds.has(groupId);
     preserveDisclosurePosition(
       anchorKey,
-      expandedWorkGroupIds.has(groupId) ? undefined : { contentKey: `${groupId}:details` },
+      expanding ? { contentKey: `${groupId}:details` } : undefined,
     );
+    // Marks only this user-driven insertion, so rows virtualized back into view never fade.
+    if (expanding && timelineViewportElement) {
+      const viewport = timelineViewportElement;
+      viewport.dataset.timelineExpanding = "";
+      window.setTimeout(() => delete viewport.dataset.timelineExpanding, 400);
+    }
     setExpandedWorkGroupIds((existing) => {
       const next = new Set(existing);
       if (next.has(groupId)) {

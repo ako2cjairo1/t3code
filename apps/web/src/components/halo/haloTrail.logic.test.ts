@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
-import { haloTrailSlots } from "./haloTrail.logic";
+import type { MessagesTimelineRow } from "../chat/MessagesTimeline.logic";
+import { haloTrailSlots, haloTrailStepState } from "./haloTrail.logic";
 
 const row = (kind: string, runId: string | null = "r1") => ({ kind, runId });
 
@@ -45,5 +46,43 @@ describe("haloTrailSlots", () => {
         (slot) => slot?.head ?? null,
       ),
     ).toEqual([true, null, true]);
+  });
+});
+
+describe("haloTrailStepState", () => {
+  const work = (...statuses: Array<"completed" | "stopped" | "failed">) =>
+    ({
+      kind: "work",
+      groupedEntries: statuses.map((toolLifecycleStatus, index) => ({
+        id: `e${index}`,
+        tone: "tool",
+        toolLifecycleStatus,
+      })),
+    }) as unknown as MessagesTimelineRow;
+  const none = new Map<string, unknown>();
+
+  it("marks a step the user stopped, but keeps tools that finished before Stop done", () => {
+    expect(haloTrailStepState(work("completed", "stopped"), none)).toBe("stopped");
+    expect(haloTrailStepState(work("completed"), none)).toBe("done");
+  });
+
+  it("runtime notices never read as a finished step", () => {
+    const notice = (sourceActivityKind: string) =>
+      ({
+        kind: "work",
+        groupedEntries: [
+          { id: "n", tone: "info", toolLifecycleStatus: "completed", sourceActivityKind },
+        ],
+      }) as unknown as MessagesTimelineRow;
+    expect(haloTrailStepState(notice("runtime.error"), none)).toBe("bad");
+    expect(haloTrailStepState(notice("runtime.warning"), none)).toBe("note");
+  });
+
+  it("a collapsed group whose latest tool was stopped reads stopped", () => {
+    const toggle = { kind: "work-toggle", hasFailure: false, stopped: true } as MessagesTimelineRow;
+    expect(haloTrailStepState(toggle, none)).toBe("stopped");
+    expect(haloTrailStepState({ ...toggle, hasFailure: true } as MessagesTimelineRow, none)).toBe(
+      "bad",
+    );
   });
 });

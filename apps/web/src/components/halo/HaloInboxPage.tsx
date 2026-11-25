@@ -32,12 +32,14 @@ import {
 } from "react";
 
 import { useNowMinute } from "~/hooks/useNowMinute";
+import { tickTextContent } from "~/lib/tickTextContent";
 import { useStableCallback } from "~/hooks/useStableCallback";
 import { useThreadActions } from "~/hooks/useThreadActions";
 import { cn } from "~/lib/utils";
 import { useProjects, useServerConfigs, useVisibleThreadShells } from "~/state/entities";
 import { useUiStateStore } from "~/uiStateStore";
 import { resolveThreadLastVisitedAt } from "../Sidebar.logic";
+import { formatWorkingTimerNow } from "../chat/TimelineWorkGroupRows.logic";
 import { RelativeTimeLabel } from "../sidebar/SidebarThreadRow";
 import { useAtomValue } from "@effect/atom-react";
 import { AuthOrchestrationOperateScope } from "@t3tools/contracts";
@@ -504,6 +506,9 @@ function HaloInboxCardBody({
         : gt("Done", { $context: "thread status" });
   const orb = card.pill ? resolveHaloOrbState(card.pill) : card.column === "done" ? "done" : "idle";
   const meta = [projectTitle, card.thread.branch].filter(Boolean).join(" · ");
+  const runningSince =
+    card.column === "running" ? (card.thread.runtime?.activityStartedAt ?? null) : null;
+  const failure = card.pill?.kind === "failed" ? (card.thread.runtime?.lastError ?? null) : null;
   const canSettle =
     onSettle !== undefined && card.column === "done" && card.parked === null && card.settleable;
   return (
@@ -528,9 +533,19 @@ function HaloInboxCardBody({
             {label}
           </span>
         </span>
-        <span className="ml-auto font-mono text-2xs font-medium whitespace-nowrap text-muted-foreground">
-          <RelativeTimeLabel timestamp={card.activityAt} />
-        </span>
+        {runningSince ? (
+          <span
+            ref={tickTextContent(
+              () => formatWorkingTimerNow(runningSince, card.thread.environmentId),
+              true,
+            )}
+            className="ml-auto font-mono text-2xs font-medium whitespace-nowrap text-(--primary-light) tabular-nums"
+          />
+        ) : (
+          <span className="ml-auto font-mono text-2xs font-medium whitespace-nowrap text-muted-foreground">
+            <RelativeTimeLabel timestamp={card.activityAt} />
+          </span>
+        )}
       </div>
       <Link
         to="/$environmentId/$threadId"
@@ -545,6 +560,7 @@ function HaloInboxCardBody({
       {meta ? (
         <div className="truncate font-mono text-2xs text-muted-foreground">{meta}</div>
       ) : null}
+      {failure ? <p className="line-clamp-2 text-xs leading-snug text-error">{failure}</p> : null}
       {!lifted && !placeholder && card.pill?.kind === "approval" ? (
         <HaloInboxApproval card={card} />
       ) : null}

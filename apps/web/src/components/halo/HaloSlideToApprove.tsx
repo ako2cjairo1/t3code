@@ -1,5 +1,5 @@
 import { useGT } from "gt-react";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, TriangleAlertIcon } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 
 const KNOB_SPAN = 38; // 32px knob + 2 x 3px inset; the track also has a 1px border each side
@@ -8,12 +8,19 @@ const FILL_MS = 260;
 
 interface HaloSlideToApproveProps {
   ariaLabel: string;
+  /** A risky approval keeps the slide's deliberate gesture, in the danger tone, with its warning. */
+  warning?: string | undefined;
   disabled: boolean;
   onApprove: () => void;
 }
 
 /** Prototype slide-to-approve. The knob is a real button: click, Enter and Space approve at once. */
-export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlideToApproveProps) {
+export function HaloSlideToApprove({
+  ariaLabel,
+  warning,
+  disabled,
+  onApprove,
+}: HaloSlideToApproveProps) {
   const gt = useGT();
   const [x, setX] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -107,41 +114,54 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
   };
 
   return (
-    <div
-      ref={track}
-      data-halo-slide=""
-      data-dragging={dragging || undefined}
-      data-approved={approved || undefined}
-      style={{ "--halo-slide-x": `${x}px` } as CSSProperties}
-    >
-      <div data-halo-slide-fill="" />
-      <span data-halo-slide-label="">
-        <span aria-hidden={approved || undefined}>{gt("Slide to approve")}</span>
-        <span aria-hidden={!approved || undefined}>{gt("Approved")}</span>
-      </span>
-      <button
-        type="button"
-        data-halo-slide-knob=""
-        aria-label={ariaLabel}
-        disabled={disabled}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerCancel}
-        onLostPointerCapture={onPointerCancel}
-        onClick={() => {
-          if (moved.current) {
-            moved.current = false;
-            return;
-          }
-          if (locked) return;
-          setApproved(true);
-          setX(maxTravel());
-          onApprove();
-        }}
+    <>
+      <div
+        ref={track}
+        data-halo-slide=""
+        data-tone={warning ? "danger" : undefined}
+        data-dragging={dragging || undefined}
+        data-approved={approved || undefined}
+        style={{ "--halo-slide-x": `${x}px` } as CSSProperties}
       >
-        <ChevronRightIcon aria-hidden className="size-4" />
-      </button>
-    </div>
+        <div data-halo-slide-fill="" />
+        <span data-halo-slide-label="">
+          <span aria-hidden={approved || undefined}>{gt("Slide to approve")}</span>
+          <span aria-hidden={!approved || undefined}>{gt("Approved")}</span>
+        </span>
+        <button
+          type="button"
+          data-halo-slide-knob=""
+          aria-label={ariaLabel}
+          aria-description={warning}
+          disabled={disabled}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
+          onLostPointerCapture={onPointerCancel}
+          onClick={() => {
+            if (moved.current) {
+              moved.current = false;
+              return;
+            }
+            if (locked) return;
+            setApproved(true);
+            setX(maxTravel());
+            onApprove();
+          }}
+        >
+          <ChevronRightIcon aria-hidden className="size-4" />
+        </button>
+      </div>
+      {warning ? (
+        <span
+          data-halo-slide-warning=""
+          className="inline-flex basis-full items-start gap-1 text-destructive-foreground"
+        >
+          <TriangleAlertIcon aria-hidden className="mt-0.5 size-3 shrink-0" />
+          {warning}
+        </span>
+      ) : null}
+    </>
   );
 }

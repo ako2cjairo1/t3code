@@ -592,6 +592,7 @@ type MessagesTimelineRowContent =
       toolSurface?: WorkLogEntry["toolSurface"];
       toolIcon?: WorkLogEntry["toolIcon"];
       hasFailure: boolean;
+      stopped: boolean;
     }
   | {
       /** Images the agent opened in the tool group above, kept visible while the group is collapsed. */
@@ -2201,6 +2202,7 @@ export function deriveMessagesTimelineRows(
             hasFailure:
               latestToolEntry !== undefined &&
               workEntryDisplayIndicatesToolFailure(latestToolEntry),
+            stopped: latestToolEntry?.toolLifecycleStatus === "stopped",
           });
           if (expanded) {
             nextRows.push(
@@ -2935,7 +2937,8 @@ function isRowUnchanged(a: MessagesTimelineRow, b: MessagesTimelineRow): boolean
         a.summaryKind === bw.summaryKind &&
         a.toolSurface === bw.toolSurface &&
         Equal.equals(a.toolIcon, bw.toolIcon) &&
-        a.hasFailure === bw.hasFailure
+        a.hasFailure === bw.hasFailure &&
+        a.stopped === bw.stopped
       );
     }
 

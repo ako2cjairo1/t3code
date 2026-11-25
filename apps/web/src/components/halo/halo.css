@@ -914,6 +914,15 @@ html[data-theme-id="liquid-halo"] [data-halo-trail] [data-approval-card] {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
   background-size: 9px;
 }
+/* Stopped by the user: a hollow node holding a stop square, neither done nor failed. */
+[data-halo-trail] [data-halo-trail-step="stopped"]::before {
+  border-color: color-mix(in srgb, var(--foreground) 35%, transparent);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 55%, transparent),
+      color-mix(in srgb, var(--foreground) 55%, transparent)
+    )
+    center / 6px 6px no-repeat;
+}
 [data-halo-trail] [data-halo-trail-step="active"]::before {
   border-color: color-mix(in srgb, var(--primary-light, var(--ring)) 25%, transparent);
   border-top-color: var(--primary-light, var(--ring));
@@ -1407,6 +1416,13 @@ html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
     box-shadow:
       inset 0 0 0 1px var(--halo-line),
       var(--halo-hl);
+  }
+  /* The terminal drawer is a glass card inside the main pane, like the right panel. */
+  /* A border, not an inset shadow: the terminal canvas paints over shadows. */
+  html[data-theme-id="liquid-halo"] [data-terminal-drawer-frame] > div > aside {
+    margin: 0 8px 8px;
+    border: 1px solid var(--halo-line);
+    border-radius: 16px;
   }
 }
 html[data-theme-id="liquid-halo"] [data-slot="sidebar-inset"],
@@ -2508,6 +2524,41 @@ html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > [data-starting-
     @starting-style {
       opacity: 0;
       translate: 0 6px;
+    }
+  }
+}
+/* Risky approvals keep the slide but in the danger tone; the warning reads after the actions. */
+[data-halo-slide][data-tone="danger"] {
+  --halo-accent-fill: var(--destructive);
+}
+[data-halo-slide-warning] {
+  order: 2;
+}
+/* An expanded tool group's rows fade in; never height, which would reflow the virtual list. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-theme-id="liquid-halo"] [data-timeline-expanding] [data-timeline-row-id$=":details"] {
+    transition: opacity 240ms var(--halo-ease-out);
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+}
+/* Streaming blocks rise in on the prototype's 320ms beat instead of the base 600ms fade. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-theme-id="liquid-halo"]
+    :is(
+      .chat-markdown[data-streaming] > *,
+      .chat-markdown[data-streaming] .chat-markdown-shiki,
+      .chat-markdown[data-streaming] .chat-markdown-mermaid
+    ) {
+    transition:
+      opacity 320ms var(--halo-ease-out),
+      translate 320ms var(--halo-ease-out);
+
+    @starting-style {
+      opacity: 0;
+      translate: 0 5px;
     }
   }
 }

@@ -69,17 +69,12 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
   return (
     <>
       {primaryOptions.map((option) => {
-        if (
-          halo &&
-          slideToApprove &&
-          presentation === "inline" &&
-          option.decision === "accept" &&
-          !option.warning
-        ) {
+        if (halo && slideToApprove && presentation === "inline" && option.decision === "accept") {
           return (
             <HaloSlideToApprove
               key={option.decision}
               ariaLabel={optionLabel(option.label)}
+              warning={option.warning}
               disabled={disabled || isResponding || !canRespond}
               onApprove={() => void onRespondToApproval(requestId, option.decision)}
             />
