@@ -1108,7 +1108,8 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
       ref={isRegeneratingTitle ? observeVisibleAnimation : undefined}
       className={cn(
         "min-w-0 flex-1 text-start text-sm transition-opacity motion-reduce:transition-none",
-        shouldRecede ? "font-normal" : "font-medium",
+        halo && "transition-[opacity,color] duration-150",
+        shouldRecede || halo ? "font-normal" : "font-medium",
         isRegeneratingTitle
           ? "relative truncate text-muted-foreground"
           : variant !== "slim"
@@ -1126,7 +1127,7 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
                   ? "text-secondary-label"
                   : props.isActive || isWoke || status === "input" || status === "request"
                     ? "text-foreground"
-                    : isUnread
+                    : isUnread || halo
                       ? "text-muted-foreground"
                       : "text-secondary-label/70",
               ),
@@ -1451,14 +1452,23 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 text-xs font-medium",
-                          topStatus.className,
-                          halo && "h-5 rounded-full px-2 text-3xs",
-                          halo &&
-                            (topStatus.icon === "approval"
-                              ? "bg-primary text-primary-foreground"
-                              : topStatus.icon === "input"
-                                ? "inset-ring inset-ring-ring/35"
-                                : "bg-current/10"),
+                          // Prototype chips: one accent, no tinted fills except Approval.
+                          halo
+                            ? cn(
+                                "h-5 rounded-full px-1.75 text-3xs",
+                                topStatus.icon === "approval"
+                                  ? "bg-primary font-semibold text-primary-foreground"
+                                  : topStatus.icon === "input"
+                                    ? "text-(--primary-light) inset-ring inset-ring-ring/35"
+                                    : topStatus.icon === "working" || topStatus.icon === "waiting"
+                                      ? "text-(--primary-light)"
+                                      : topStatus.icon === "done"
+                                        ? "font-semibold text-foreground"
+                                        : topStatus.icon === "failed"
+                                          ? "text-destructive-foreground"
+                                          : topStatus.className,
+                              )
+                            : topStatus.className,
                         )}
                       >
                         <TopStatusIcon icon={topStatus.icon} className="size-3" />

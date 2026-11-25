@@ -40,6 +40,7 @@ export function HaloGitPill({
 }) {
   const gt = useGT();
   const pillRef = useRef<HTMLDivElement | null>(null);
+  const primaryRef = useRef<HTMLButtonElement | null>(null);
   return (
     <>
       <div
@@ -54,6 +55,7 @@ export function HaloGitPill({
         )}
       >
         <button
+          ref={primaryRef}
           type="button"
           aria-haspopup={primaryOpensCommit ? "dialog" : undefined}
           aria-expanded={primaryOpensCommit ? commitOpen : undefined}
@@ -90,6 +92,7 @@ export function HaloGitPill({
         <HaloMorphPopup
           align="end"
           anchor={pillRef}
+          finalFocus={primaryRef}
           aria-label={gt("Commit changes")}
           className="w-95 max-w-[calc(100vw-2rem)]"
         >

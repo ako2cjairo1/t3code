@@ -40,7 +40,7 @@ const STAGE_LABELS = {
   commit: msg("Commit", { $context: "run stage: committing changes" }),
 } satisfies Record<HaloStageId, unknown>;
 
-const LOG_TAIL_LINES = 4;
+const LOG_TAIL_LINES = 3;
 
 const PILL_CLASS =
   "relative block h-7.5 w-46 shrink-0 cursor-pointer overflow-hidden rounded-full border text-foreground transition-[border-color,opacity] duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset @max-[724px]/chat-header:w-39";
@@ -57,7 +57,7 @@ export function HaloIdleIsland() {
     >
       <span className="relative flex h-7 items-center gap-2 ps-2 pe-3 text-xs whitespace-nowrap text-muted-foreground">
         <HaloOrb state="idle" className="size-4" />
-        {gt("Idle")}
+        <span data-halo-island-label="">{gt("Idle")}</span>
       </span>
     </span>
   );
@@ -117,9 +117,11 @@ export function HaloStatusIsland({
       ? "needs"
       : orbState === "done"
         ? "done"
-        : pill === null
-          ? "muted"
-          : "run";
+        : orbState === "error"
+          ? "error"
+          : pill === null
+            ? "muted"
+            : "run";
   const doneCount = stages.filter((stage) => stage.status === "done").length;
   const activeIndex = stages.findIndex((stage) => stage.status === "active");
   const progress = live ? (Math.max(activeIndex, 0) + 0.5) / stages.length : run ? 1 : 0;
@@ -150,14 +152,24 @@ export function HaloStatusIsland({
     <>
       <span
         aria-hidden
-        className="absolute inset-y-0 left-0 w-full origin-left bg-primary/14 transition-transform duration-500 ease-out in-data-[tone=done]:bg-primary/20 in-data-[tone=muted]:bg-foreground/5 in-data-[tone=needs]:bg-primary/30"
+        className="absolute inset-y-0 left-0 w-full origin-left bg-primary/14 transition-transform duration-500 ease-out in-data-[tone=done]:bg-primary/20 in-data-[tone=muted]:bg-foreground/5 in-data-[tone=needs]:bg-primary/30 in-data-[tone=error]:bg-destructive/12"
         style={{ transform: `scaleX(${progress})` }}
       />
       <span className="relative flex h-7 items-center gap-2 ps-2 pe-3 text-xs whitespace-nowrap">
         <HaloOrb state={orbState} className="size-4" />
-        <span className="min-w-0 flex-1 truncate text-start">{label}</span>
+        <span
+          key={label}
+          data-halo-blur-in=""
+          data-halo-island-label=""
+          className="min-w-0 flex-1 truncate text-start"
+        >
+          {label}
+        </span>
         {counter ? (
-          <span className="shrink-0 font-mono text-2xs text-muted-foreground tabular-nums">
+          <span
+            data-halo-island-label=""
+            className="shrink-0 font-mono text-2xs text-muted-foreground tabular-nums"
+          >
             {counter}
           </span>
         ) : null}

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { tickTextContent } from "~/lib/tickTextContent";
 import { observeVisibleAnimation } from "~/lib/visibleAnimation";
 
-const LED_DOTS = Array.from({ length: 15 }, (_, index) => index);
+const LED_DOTS = Array.from({ length: 25 }, (_, index) => index);
 
 /** `1s`, `42s`, `1m 5s`: the pill's elapsed readout. */
 function formatPillElapsed(seconds: number): string {

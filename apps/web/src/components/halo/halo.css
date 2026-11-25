@@ -1,11 +1,17 @@
 /* Liquid Halo only: these elements render solely while useHaloExperience() is true.
    Loops animate transform/opacity and play only via observeVisibleAnimation. */
 
+/* Prototype motion tokens. Global so WAAPI calls and theme CSS can share them. */
+:root {
+  --halo-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --halo-ease-in: cubic-bezier(0.55, 0, 0.75, 0.2);
+  --halo-ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --halo-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --halo-spring-soft: cubic-bezier(0.2, 1.2, 0.4, 1);
+}
+
 [data-halo-orb] {
   --halo-color: var(--ring);
-}
-[data-halo-orb][data-state="approval"] {
-  --halo-color: var(--warning);
 }
 [data-halo-orb][data-state="error"] {
   --halo-color: var(--destructive);
@@ -14,6 +20,22 @@
   position: absolute;
   inset: 0;
   border-radius: 9999px;
+}
+/* State changes ease between looks instead of snapping (one-shot, not a loop). */
+[data-halo-orb] {
+  transition: opacity 350ms;
+}
+[data-halo-orb] [data-halo-glow] {
+  transition: opacity 600ms;
+}
+[data-halo-orb] [data-halo-ring] {
+  transition: opacity 500ms;
+}
+[data-halo-orb] [data-halo-core] {
+  transition:
+    inset 400ms var(--halo-ease-out),
+    background 600ms,
+    box-shadow 600ms;
 }
 [data-halo-orb] [data-halo-glow] {
   inset: -32%;
@@ -143,47 +165,614 @@
   }
 }
 
-/* Thinking pill: a 5x3 LED matrix whose columns light in a sweep. */
+/* Thinking pill: the prototype's 5x5 LED matrix, 14 frames at 120ms (centre bloom, ring, then a
+   five-dot orbit). Generated from the prototype's frame table; opacity only, stepped. */
+[data-halo-led] {
+  gap: 1.5px;
+}
 [data-halo-led] > i {
   width: 3px;
   height: 3px;
   border-radius: 1px;
-  background: var(--ring);
+  background: var(--primary-light, var(--ring));
   opacity: 0.18;
 }
 [data-halo-thinking] [data-halo-led] > i {
-  animation: halo-led 1.2s steps(6) infinite;
+  animation-duration: 1.68s;
+  animation-timing-function: step-end;
+  animation-iteration-count: infinite;
   animation-play-state: var(--visible-animation-state, paused);
 }
-[data-halo-led] > i:nth-child(5n + 2) {
-  animation-delay: 120ms;
-}
-[data-halo-led] > i:nth-child(5n + 3) {
-  animation-delay: 240ms;
-}
-[data-halo-led] > i:nth-child(5n + 4) {
-  animation-delay: 360ms;
-}
-[data-halo-led] > i:nth-child(5n) {
-  animation-delay: 480ms;
-}
-@keyframes halo-led {
-  0%,
+@keyframes halo-led-0 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  42.857% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.18;
+  }
+  85.714% {
+    opacity: 1;
+  }
   100% {
     opacity: 0.18;
   }
-  30% {
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(1) {
+  animation-name: halo-led-0;
+}
+@keyframes halo-led-1 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  42.857% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.18;
+  }
+  92.857% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(2) {
+  animation-name: halo-led-1;
+}
+@keyframes halo-led-2 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  42.857% {
+    opacity: 1;
+  }
+  57.143% {
+    opacity: 0.18;
+  }
+  92.857% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(3) {
+  animation-name: halo-led-2;
+}
+@keyframes halo-led-3 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  42.857% {
+    opacity: 1;
+  }
+  57.143% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(4) {
+  animation-name: halo-led-3;
+}
+@keyframes halo-led-4 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  42.857% {
+    opacity: 1;
+  }
+  64.286% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(5) {
+  animation-name: halo-led-4;
+}
+@keyframes halo-led-5 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  85.714% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(6) {
+  animation-name: halo-led-5;
+}
+@keyframes halo-led-6 {
+  0% {
+    opacity: 0.18;
+  }
+  14.286% {
+    opacity: 1;
+  }
+  21.429% {
+    opacity: 0.18;
+  }
+  28.571% {
+    opacity: 1;
+  }
+  35.714% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(7) {
+  animation-name: halo-led-6;
+}
+@keyframes halo-led-7 {
+  0% {
+    opacity: 0.18;
+  }
+  7.143% {
+    opacity: 1;
+  }
+  21.429% {
+    opacity: 0.18;
+  }
+  28.571% {
+    opacity: 1;
+  }
+  42.857% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(8) {
+  animation-name: halo-led-7;
+}
+@keyframes halo-led-8 {
+  0% {
+    opacity: 0.18;
+  }
+  14.286% {
+    opacity: 1;
+  }
+  21.429% {
+    opacity: 0.18;
+  }
+  28.571% {
+    opacity: 1;
+  }
+  35.714% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(9) {
+  animation-name: halo-led-8;
+}
+@keyframes halo-led-9 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 1;
+  }
+  64.286% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(10) {
+  animation-name: halo-led-9;
+}
+@keyframes halo-led-10 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  78.571% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(11) {
+  animation-name: halo-led-10;
+}
+@keyframes halo-led-11 {
+  0% {
+    opacity: 0.18;
+  }
+  7.143% {
+    opacity: 1;
+  }
+  21.429% {
+    opacity: 0.18;
+  }
+  28.571% {
+    opacity: 1;
+  }
+  42.857% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(12) {
+  animation-name: halo-led-11;
+}
+@keyframes halo-led-12 {
+  0% {
+    opacity: 1;
+  }
+  14.286% {
+    opacity: 0.18;
+  }
+  35.714% {
+    opacity: 1;
+  }
+  100% {
     opacity: 1;
   }
 }
-
+[data-halo-thinking] [data-halo-led] > i:nth-child(13) {
+  animation-name: halo-led-12;
+}
+@keyframes halo-led-13 {
+  0% {
+    opacity: 0.18;
+  }
+  7.143% {
+    opacity: 1;
+  }
+  21.429% {
+    opacity: 0.18;
+  }
+  28.571% {
+    opacity: 1;
+  }
+  42.857% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(14) {
+  animation-name: halo-led-13;
+}
+@keyframes halo-led-14 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 1;
+  }
+  71.429% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(15) {
+  animation-name: halo-led-14;
+}
+@keyframes halo-led-15 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  78.571% {
+    opacity: 1;
+  }
+  92.857% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(16) {
+  animation-name: halo-led-15;
+}
+@keyframes halo-led-16 {
+  0% {
+    opacity: 0.18;
+  }
+  14.286% {
+    opacity: 1;
+  }
+  21.429% {
+    opacity: 0.18;
+  }
+  28.571% {
+    opacity: 1;
+  }
+  35.714% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(17) {
+  animation-name: halo-led-16;
+}
+@keyframes halo-led-17 {
+  0% {
+    opacity: 0.18;
+  }
+  7.143% {
+    opacity: 1;
+  }
+  21.429% {
+    opacity: 0.18;
+  }
+  28.571% {
+    opacity: 1;
+  }
+  42.857% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(18) {
+  animation-name: halo-led-17;
+}
+@keyframes halo-led-18 {
+  0% {
+    opacity: 0.18;
+  }
+  14.286% {
+    opacity: 1;
+  }
+  21.429% {
+    opacity: 0.18;
+  }
+  28.571% {
+    opacity: 1;
+  }
+  35.714% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(19) {
+  animation-name: halo-led-18;
+}
+@keyframes halo-led-19 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  57.143% {
+    opacity: 1;
+  }
+  71.429% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(20) {
+  animation-name: halo-led-19;
+}
+@keyframes halo-led-20 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  71.429% {
+    opacity: 1;
+  }
+  92.857% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(21) {
+  animation-name: halo-led-20;
+}
+@keyframes halo-led-21 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  71.429% {
+    opacity: 1;
+  }
+  85.714% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(22) {
+  animation-name: halo-led-21;
+}
+@keyframes halo-led-22 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  64.286% {
+    opacity: 1;
+  }
+  85.714% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(23) {
+  animation-name: halo-led-22;
+}
+@keyframes halo-led-23 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  64.286% {
+    opacity: 1;
+  }
+  78.571% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(24) {
+  animation-name: halo-led-23;
+}
+@keyframes halo-led-24 {
+  0% {
+    opacity: 0.18;
+  }
+  21.429% {
+    opacity: 1;
+  }
+  28.571% {
+    opacity: 0.18;
+  }
+  57.143% {
+    opacity: 1;
+  }
+  78.571% {
+    opacity: 0.18;
+  }
+  100% {
+    opacity: 0.18;
+  }
+}
+[data-halo-thinking] [data-halo-led] > i:nth-child(25) {
+  animation-name: halo-led-24;
+}
 @media (prefers-reduced-motion: reduce) {
   [data-halo-orb] > i,
   [data-halo-led] > i {
     animation: none !important;
   }
-  /* Static lit pattern: the center column. */
-  [data-halo-led] > i:nth-child(5n + 3) {
+  [data-halo-orb],
+  [data-halo-orb] > i {
+    transition: none;
+  }
+  /* Static lit pattern: the prototype's third frame. */
+  [data-halo-led] > i:nth-child(7),
+  [data-halo-led] > i:nth-child(8),
+  [data-halo-led] > i:nth-child(9),
+  [data-halo-led] > i:nth-child(12),
+  [data-halo-led] > i:nth-child(14),
+  [data-halo-led] > i:nth-child(17),
+  [data-halo-led] > i:nth-child(18),
+  [data-halo-led] > i:nth-child(19) {
     opacity: 1;
   }
 }
@@ -225,7 +814,8 @@ html[data-theme-id="liquid-halo"]
   border-radius: 0 0 24px 24px;
   box-shadow: var(--e3);
 }
-html[data-theme-id="liquid-halo"] [data-halo-trail="only"] > div {
+/* Doubled attribute: must outrank the first/last rules above, which also match "only". */
+html[data-theme-id="liquid-halo"] [data-halo-trail][data-halo-trail="only"] > div {
   border-radius: 24px;
   box-shadow: var(--halo-hl), var(--e3);
 }
@@ -308,6 +898,9 @@ html[data-theme-id="liquid-halo"] [data-halo-trail] [data-approval-card] {
   border-radius: 50%;
   border: 1.5px solid color-mix(in srgb, var(--foreground) 25%, transparent);
   pointer-events: none;
+  transition:
+    border-color 200ms,
+    background-color 200ms;
 }
 [data-halo-trail] [data-halo-trail-step="done"]::before,
 [data-halo-trail] [data-halo-trail-step="bad"]::before {
@@ -318,6 +911,8 @@ html[data-theme-id="liquid-halo"] [data-halo-trail] [data-approval-card] {
 }
 [data-halo-trail] [data-halo-trail-step="bad"]::before {
   background-color: color-mix(in srgb, var(--foreground) 45%, transparent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
+  background-size: 9px;
 }
 [data-halo-trail] [data-halo-trail-step="active"]::before {
   border-color: color-mix(in srgb, var(--primary-light, var(--ring)) 25%, transparent);
@@ -357,12 +952,31 @@ html[data-theme-id="liquid-halo"]:active-view-transition-type(
 html[data-theme-id="liquid-halo"]:active-view-transition-type(
     halo-depth
   )::view-transition-old(halo-view) {
-  animation: halo-depth-out 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: halo-depth-out 0.45s var(--halo-ease-out) both;
 }
 html[data-theme-id="liquid-halo"]:active-view-transition-type(
     halo-depth
   )::view-transition-new(halo-view) {
-  animation: halo-depth-in 0.7s cubic-bezier(0.2, 1.2, 0.4, 1) 0.04s both;
+  animation: halo-depth-in 0.7s var(--halo-spring-soft) 0.04s both;
+}
+/* The header is not part of the depth move (prototype .hdr sits outside the layers): it swaps
+   in place while only the body recedes and rises. */
+html[data-theme-id="liquid-halo"]:active-view-transition-type(halo-depth)
+  :is([data-chat-header], [data-halo-page-header]) {
+  view-transition-name: halo-header;
+}
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-group(halo-header),
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-new(halo-header) {
+  animation: none;
+}
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-old(halo-header) {
+  display: none;
 }
 @keyframes halo-depth-out {
   to {
@@ -381,7 +995,7 @@ html[data-theme-id="liquid-halo"]:active-view-transition-type(
 
 /* Inbox drag: the lifted card springs up once; tilt follows pointer velocity via --halo-tilt. */
 [data-halo-card-lifted] {
-  animation: halo-lift 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: halo-lift 180ms var(--halo-spring);
 }
 @keyframes halo-lift {
   from {
@@ -506,17 +1120,53 @@ html[data-theme-id="liquid-halo"] :is([data-slot="menu-shortcut"], [data-slot="c
   letter-spacing: 0;
 }
 html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] {
-  animation: halo-pop-enter 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: halo-pop-enter 220ms var(--halo-ease-out) both;
 }
 html[data-theme-id="liquid-halo"] [data-slot="menu-popup"][data-ending-style] {
-  animation: halo-pop-exit 140ms cubic-bezier(0.55, 0, 0.75, 0.2) both;
+  animation: halo-pop-exit 140ms var(--halo-ease-in) both;
+}
+/* Popups drop toward their anchor: up from below it, down from above it. */
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"][data-side="bottom"] {
+  --halo-pop-dy: -6px;
 }
 @keyframes halo-pop-enter {
   from {
     opacity: 0;
-    transform: translateY(6px) scale(0.96);
+    transform: translateY(var(--halo-pop-dy, 6px)) scale(0.96);
     filter: blur(4px);
   }
+}
+/* Rows blur in one after another, 30ms apart, capped at the ninth. */
+html[data-theme-id="liquid-halo"]
+  :is([data-slot="menu-popup"] > div > *, [data-command-palette] [data-slot="command-item"]) {
+  animation: halo-blur-in 240ms var(--halo-ease-out) both;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(2) {
+  animation-delay: 30ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(3) {
+  animation-delay: 60ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(4) {
+  animation-delay: 90ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(5) {
+  animation-delay: 120ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(6) {
+  animation-delay: 150ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(7) {
+  animation-delay: 180ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(8) {
+  animation-delay: 210ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(9) {
+  animation-delay: 240ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div > :nth-child(n + 10) {
+  animation-delay: 240ms;
 }
 @keyframes halo-pop-exit {
   to {
@@ -531,13 +1181,16 @@ html[data-theme-id="liquid-halo"] [data-command-palette] {
   border-radius: 28px;
 }
 html[data-theme-id="liquid-halo"] [data-command-palette]:not([data-ending-style]) {
-  animation: halo-zoom-in 420ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+  animation: halo-zoom-in 420ms var(--halo-spring-soft) both;
 }
 html[data-theme-id="liquid-halo"] [data-command-palette][data-ending-style] {
-  animation: halo-pop-exit 140ms cubic-bezier(0.55, 0, 0.75, 0.2) both;
+  animation: halo-pop-exit 140ms var(--halo-ease-in) both;
 }
+/* Static blur instead of the prototype's scaled-and-blurred app: one layer, no re-raster. */
 html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
   background: rgb(6 8 13 / 45%);
+  -webkit-backdrop-filter: blur(6px) saturate(0.9);
+  backdrop-filter: blur(6px) saturate(0.9);
 }
 @media (min-width: 640px) {
   html[data-theme-id="liquid-halo"]
@@ -619,7 +1272,7 @@ html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > * {
     0 24px 48px -20px rgb(0 0 0 / 60%);
 }
 html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > :not([data-ending-style]) {
-  animation: halo-toast-in 420ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+  animation: halo-toast-in 420ms var(--halo-spring-soft) both;
 }
 html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > [data-ending-style] {
   filter: blur(4px);
@@ -708,6 +1361,10 @@ html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
     :is([data-slot="menu-popup"], [data-command-palette], [data-slot="toast-viewport"] > *) {
     animation-duration: 120ms !important;
     filter: none !important;
+  }
+  html[data-theme-id="liquid-halo"]
+    :is([data-slot="menu-popup"] > div > *, [data-command-palette] [data-slot="command-item"]) {
+    animation: none;
   }
 }
 
@@ -1065,7 +1722,7 @@ html[data-theme-id="liquid-halo"] *::-webkit-scrollbar {
 
 /* B: inbox badge pops in, and again whenever its count changes (it remounts per count). */
 [data-halo-badge] {
-  animation: halo-badge-pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: halo-badge-pop 360ms var(--halo-spring);
 }
 @keyframes halo-badge-pop {
   0% {
@@ -1140,6 +1797,28 @@ html[data-theme-id="liquid-halo"]
 [data-halo-island][data-tone="done"] {
   border-color: color-mix(in srgb, var(--primary) 34%, transparent);
 }
+[data-halo-island][data-tone="error"] {
+  border-color: color-mix(in srgb, var(--destructive) 45%, transparent);
+}
+[data-halo-island][data-tone="muted"] [data-halo-orb] {
+  opacity: 0.5;
+}
+/* Nothing to report: the island rests as a 30px orb dot and grows back when a run starts. */
+[data-halo-island] {
+  transition:
+    width 300ms var(--halo-ease-out),
+    border-color 300ms,
+    opacity 300ms;
+}
+[data-halo-island] [data-halo-island-label] {
+  transition: opacity 160ms;
+}
+[data-halo-island][data-tone="muted"] {
+  width: 30px;
+}
+[data-halo-island][data-tone="muted"] [data-halo-island-label] {
+  opacity: 0;
+}
 [data-halo-title] {
   font-size: 13px;
   letter-spacing: -0.005em;
@@ -1153,8 +1832,8 @@ html[data-theme-id="liquid-halo"]
 [data-halo-thumb] {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
   transition:
-    translate 320ms cubic-bezier(0.2, 1.2, 0.4, 1),
-    width 320ms cubic-bezier(0.2, 1.2, 0.4, 1);
+    translate 320ms var(--halo-spring-soft),
+    width 320ms var(--halo-spring-soft);
 }
 [data-halo-git-pill] {
   box-shadow:
@@ -1164,8 +1843,16 @@ html[data-theme-id="liquid-halo"]
 [data-halo-git-pill][data-state="busy"] {
   box-shadow: inset 0 0 0 1px var(--border);
 }
+[data-halo-git-pill][data-state="ok"] {
+  animation: halo-ok-pop 340ms var(--halo-spring);
+}
+@keyframes halo-ok-pop {
+  from {
+    transform: scale(0.92);
+  }
+}
 [data-halo-blur-in] {
-  animation: halo-blur-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: halo-blur-in 240ms var(--halo-ease-out);
 }
 @variant light {
   [data-halo-morph] {
@@ -1183,6 +1870,12 @@ html[data-theme-id="liquid-halo"]
   [data-halo-logtail] {
     background: color-mix(in srgb, var(--foreground) 4%, transparent);
   }
+  [data-halo-thumb] {
+    background: #fff;
+    box-shadow:
+      0 1px 2px rgb(20 24 40 / 8%),
+      0 2px 6px rgb(20 24 40 / 6%);
+  }
   [data-halo-git-pill] {
     box-shadow:
       0 1px 2px rgb(20 24 40 / 8%),
@@ -1190,6 +1883,9 @@ html[data-theme-id="liquid-halo"]
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  [data-halo-git-pill][data-state="ok"] {
+    animation: none;
+  }
   [data-halo-thumb] {
     transition-duration: 120ms;
   }
@@ -1203,13 +1899,21 @@ html[data-theme-id="liquid-halo"]
   width: 100%;
   margin-inline-start: auto;
   transition:
-    width 440ms cubic-bezier(0.2, 1.2, 0.4, 1),
-    border-radius 440ms cubic-bezier(0.2, 1.2, 0.4, 1),
-    grid-template-rows 440ms cubic-bezier(0.2, 1.2, 0.4, 1);
+    width 440ms var(--halo-spring-soft),
+    border-radius 440ms var(--halo-spring-soft),
+    grid-template-rows 440ms var(--halo-spring-soft);
 }
 [data-thread-details-card][data-halo-pill]:not([data-halo-open]) {
   width: min(236px, 100%);
   border-radius: 999px;
+}
+[data-thread-details-card][data-halo-pill] > :last-child {
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+[data-thread-details-card][data-halo-pill][data-halo-open] > :last-child {
+  opacity: 1;
+  transition: opacity 200ms ease-out 60ms;
 }
 @media (prefers-reduced-motion: reduce) {
   [data-thread-details-card][data-halo-pill] {
@@ -1252,10 +1956,10 @@ html[data-theme-id="liquid-halo"] [data-chat-header] nav li[aria-hidden="true"] 
 
 /* B: the done check pops in; the island's orb settles with one spring bounce (one-shot). */
 [data-halo-orb][data-state="done"] [data-halo-check] {
-  animation: halo-check-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: halo-check-pop 400ms var(--halo-spring);
 }
 [data-halo-island] [data-halo-orb][data-state="done"] {
-  animation: halo-settle 900ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: halo-settle 900ms var(--halo-spring);
 }
 @keyframes halo-check-pop {
   from {
@@ -1295,6 +1999,13 @@ html[data-theme-id="liquid-halo"]
 html[data-theme-id="liquid-halo"] [data-halo-stop] {
   min-width: 76px;
   height: 32px;
+  /* The prototype's final Stop is neutral glass, not red. */
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+  color: var(--foreground);
+  box-shadow: inset 0 0 0 1px var(--halo-line-2);
+}
+html[data-theme-id="liquid-halo"] [data-halo-stop]:hover {
+  background: color-mix(in srgb, var(--foreground) 14%, transparent);
 }
 
 /* A: composer glow while the agent runs (prototype .cmp.running); wins over the focus glow. */
@@ -1391,11 +2102,7 @@ html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > * {
   }
 }
 
-/* A: palette scrim has no blur (prototype .scrim); light mode gets a pale scrim. */
-html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
+/* A: light mode gets a pale scrim. */
 html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
   @variant light {
     background: rgb(238 240 245 / 45%);
@@ -1433,18 +2140,29 @@ html[data-theme-id="liquid-halo"] [data-timeline-root]:has(> [data-halo-trail]) 
     color-mix(in srgb, var(--halo-accent-fill) 45%, transparent)
   );
   transform: translateX(calc(var(--halo-slide-x) + 38px - 100%));
-  transition: transform 400ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition: transform 400ms var(--halo-spring);
 }
 [data-halo-slide-label] {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  padding-left: 30px;
+  padding-inline-start: 30px;
   font-size: 12px;
   font-weight: 500;
   color: var(--muted-foreground);
   pointer-events: none;
+}
+[data-halo-slide-label] > span {
+  grid-area: 1 / 1;
+  transition:
+    opacity 220ms,
+    transform 260ms var(--halo-ease-out);
+}
+[data-halo-slide-label] > span:last-child {
+  opacity: 0;
+  transform: translateY(6px);
+  color: #fff;
 }
 [data-halo-slide-knob] {
   position: absolute;
@@ -1462,7 +2180,7 @@ html[data-theme-id="liquid-halo"] [data-timeline-root]:has(> [data-halo-trail]) 
     0 4px 12px rgb(0 0 0 / 0.4),
     inset 0 1px 0 rgb(255 255 255 / 0.6);
   transform: translateX(var(--halo-slide-x));
-  transition: transform 400ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition: transform 400ms var(--halo-spring);
 }
 [data-halo-slide-knob]:disabled {
   cursor: default;
@@ -1473,14 +2191,151 @@ html[data-theme-id="liquid-halo"] [data-timeline-root]:has(> [data-halo-trail]) 
   cursor: grabbing;
 }
 [data-halo-slide][data-approved] :is([data-halo-slide-knob], [data-halo-slide-fill]) {
-  transition-duration: 260ms;
-  transition-timing-function: ease-out;
+  transition:
+    transform 260ms var(--halo-ease-out),
+    background-color 300ms;
 }
-[data-halo-slide][data-approved] [data-halo-slide-label] {
-  color: var(--foreground);
+[data-halo-slide][data-approved] [data-halo-slide-fill] {
+  background: var(--halo-accent-fill);
+}
+[data-halo-slide][data-approved] [data-halo-slide-knob] {
+  background: #fff;
+  color: var(--halo-accent-fill);
+}
+/* Prototype order: state, slide, then Decline. */
+[data-approval-card] :has(> [data-halo-slide]) > [data-approval-action="decline"] {
+  order: 1;
+}
+[data-halo-slide][data-approved] [data-halo-slide-label] > span:first-child {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+[data-halo-slide][data-approved] [data-halo-slide-label] > span:last-child {
+  opacity: 1;
+  transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  [data-halo-slide] :is([data-halo-slide-knob], [data-halo-slide-fill]) {
+  [data-halo-slide]
+    :is([data-halo-slide-knob], [data-halo-slide-fill], [data-halo-slide-label] > span) {
     transition: none;
+  }
+}
+
+/* C: content that arrives during a live run rises in (prototype fadeUp / popIn). @starting-style
+   fires only on insertion and the gate is the live run, so opening a finished thread never
+   replays it. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-theme-id="liquid-halo"] [data-timeline-live] [data-timeline-row-id] {
+    transition:
+      opacity 280ms var(--halo-ease-out),
+      translate 280ms var(--halo-ease-out);
+
+    @starting-style {
+      opacity: 0;
+      translate: 0 8px;
+    }
+  }
+  html[data-theme-id="liquid-halo"]
+    [data-timeline-live]
+    :is([data-approval-card], [data-halo-thinking], [data-halo-test-run]) {
+    transition:
+      opacity 300ms var(--halo-ease-out),
+      scale 360ms var(--halo-spring-soft);
+
+    @starting-style {
+      opacity: 0;
+      scale: 0.94;
+    }
+  }
+}
+
+/* B: select, combobox and alert dialogs share the menu glass, radius and entry motion. */
+html[data-theme-id="liquid-halo"]
+  :is([data-slot="select-popup"] > div, [data-slot="combobox-positioner"] > span) {
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--popover) 82%, transparent);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(1.5);
+  backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(1.5);
+  border-color: var(--halo-line-2);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 28px 60px -16px rgb(0 0 0 / 70%);
+}
+html[data-theme-id="liquid-halo"] :is([data-slot="select-list"], [data-slot="combobox-list"]) {
+  padding: 6px;
+}
+html[data-theme-id="liquid-halo"] :is([data-slot="select-item"], [data-slot="combobox-item"]) {
+  min-height: 32px;
+  border-radius: 12px;
+  font-size: 12.5px;
+}
+html[data-theme-id="liquid-halo"] [data-slot="select-popup"]:not([data-ending-style]) {
+  animation: halo-pop-enter 220ms var(--halo-ease-out) both;
+}
+html[data-theme-id="liquid-halo"] [data-slot="alert-dialog-popup"] {
+  border-radius: 24px;
+  border-color: var(--halo-line-2);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 28px 60px -16px rgb(0 0 0 / 70%);
+}
+html[data-theme-id="liquid-halo"]
+  :is(
+    [data-slot="select-popup"] > div,
+    [data-slot="combobox-positioner"] > span,
+    [data-slot="alert-dialog-popup"]
+  ) {
+  @variant light {
+    border-color: transparent;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 60%),
+      0 2px 6px rgb(20 24 40 / 6%),
+      0 24px 56px -16px rgb(20 24 40 / 22%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-id="liquid-halo"] [data-slot="select-popup"] {
+    animation: none;
+  }
+}
+
+/* A: buttons are prototype pills: background eases, press springs. */
+/* Grouped buttons keep the group's squared inner corners. */
+html[data-theme-id="liquid-halo"]
+  [data-slot="button"]:not(:is([data-slot="group"], [data-slot="input-group"]) *),
+html[data-theme-id="liquid-halo"]
+  [data-slot="button"]:not(:is([data-slot="group"], [data-slot="input-group"]) *)::before {
+  border-radius: 999px;
+}
+html[data-theme-id="liquid-halo"] [data-slot="button"] {
+  transition:
+    background-color 160ms,
+    color 160ms,
+    box-shadow 150ms,
+    scale 120ms var(--halo-spring);
+}
+html[data-theme-id="liquid-halo"] [data-slot="button"]:active:not(:disabled) {
+  scale: 0.97;
+}
+html[data-theme-id="liquid-halo"] [data-sidebar="menu-button"][data-size="icon"] {
+  border-radius: 999px;
+  transition:
+    background-color 160ms,
+    scale 120ms var(--halo-spring);
+}
+html[data-theme-id="liquid-halo"] [data-sidebar="menu-button"][data-size="icon"]:active {
+  scale: 0.94;
+}
+
+/* A: settings groups are glass cards like the rest of the shell. */
+html[data-theme-id="liquid-halo"] [data-slot="settings-group"] {
+  border-radius: 20px;
+  border-color: var(--halo-line);
+  background: var(--halo-card);
+  box-shadow: var(--halo-hl), var(--e2);
+}
+html[data-theme-id="liquid-halo"] [data-slot="settings-group"] {
+  @variant light {
+    border-color: transparent;
   }
 }

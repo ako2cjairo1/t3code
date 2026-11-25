@@ -968,16 +968,16 @@ const LIQUID_HALO_CSS = `
 body {
   letter-spacing: -0.005em;
   background:
-    radial-gradient(60% 50% at 6% 0%, rgb(139 124 255 / 11%), transparent 70%),
-    radial-gradient(45% 45% at 100% 30%, rgb(217 70 239 / 8%), transparent 70%),
-    radial-gradient(50% 40% at 35% 100%, rgb(34 211 238 / 8%), transparent 70%),
+    radial-gradient(60% 50% at 6% 0%, rgb(139 124 255 / 12%), transparent 70%),
+    radial-gradient(45% 45% at 100% 30%, rgb(106 91 224 / 7%), transparent 70%),
+    radial-gradient(50% 40% at 35% 100%, rgb(58 63 82 / 10%), transparent 70%),
     radial-gradient(120% 80% at 50% 0%, #121521, #0c0e13 70%) !important;
 }
 :root:not(.dark) body {
   background:
-    radial-gradient(60% 50% at 6% 0%, rgb(96 78 221 / 6%), transparent 70%),
-    radial-gradient(45% 45% at 100% 30%, rgb(217 70 239 / 4.5%), transparent 70%),
-    radial-gradient(50% 40% at 35% 100%, rgb(34 211 238 / 4.5%), transparent 70%),
+    radial-gradient(60% 50% at 6% 0%, rgb(96 78 221 / 6.6%), transparent 70%),
+    radial-gradient(45% 45% at 100% 30%, rgb(74 57 190 / 3.9%), transparent 70%),
+    radial-gradient(50% 40% at 35% 100%, rgb(201 204 216 / 5.5%), transparent 70%),
     radial-gradient(120% 80% at 50% 0%, #f3f4f8, #e9ebf1 70%) !important;
 }
 ::selection {
@@ -1183,7 +1183,7 @@ export const LIQUID_HALO_THEME: ThemeDefinition = {
     update: "#604edd",
     updateForeground: "#4a39c4",
     updateSurface: "#ebe8fb",
-    accentSurface: "#ebe8fb",
+    accentSurface: "#efeff3",
     accentSurfaceForeground: "#15161c",
     messageSurface: "#ebe8fb",
     messageForeground: "#15161c",
@@ -1247,7 +1247,7 @@ export const LIQUID_HALO_THEME: ThemeDefinition = {
       update: "#8b7cff",
       updateForeground: "#b3a9ff",
       updateSurface: "#262341",
-      accentSurface: "#262341",
+      accentSurface: "#292c35",
       accentSurfaceForeground: "#e9ecf3",
       messageSurface: "#262341",
       messageForeground: "#e9ecf3",
@@ -1264,9 +1264,9 @@ export const LIQUID_HALO_THEME: ThemeDefinition = {
       sidebarForeground: "#e9ecf3",
       sidebarMutedForeground: "#a3a9b8",
       sidebarControlSurface: "#1b1e28",
-      sidebarRowHover: "#1b1e28",
-      sidebarRowActive: "#211f36",
-      sidebarRowSelected: "#262341",
+      sidebarRowHover: "#1f212b",
+      sidebarRowActive: "#272a33",
+      sidebarRowSelected: "#272a33",
       sidebarBorder: "#1d2029",
       terminalBackground: "#0c0e13",
       terminalForeground: "#e9ecf3",

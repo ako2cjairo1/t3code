@@ -172,7 +172,7 @@ export function HaloInboxPage() {
     window.clearTimeout(tilt.reset);
     tilt.reset = window.setTimeout(() => setTilt(0), 90);
   };
-  const onDragEnd = (event: DragEndEvent) => {
+  const onDragEnd = (event: Pick<DragEndEvent, "over">) => {
     const card = dragging;
     const tilt = tiltRef.current;
     window.clearTimeout(tilt.reset);
@@ -185,8 +185,6 @@ export function HaloInboxPage() {
     if (rect) dropOriginRef.current = { key: card.key, rect, tilt: tiltDegrees };
     // Re-runs the FLIP even when the drop leaves the board as it was, so the card settles back.
     setDropCount((count) => count + 1);
-    // Re-runs the FLIP even when the drop leaves the board as it was, so the card settles back.
-    setDropCount((count) => count + 1);
     const target = event.over?.id;
     if (target === "needs" || target === "running" || target === "done") void runDrop(card, target);
   };
@@ -197,11 +195,20 @@ export function HaloInboxPage() {
       <div className="topbar-scroll-fade min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-2 pb-16 sm:px-6.5">
         <div className="mt-1.5 mb-5 flex flex-wrap items-end gap-3">
           <h1 className="text-3xl leading-tight font-semibold">{gt("Agent inbox")}</h1>
-          <p className="flex gap-3 pb-1 text-xs text-muted-foreground">
-            {gt("{count, plural, one {# needs you} other {# need you}}", {
-              count: board.needs.length,
-            })}
-            <span>{gt("{count} running", { count: board.running.length })}</span>
+          <p className="flex gap-3 pb-1 text-xs text-muted-foreground [&_b]:font-semibold [&_b]:text-foreground">
+            <span>
+              <b>{board.needs.length}</b>{" "}
+              {gt("{count, plural, one {needs you} other {need you}}", {
+                count: board.needs.length,
+              })}
+            </span>
+            <span>
+              <b>{board.running.length}</b> {gt("running", { $context: "agent inbox count" })}
+            </span>
+            <span>
+              <b>{board.done.length + board.doneHidden}</b>{" "}
+              {gt("done", { $context: "agent inbox count" })}
+            </span>
           </p>
         </div>
         <DndContext
@@ -209,7 +216,8 @@ export function HaloInboxPage() {
           onDragStart={(event) => setDragging((event.active.data.current?.card as Card) ?? null)}
           onDragMove={onDragMove}
           onDragEnd={onDragEnd}
-          onDragCancel={() => setDragging(null)}
+          // Escape settles the card back from where it was let go, like a drop outside a column.
+          onDragCancel={() => onDragEnd({ over: null })}
         >
           <HaloInboxBoard
             columns={COLUMNS.map((column) => ({
@@ -281,6 +289,14 @@ function HaloInboxBoard(props: {
     const animate = previous !== null && !reducedMotion();
     for (const node of board.querySelectorAll<HTMLElement>("[data-halo-card]")) {
       const key = node.dataset.haloCard!;
+      // An interrupted move restarts from where the card is drawn now, not from its old slot.
+      const running = node
+        .getAnimations()
+        .filter(
+          (animation) => !(animation instanceof CSSAnimation || animation instanceof CSSTransition),
+        );
+      const drawn = running.length > 0 ? node.getBoundingClientRect() : null;
+      for (const animation of running) animation.cancel();
       const rect = node.getBoundingClientRect();
       const position = { x: rect.left - origin.left, y: rect.top - origin.top };
       next.set(key, position);
@@ -288,12 +304,14 @@ function HaloInboxBoard(props: {
       const first =
         dropped?.key === key
           ? { x: dropped.rect.left - origin.left, y: dropped.rect.top - origin.top }
-          : previous.get(key);
+          : drawn !== null
+            ? { x: drawn.left - origin.left, y: drawn.top - origin.top }
+            : previous.get(key);
       if (first === undefined) {
         node.animate(
           [
-            { opacity: 0, transform: "scale(.97)", filter: "blur(4px)" },
-            { opacity: 1, transform: "none", filter: "blur(0)" },
+            { opacity: 0, transform: "scale(.97)" },
+            { opacity: 1, transform: "none" },
           ],
           { duration: 260, easing: "cubic-bezier(.22,1,.36,1)" },
         );
@@ -501,9 +519,14 @@ function HaloInboxCardBody({
       )}
     >
       <div className="flex items-center gap-1.5 text-xs">
-        <HaloOrb state={orb} />
-        <span className={cn("font-medium", card.pill?.colorClass ?? "text-muted-foreground")}>
-          {label}
+        <span
+          data-halo-chip={card.pill?.kind === "approval" ? "solid" : ""}
+          className="inline-flex h-5 items-center gap-1 rounded-full border border-foreground/12 ps-1 pe-2 text-2xs font-medium data-[halo-chip=solid]:border-transparent data-[halo-chip=solid]:bg-primary data-[halo-chip=solid]:text-primary-foreground"
+        >
+          <HaloOrb state={orb} className="size-3" />
+          <span className={cn(card.pill?.kind !== "approval" && card.pill?.colorClass)}>
+            {label}
+          </span>
         </span>
         <span className="ml-auto font-mono text-2xs font-medium whitespace-nowrap text-muted-foreground">
           <RelativeTimeLabel timestamp={card.activityAt} />
@@ -530,6 +553,20 @@ function HaloInboxCardBody({
       ) : null}
       {canSettle ? (
         <div className="relative flex gap-1.25">
+          <Button
+            size="xs"
+            variant="outline"
+            render={
+              <Link
+                to="/$environmentId/$threadId"
+                params={{ environmentId: card.thread.environmentId, threadId: card.thread.id }}
+                viewTransition={haloDepthTransition()}
+                draggable={false}
+              />
+            }
+          >
+            {gt("Review", { $context: "open a finished thread to review its work" })}
+          </Button>
           <Button size="xs" variant="outline" onClick={() => onSettle?.(card)}>
             <CheckIcon />
             {gt("Settle", { $context: "settle a thread" })}

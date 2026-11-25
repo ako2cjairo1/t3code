@@ -43,18 +43,31 @@ function fly(key: string, target: HTMLElement) {
   document.body.append(ghost);
   const dx = from.left + from.width / 2 - (to.left + to.width / 2);
   const dy = from.top + from.height / 2 - (to.top + to.height / 2);
-  const scale = from.width / Math.max(1, to.width);
+  const startScale = from.width / Math.max(1, to.width);
+  const peakScale = Math.max(1.8 * startScale, 1.4);
+  source.style.opacity = "0.15";
   const flight = ghost.animate(
     [
-      { transform: `translate(${dx}px, ${dy}px) scale(${scale})` },
-      { transform: `translate(${dx * 0.45}px, ${dy * 0.45 - 10}px) scale(1.25)`, offset: 0.45 },
-      { transform: "none" },
+      { transform: `translate(${dx}px, ${dy}px) scale(${startScale})`, filter: "blur(0)" },
+      {
+        transform: `translate(${dx * 0.65}px, ${dy * 0.5}px) scale(${peakScale})`,
+        filter: "blur(1px)",
+        offset: 0.45,
+      },
+      { transform: "none", filter: "blur(0)" },
     ],
-    { duration: 600, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
+    { duration: 900, easing: "cubic-bezier(0.55, 0, 0.15, 1)" },
   );
   flight.onfinish = flight.oncancel = () => {
     ghost.remove();
+    source.style.opacity = "";
     land();
+    if (target.isConnected) {
+      target.animate([{ transform: "scale(1.5)" }, { transform: "none" }], {
+        duration: 500,
+        easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      });
+    }
   };
 }
 

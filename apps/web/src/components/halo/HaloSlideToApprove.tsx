@@ -2,7 +2,7 @@ import { useGT } from "gt-react";
 import { ChevronRightIcon } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 
-const MAX_TRAVEL = 240; // 280px track - 2px border - 2 x 3px inset - 32px knob
+const KNOB_SPAN = 38; // 32px knob + 2 x 3px inset; the track also has a 1px border each side
 const COMPLETE_AT = 0.85;
 const FILL_MS = 260;
 
@@ -18,7 +18,15 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
   const [x, setX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [approved, setApproved] = useState(false);
-  const start = useRef<{ pointerX: number; originX: number } | null>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const start = useRef<{
+    pointerX: number;
+    originX: number;
+    max: number;
+    lastX: number;
+    lastT: number;
+    velocity: number;
+  } | null>(null);
   const moved = useRef(false);
   const timer = useRef<number | undefined>(undefined);
   // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- clears the pending approve timer on unmount
@@ -35,9 +43,11 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
   }
 
   const locked = disabled || approved;
+  // Measured, not fixed: inbox cards and child approvals give the track less than 280px.
+  const maxTravel = () => Math.max(0, (track.current?.clientWidth ?? 0) - KNOB_SPAN);
   const finish = (delay: number) => {
     setApproved(true);
-    setX(MAX_TRAVEL);
+    setX(maxTravel());
     timer.current = window.setTimeout(onApprove, delay);
   };
   const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -45,33 +55,65 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
   const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     if (locked) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    start.current = { pointerX: event.clientX, originX: x };
+    // Re-grabbing mid spring-back starts from where the knob is drawn, not where it is headed.
+    const drawnX = new DOMMatrixReadOnly(getComputedStyle(event.currentTarget).transform).m41;
+    start.current = {
+      pointerX: event.clientX,
+      originX: drawnX,
+      max: maxTravel(),
+      lastX: event.clientX,
+      lastT: event.timeStamp,
+      velocity: 0,
+    };
     moved.current = false;
+    setX(drawnX);
     setDragging(true);
   };
   const onPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
-    if (!start.current) return;
-    const dx = event.clientX - start.current.pointerX;
+    const drag = start.current;
+    if (!drag) return;
+    const dx = event.clientX - drag.pointerX;
     if (Math.abs(dx) > 4) moved.current = true;
-    setX(Math.max(0, Math.min(MAX_TRAVEL, start.current.originX + dx)));
+    const dt = event.timeStamp - drag.lastT;
+    if (dt > 0) drag.velocity = (event.clientX - drag.lastX) / dt;
+    drag.lastX = event.clientX;
+    drag.lastT = event.timeStamp;
+    setX(Math.max(0, Math.min(drag.max, drag.originX + dx)));
   };
-  const onPointerUp = () => {
-    if (!start.current) return;
+  const onPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
+    const drag = start.current;
+    if (!drag) return;
     start.current = null;
     setDragging(false);
-    if (x >= MAX_TRAVEL * COMPLETE_AT) finish(reducedMotion() ? 0 : FILL_MS);
+    // A flick past halfway counts: project 100ms ahead at release velocity (px/ms), as the
+    // prototype does. Below halfway it never approves, however fast.
+    const velocity = event.timeStamp - drag.lastT > 100 ? 0 : drag.velocity;
+    const projected = x >= drag.max / 2 ? x + velocity * 100 : x;
+    if (projected >= drag.max * COMPLETE_AT) finish(reducedMotion() ? 0 : FILL_MS);
     else setX(0);
+  };
+  // A cancelled gesture (scroll steal, system gesture) must never approve.
+  const onPointerCancel = () => {
+    if (!start.current) return;
+    start.current = null;
+    moved.current = false;
+    setDragging(false);
+    setX(0);
   };
 
   return (
     <div
+      ref={track}
       data-halo-slide=""
       data-dragging={dragging || undefined}
       data-approved={approved || undefined}
       style={{ "--halo-slide-x": `${x}px` } as CSSProperties}
     >
       <div data-halo-slide-fill="" />
-      <span data-halo-slide-label="">{approved ? gt("Approved") : gt("Slide to approve")}</span>
+      <span data-halo-slide-label="">
+        <span aria-hidden={approved || undefined}>{gt("Slide to approve")}</span>
+        <span aria-hidden={!approved || undefined}>{gt("Approved")}</span>
+      </span>
       <button
         type="button"
         data-halo-slide-knob=""
@@ -80,7 +122,8 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
+        onPointerCancel={onPointerCancel}
+        onLostPointerCapture={onPointerCancel}
         onClick={() => {
           if (moved.current) {
             moved.current = false;
@@ -88,7 +131,7 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
           }
           if (locked) return;
           setApproved(true);
-          setX(MAX_TRAVEL);
+          setX(maxTravel());
           onApprove();
         }}
       >

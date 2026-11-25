@@ -1474,6 +1474,7 @@ const ConversationTimeline = memo(function ConversationTimeline({
             ref={attachTimelineViewportElement}
             className="relative h-full min-h-0"
             data-assistant-citation-viewport="true"
+            data-timeline-live={isWorking || undefined}
           >
             {onCiteAssistantText && citationThreadRef ? (
               <AssistantSelectionToolbar
