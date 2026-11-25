@@ -1452,8 +1452,17 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
                     ) : (inFolder || halo) && topStatus ? (
                       // Folder and Liquid Halo rows have no status line, so the status takes the time slot.
                       <span
+                        // Approval chips pulse a ring like the prototype; paused off-screen.
+                        ref={
+                          halo && topStatus.icon === "approval"
+                            ? observeVisibleAnimation
+                            : undefined
+                        }
+                        data-halo-pulse-ring={
+                          halo && topStatus.icon === "approval" ? "" : undefined
+                        }
                         className={cn(
-                          "inline-flex items-center gap-1 text-xs font-medium",
+                          "relative inline-flex items-center gap-1 text-xs font-medium",
                           // Prototype chips: one accent, no tinted fills except Approval.
                           halo
                             ? cn(

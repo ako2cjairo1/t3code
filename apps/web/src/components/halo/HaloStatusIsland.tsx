@@ -197,7 +197,7 @@ export function HaloStatusIsland({
         <PopoverPrimitive.Close
           aria-label={gt("Collapse run status")}
           data-tone={tone}
-          className="relative block h-7.5 w-full cursor-pointer overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          className="relative block h-7.5 w-full cursor-pointer overflow-hidden rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
         >
           {pillRow}
         </PopoverPrimitive.Close>

@@ -395,7 +395,7 @@ function HaloInboxColumnView(props: {
       aria-label={props.title}
       className={cn(
         "flex min-h-30 min-w-0 flex-col gap-2 rounded-3xl border border-border/60 bg-foreground/[0.025] p-2 transition-[background-color,box-shadow] duration-300",
-        accepts && isOver && "bg-primary/14 ring-2 ring-primary/34 ring-inset",
+        accepts && isOver && "bg-primary/14 ring-2 ring-primary/34",
       )}
     >
       <h2 className="flex h-7 items-center gap-1.75 px-1.5 text-xs font-semibold">
@@ -514,7 +514,7 @@ function HaloInboxCardBody({
       className={cn(
         "relative flex touch-none flex-col gap-1.75 rounded-2xl border bg-card/72 px-3 py-2.75 transition-[border-color,background-color] duration-200 select-none hover:border-border hover:bg-card/80",
         card.column === "needs" ? "border-primary/34" : "border-border/60",
-        lifted && "border-primary/40 shadow-xl",
+        lifted && "border-primary/40 shadow-(--e4)",
         placeholder && "border-primary/34 bg-primary/14 shadow-none *:invisible",
       )}
     >

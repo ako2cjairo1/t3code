@@ -1333,7 +1333,7 @@ html[data-theme-id="liquid-halo"]
 /* B: light mode keeps the same geometry with soft layered shadows instead of dark depth. */
 html[data-theme-id="liquid-halo"]
   :is(
-    [data-slot="popover-popup"]:not([data-variant="panel"]),
+    [data-slot="popover-popup"]:not([data-variant]),
     [data-slot="menu-popup"],
     [data-slot="dialog-popup"],
     [data-command-palette],
@@ -2384,6 +2384,15 @@ html[data-theme-id="liquid-halo"] [data-slot="sheet-popup"]:has([data-right-pane
     var(--halo-hl),
     0 30px 80px -20px rgb(0 0 0 / 80%);
 }
+html[data-theme-id="liquid-halo"] [data-slot="sheet-popup"]:has([data-right-panel-shell]) {
+  @variant light {
+    border-color: transparent;
+    background: rgb(255 255 255 / 86%);
+    box-shadow:
+      var(--halo-hl),
+      0 24px 56px -16px rgb(20 24 40 / 22%);
+  }
+}
 html[data-theme-id="liquid-halo"] [data-slot="sheet-popup"] [data-right-panel-shell] {
   margin: 0;
   border-radius: 0;
@@ -2441,19 +2450,24 @@ html[data-theme-id="liquid-halo"] [data-slot="popover-popup"][data-side="bottom"
 }
 
 /* B: text fields are the prototype's 14px wells with an accent focus halo. */
-html[data-theme-id="liquid-halo"] [data-slot="input-control"]:not([data-size="compact"]) {
+html[data-theme-id="liquid-halo"]
+  [data-slot="input-control"]:not([data-size="compact"], [data-unstyled]) {
   border-radius: 14px;
 }
-html[data-theme-id="liquid-halo"] [data-slot="input-control"] {
+html[data-theme-id="liquid-halo"]
+  [data-slot="input-control"]:not([data-unstyled], :has([aria-invalid="true"])) {
   border-color: var(--halo-line-2);
   transition:
     border-color 150ms,
     box-shadow 150ms;
 }
-html[data-theme-id="liquid-halo"] [data-slot="input-control"]::before {
+html[data-theme-id="liquid-halo"] [data-slot="input-control"]:not([data-unstyled])::before {
   border-radius: inherit;
 }
-html[data-theme-id="liquid-halo"] [data-slot="input-control"]:has(:focus-visible) {
+html[data-theme-id="liquid-halo"]
+  [data-slot="input-control"]:not([data-unstyled], :has([aria-invalid="true"])):has(
+    :focus-visible
+  ) {
   border-color: var(--primary-light);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 15%, transparent);
 }

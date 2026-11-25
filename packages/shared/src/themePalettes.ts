@@ -1020,11 +1020,15 @@ html[data-theme-id] [data-chat-header] {
 }
 :is([data-slot="popover-popup"]:not([data-variant]), [data-slot="menu-popup"], [data-slot="dialog-popup"]) {
   border-radius: 16px;
-  background: color-mix(in srgb, var(--popover) 82%, transparent) !important;
+  background: color-mix(in srgb, var(--card) 78%, transparent) !important;
   -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(1.5);
   backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(1.5);
   border-color: var(--halo-line-2, rgb(255 255 255 / 14%)) !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 28px 60px -16px rgb(0 0 0 / 70%);
+}
+:root:not(.dark)
+  :is([data-slot="popover-popup"]:not([data-variant]), [data-slot="menu-popup"], [data-slot="dialog-popup"]) {
+  background: rgb(255 255 255 / 94%) !important;
 }
 :is([data-slot="popover-popup"]:not([data-variant]), [data-slot="menu-popup"]) {
   border-radius: 24px;
