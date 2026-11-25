@@ -280,7 +280,7 @@ html[data-theme-id="liquid-halo"] [data-halo-page] {
 /* Graph stage: live wires flow from the main agent toward the subagent. */
 [data-halo-wire][data-live] {
   stroke-dasharray: 4 6;
-  animation: halo-wire-flow 1.2s linear infinite;
+  animation: halo-wire-flow 600ms linear infinite;
   animation-play-state: var(--visible-animation-state, paused);
 }
 @keyframes halo-wire-flow {
@@ -312,4 +312,766 @@ html[data-theme-id="liquid-halo"] [data-halo-page] {
   [data-halo-test-cell="running"] {
     animation: none;
   }
+}
+
+/* B: header chrome floats on the canvas; no opaque bar. */
+html[data-theme-id="liquid-halo"] :is([data-chat-header], [data-halo-page-header]) {
+  background: transparent;
+}
+
+/* B: menus — 32px rounded rows, uppercase section heads, kbd chips. */
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] > div {
+  padding: 6px;
+}
+html[data-theme-id="liquid-halo"]
+  [data-slot="menu-popup"]
+  :is(
+    [data-slot="menu-item"],
+    [data-slot="menu-checkbox-item"],
+    [data-slot="menu-radio-item"],
+    [data-slot="menu-sub-trigger"]
+  ) {
+  min-height: 32px;
+  border-radius: 12px;
+  padding-inline: 10px;
+  font-size: 12.5px;
+  color: color-mix(in srgb, var(--foreground) 72%, transparent);
+  transition:
+    background-color 120ms ease-out,
+    color 120ms ease-out;
+}
+html[data-theme-id="liquid-halo"]
+  [data-slot="menu-popup"]
+  :is(
+    [data-slot="menu-item"],
+    [data-slot="menu-checkbox-item"],
+    [data-slot="menu-radio-item"],
+    [data-slot="menu-sub-trigger"]
+  )[data-highlighted] {
+  background: color-mix(in srgb, var(--foreground) 7%, transparent);
+  color: var(--foreground);
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] [data-slot="menu-label"] {
+  padding: 8px 10px 4px;
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] [data-slot="menu-separator"] {
+  margin: 4px 10px;
+  background: var(--halo-line, color-mix(in srgb, var(--foreground) 8%, transparent));
+}
+html[data-theme-id="liquid-halo"] :is([data-slot="menu-shortcut"], [data-slot="command-shortcut"]) {
+  padding: 3px 5px;
+  border-radius: 6px;
+  border: 1px solid var(--halo-line, color-mix(in srgb, var(--foreground) 8%, transparent));
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  font: 500 10.5px/1 var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"] {
+  animation: halo-pop-enter 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html[data-theme-id="liquid-halo"] [data-slot="menu-popup"][data-ending-style] {
+  animation: halo-pop-exit 140ms cubic-bezier(0.55, 0, 0.75, 0.2) both;
+}
+@keyframes halo-pop-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    filter: blur(4px);
+  }
+}
+@keyframes halo-pop-exit {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+/* B: command palette — 640 wide, 28px glass, neutral shadow, plain scrim, zoom-in entry. */
+html[data-theme-id="liquid-halo"] [data-command-palette] {
+  max-width: min(640px, calc(100vw - 32px));
+  border-radius: 28px;
+}
+html[data-theme-id="liquid-halo"] [data-command-palette]:not([data-ending-style]) {
+  animation: halo-zoom-in 420ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+html[data-theme-id="liquid-halo"] [data-command-palette][data-ending-style] {
+  animation: halo-pop-exit 140ms cubic-bezier(0.55, 0, 0.75, 0.2) both;
+}
+html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
+  background: rgb(6 8 13 / 45%);
+}
+@media (min-width: 640px) {
+  html[data-theme-id="liquid-halo"]
+    [data-slot="command-dialog-viewport"]:has([data-command-palette]) {
+    padding-top: max(12vh, calc(var(--command-titlebar-height, 0px) + 0.5rem));
+  }
+  html[data-theme-id="liquid-halo"] [data-command-palette][data-palette-mode="command"] {
+    max-height: min(512px, 76vh);
+  }
+}
+html[data-theme-id="liquid-halo"]
+  [data-command-palette]
+  div:has(> div > [data-slot="autocomplete-start-addon"]) {
+  padding-block: 8px;
+  border-bottom: 1px solid var(--halo-line, color-mix(in srgb, var(--foreground) 8%, transparent));
+}
+html[data-theme-id="liquid-halo"] [data-command-palette] [data-slot="input-control"] {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-theme-id="liquid-halo"] [data-command-palette] [data-slot="autocomplete-input"] {
+  font-size: 15px;
+}
+html[data-theme-id="liquid-halo"] [data-command-palette] [data-slot="command-item"] svg {
+  width: 15px;
+  height: 15px;
+}
+html[data-theme-id="liquid-halo"] [data-command-palette] [data-slot="command-item"] {
+  min-height: 32px;
+  border-radius: 12px;
+  font-size: 12.5px;
+}
+html[data-theme-id="liquid-halo"] [data-command-palette] [data-slot="command-item"] :not(kbd) {
+  font-size: inherit;
+}
+html[data-theme-id="liquid-halo"] [data-command-palette] [data-slot="command-group-label"] {
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+html[data-theme-id="liquid-halo"] [data-command-palette] [data-slot="command-footer"] {
+  padding-block: 8px;
+  font-size: 11px;
+  font-weight: 400;
+  background: transparent;
+}
+html[data-theme-id="liquid-halo"]
+  [data-command-palette]
+  :is([data-slot="command-footer"], [data-slot="command-item"])
+  [data-slot="kbd"] {
+  height: auto;
+  min-width: 0;
+  padding: 3px 5px;
+  border-radius: 6px;
+  border: 1px solid var(--halo-line, color-mix(in srgb, var(--foreground) 8%, transparent));
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  color: var(--muted-foreground);
+  font: 500 10.5px/1 var(--font-mono, ui-monospace, monospace);
+}
+@keyframes halo-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+    filter: blur(10px);
+  }
+}
+
+/* B: toast — a 38px glass pill that springs up out of a blur; close shows on hover. */
+html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > * {
+  border-radius: 22px;
+  border-color: var(--halo-line, rgb(255 255 255 / 8%));
+  background: color-mix(in srgb, var(--popover) 72%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 24px 48px -20px rgb(0 0 0 / 60%);
+}
+html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > :not([data-ending-style]) {
+  animation: halo-toast-in 420ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > [data-ending-style] {
+  filter: blur(4px);
+  scale: 0.97;
+}
+html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > :not([data-position*="center"]) {
+  width: max-content;
+  max-width: 100%;
+}
+html[data-theme-id="liquid-halo"]
+  [data-slot="toast-viewport"]
+  > *
+  > :not(:has(> [data-slot="toast-close"])) {
+  padding-block: 9px;
+  padding-inline: 14px 8px;
+}
+html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] [data-slot="toast-title"] {
+  font-size: 12.5px;
+  font-weight: 400;
+}
+html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] [data-slot="toast-icon"] svg {
+  color: var(--primary-light, color-mix(in srgb, var(--primary) 60%, #fff));
+}
+html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] [data-slot="toast-action"] {
+  height: 26px;
+  border-radius: 999px;
+}
+html[data-theme-id="liquid-halo"]
+  [data-slot="toast-viewport"]
+  > *
+  > :has(> [data-slot="toast-close"]) {
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+html[data-theme-id="liquid-halo"]
+  [data-slot="toast-viewport"]
+  > :is(:hover, :focus-within)
+  > :has(> [data-slot="toast-close"]) {
+  opacity: 1;
+}
+@keyframes halo-toast-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+    scale: 0.94;
+    filter: blur(6px);
+  }
+}
+
+/* B: light mode keeps the same geometry with soft layered shadows instead of dark depth. */
+@variant light {
+  html[data-theme-id="liquid-halo"]
+    :is(
+      [data-slot="popover-popup"],
+      [data-slot="menu-popup"],
+      [data-slot="dialog-popup"],
+      [data-command-palette],
+      [data-thread-details-card]
+    ) {
+    border-color: transparent !important;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 60%),
+      0 2px 6px rgb(20 24 40 / 6%),
+      0 24px 56px -16px rgb(20 24 40 / 22%);
+  }
+  html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > * {
+    border-color: transparent;
+    background: rgb(255 255 255 / 96%);
+    box-shadow:
+      0 2px 6px rgb(20 24 40 / 6%),
+      0 24px 56px -16px rgb(20 24 40 / 22%);
+  }
+  html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
+    background: rgb(20 24 40 / 18%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-id="liquid-halo"]
+    :is([data-slot="menu-popup"], [data-command-palette], [data-slot="toast-viewport"] > *) {
+    animation-duration: 120ms !important;
+    filter: none !important;
+  }
+}
+
+/* A: floating glass shell. The sidebar card (theme CSS) and the main pane sit 8px apart on the
+   ambient body field; the main pane is a transparent 24px card. */
+@media (min-width: 768px) {
+  /* The fixed titlebar controls follow the cards' 8px gutter (WCO windows keep native placement). */
+  html[data-theme-id="liquid-halo"]:not(.wco) {
+    --workspace-controls-top: 8px;
+    --workspace-controls-left: calc(env(safe-area-inset-left) + 0.75rem + 8px);
+    --workspace-controls-right: calc(env(safe-area-inset-right) + 0.75rem + 8px);
+  }
+  html[data-theme-id="liquid-halo"] [data-slot="sidebar-container"] {
+    padding: 8px 0 8px 8px;
+    border: 0;
+  }
+  html[data-theme-id="liquid-halo"] [data-slot="sidebar-inset"] {
+    height: auto;
+    margin: 8px;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  /* Inset-only edges: a closed (0px) panel leaves nothing visible but its transparent gap. */
+  html[data-theme-id="liquid-halo"] [data-right-panel-shell] {
+    margin-left: 8px;
+    border: 0;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--halo-card);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    box-shadow:
+      inset 0 0 0 1px var(--halo-line),
+      var(--halo-hl);
+  }
+}
+html[data-theme-id="liquid-halo"] [data-slot="sidebar-inset"],
+html[data-theme-id="liquid-halo"] [data-workspace-layout],
+html[data-theme-id="liquid-halo"] [data-halo-page] {
+  background: transparent;
+}
+
+/* C: thinking pill lit LEDs glow (static shadow; the sweep itself is opacity-only). */
+[data-halo-thinking] [data-halo-led] > i {
+  background: var(--primary-light, var(--ring));
+  box-shadow: 0 0 4px color-mix(in srgb, var(--primary) 50%, transparent);
+}
+
+/* C: timeline column inset so message text sits 24px inside the composer edges. */
+html[data-theme-id="liquid-halo"] [data-timeline-row-id] {
+  padding-inline: 24px;
+}
+
+/* C: approval actions: 26px pills, Approve filled, kbd chip. */
+html[data-theme-id="liquid-halo"] [data-approval-card] [data-approval-action],
+html[data-theme-id="liquid-halo"] [data-approval-card] [data-slot="inline-button"] {
+  min-height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--foreground) 7%, transparent);
+  box-shadow: inset 0 0 0 1px var(--halo-line, var(--border));
+  align-items: center;
+  gap: 6px;
+}
+html[data-theme-id="liquid-halo"] [data-approval-card] [data-approval-action="accept"] {
+  background: #6a57e8;
+  color: #fff;
+  box-shadow: none;
+}
+[data-halo-kbd] {
+  padding: 3px 5px;
+  border-radius: 6px;
+  font: 500 10.5px/1 var(--font-mono, ui-monospace, monospace);
+  background: rgb(255 255 255 / 0.15);
+  color: inherit;
+}
+
+/* C: decline-ask chips are 26px pills; the first is the accent choice. */
+html[data-theme-id="liquid-halo"] [data-halo-ask-chip] {
+  min-height: 26px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+html[data-theme-id="liquid-halo"] [data-halo-ask-chip="primary"] {
+  background: #6a57e8;
+  border-color: transparent;
+  color: #fff;
+}
+
+/* C: inbox column dots pulse via a transform/opacity ring (never box-shadow); loops are gated by observeVisibleAnimation. */
+[data-halo-dot="needs"]::after,
+[data-halo-dot="running"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: inherit;
+  opacity: 0;
+  animation: halo-dot-ring 1.6s ease-out infinite;
+  animation-play-state: var(--visible-animation-state, paused);
+}
+@keyframes halo-dot-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+@keyframes halo-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-dot]::after {
+    animation: none;
+  }
+}
+
+/* C: view transition snapshot clips like the 24px pane card. */
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-old(halo-view),
+html[data-theme-id="liquid-halo"]:active-view-transition-type(
+    halo-depth
+  )::view-transition-new(halo-view) {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+/* A: composer controls are 30px pills; the context strip floats as its own glass pill. */
+html[data-theme-id="liquid-halo"]
+  [data-chat-composer-footer]
+  button:not([type="submit"]):not(:has(> svg:only-child)) {
+  height: 30px;
+  border-radius: 999px;
+  padding-inline: 10px;
+  font-size: 12px;
+  font-weight: 400;
+}
+html[data-theme-id="liquid-halo"]
+  [data-chat-composer-footer]
+  button:has(> svg:only-child):not([type="submit"]) {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+}
+html[data-theme-id="liquid-halo"] [data-slot="composer-context-strip"] {
+  width: max-content;
+  max-width: 100%;
+  margin: 8px auto 0;
+  padding: 2px 6px;
+  gap: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 72%, transparent);
+  border: 1px solid var(--halo-line);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+html[data-theme-id="liquid-halo"] [data-slot="composer-context-strip"] :is(button, a) {
+  height: 26px;
+  border-radius: 999px;
+  font-size: 11.5px;
+}
+
+/* C: prototype type + card details that the scale classes can't express. */
+html[data-theme-id="liquid-halo"] [data-halo-page] h1 {
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+html[data-theme-id="liquid-halo"] [data-halo-page] section ~ div,
+html[data-theme-id="liquid-halo"] [data-halo-page] .tabular-nums {
+  font-weight: 620;
+}
+html[data-theme-id="liquid-halo"] [data-halo-card] {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 12px 24px -16px rgb(0 0 0 / 0.6);
+}
+html[data-theme-id="liquid-halo"] [data-halo-card] > a {
+  font-size: 13px;
+}
+html[data-theme-id="liquid-halo"] [data-halo-card][data-halo-placeholder] {
+  border-radius: 20px;
+  box-shadow: none;
+}
+html[data-theme-id="liquid-halo"] [data-halo-empty] {
+  animation: halo-fade-up 300ms 150ms both;
+}
+html[data-theme-id="liquid-halo"] [data-halo-thinking] {
+  font-size: 12.5px;
+}
+
+/* A: sidebar chrome: 12.5px search, round footer buttons over a hairline, mono count chips. */
+html[data-theme-id="liquid-halo"] [data-slot="sidebar-inner"] input[type="search"] {
+  font-size: 12.5px;
+  font-weight: 400;
+}
+html[data-theme-id="liquid-halo"] [data-slot="sidebar-footer"] {
+  border-top: 1px solid var(--halo-line);
+  padding-top: 8px;
+}
+html[data-theme-id="liquid-halo"]
+  [data-slot="sidebar-footer"]
+  [data-sidebar="menu-button"][data-size="icon"] {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+}
+html[data-theme-id="liquid-halo"] [data-sidebar-row^="shelf:"] {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+html[data-theme-id="liquid-halo"] [data-sidebar-count] {
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  font: 500 10px/1 var(--font-mono);
+}
+html[data-theme-id="liquid-halo"] *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* B: needs-attention ring — a transform/opacity pulse on a non-clipping wrapper, never box-shadow.
+   Put data-halo-pulse-ring on the wrapper and register it with observeVisibleAnimation. */
+[data-halo-pulse-ring]::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--primary);
+  opacity: 0;
+  pointer-events: none;
+  animation: halo-ring 1.6s ease-out infinite;
+  animation-play-state: var(--visible-animation-state, paused);
+}
+@keyframes halo-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.06, 1.45);
+    opacity: 0;
+  }
+}
+
+/* B: island card — block cursor on the newest log line, sheen across the active stage bar. */
+[data-halo-cursor] {
+  animation: halo-blink 1s steps(1) infinite;
+  animation-play-state: var(--visible-animation-state, paused);
+}
+@keyframes halo-blink {
+  50% {
+    opacity: 0;
+  }
+}
+[data-halo-shimmer]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 35%), transparent);
+  transform: translateX(-100%);
+  animation: halo-sheen 1.4s linear infinite;
+  animation-play-state: var(--visible-animation-state, paused);
+}
+@keyframes halo-sheen {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* B: inbox badge pops in, and again whenever its count changes (it remounts per count). */
+[data-halo-badge] {
+  animation: halo-badge-pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes halo-badge-pop {
+  0% {
+    scale: 0.6;
+    opacity: 0;
+  }
+  60% {
+    scale: 1.08;
+  }
+}
+@keyframes halo-blur-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+/* B: overflow menu — checks sit at the row's end, like the prototype's panel list. */
+html[data-theme-id="liquid-halo"] [data-halo-overflow] [data-slot="menu-checkbox-item"] {
+  grid-template-columns: minmax(0, 1fr) 1rem;
+  padding-inline: 10px;
+}
+html[data-theme-id="liquid-halo"]
+  [data-halo-overflow]
+  [data-slot="menu-checkbox-item"]
+  > :last-child {
+  grid-row: 1;
+  grid-column: 1;
+}
+html[data-theme-id="liquid-halo"]
+  [data-halo-overflow]
+  [data-slot="menu-checkbox-item"]
+  > :first-child:not(:last-child) {
+  grid-row: 1;
+  grid-column: 2;
+  color: var(--primary-light, var(--primary));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-pulse-ring]::after {
+    animation: none;
+    opacity: 0.55;
+    transform: scale(1.04, 1.2);
+  }
+  [data-halo-cursor],
+  [data-halo-shimmer]::after,
+  [data-halo-badge] {
+    animation: none;
+  }
+}
+
+/* B: header glass recipes (classes can't carry these shadows without off-token values). */
+[data-halo-morph] {
+  border-color: color-mix(in srgb, var(--foreground) 14%, transparent);
+  background: color-mix(in srgb, var(--popover) 95%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 30px 60px -18px rgb(0 0 0 / 85%);
+}
+[data-halo-island] {
+  border-color: color-mix(in srgb, var(--foreground) 14%, transparent);
+  background: color-mix(in srgb, var(--card) 78%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
+}
+[data-halo-island][data-tone="needs"] {
+  border-color: var(--primary);
+}
+[data-halo-island][data-tone="done"] {
+  border-color: color-mix(in srgb, var(--primary) 34%, transparent);
+}
+[data-halo-title] {
+  font-size: 13px;
+  letter-spacing: -0.005em;
+}
+[data-halo-logtail] {
+  height: 71px;
+  border-radius: 14px;
+  border-color: color-mix(in srgb, var(--foreground) 8%, transparent);
+  background: rgb(6 8 13 / 60%);
+}
+[data-halo-thumb] {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
+  transition:
+    translate 320ms cubic-bezier(0.2, 1.2, 0.4, 1),
+    width 320ms cubic-bezier(0.2, 1.2, 0.4, 1);
+}
+[data-halo-git-pill] {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 6px 18px -8px rgb(0 0 0 / 60%);
+}
+[data-halo-git-pill][data-state="busy"] {
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+[data-halo-blur-in] {
+  animation: halo-blur-in 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@variant light {
+  [data-halo-morph] {
+    border-color: transparent;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 60%),
+      0 2px 6px rgb(20 24 40 / 6%),
+      0 24px 56px -16px rgb(20 24 40 / 22%);
+  }
+  [data-halo-island] {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 60%),
+      0 1px 2px rgb(20 24 40 / 6%);
+  }
+  [data-halo-logtail] {
+    background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  }
+  [data-halo-git-pill] {
+    box-shadow:
+      0 1px 2px rgb(20 24 40 / 8%),
+      0 6px 18px -8px rgb(20 24 40 / 30%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-thumb] {
+    transition-duration: 120ms;
+  }
+  [data-halo-blur-in] {
+    animation: none;
+  }
+}
+
+/* B: the inline thread details card rests as a 236px branch pill and springs open to the card. */
+[data-thread-details-card][data-halo-pill] {
+  width: 100%;
+  margin-inline-start: auto;
+  transition:
+    width 440ms cubic-bezier(0.2, 1.2, 0.4, 1),
+    border-radius 440ms cubic-bezier(0.2, 1.2, 0.4, 1),
+    grid-template-rows 440ms cubic-bezier(0.2, 1.2, 0.4, 1);
+}
+[data-thread-details-card][data-halo-pill]:not([data-halo-open]) {
+  width: min(236px, 100%);
+  border-radius: 999px;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-thread-details-card][data-halo-pill] {
+    transition: none;
+  }
+}
+
+/* B: commit form inside the git pill's popover. */
+[data-halo-morph] [data-slot="textarea-control"] {
+  border-radius: 14px;
+}
+[data-halo-morph] [data-slot="textarea"] {
+  resize: none;
+}
+
+/* B: crumb chips — project and title read as soft pills that light up on hover. */
+html[data-theme-id="liquid-halo"] [data-chat-header] nav button {
+  padding: 4px 8px 4px 4px;
+  border-radius: 999px;
+  transition:
+    background-color 160ms ease-out,
+    color 160ms ease-out;
+}
+html[data-theme-id="liquid-halo"] [data-chat-header] nav button:hover {
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+html[data-theme-id="liquid-halo"] [data-chat-header] nav [aria-current="page"] button {
+  padding-inline-start: 8px;
+}
+html[data-theme-id="liquid-halo"] [data-chat-header] nav [aria-current="page"] h2 {
+  font-size: 13px;
+  font-weight: 600;
+}
+html[data-theme-id="liquid-halo"] [data-chat-header] nav [data-thread-title-chevron] {
+  opacity: 1;
+}
+html[data-theme-id="liquid-halo"] [data-chat-header] nav li[aria-hidden="true"] {
+  opacity: 0.6;
+}
+
+/* B: the done check pops in; the island's orb settles with one spring bounce (one-shot). */
+[data-halo-orb][data-state="done"] [data-halo-check] {
+  animation: halo-check-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-halo-island] [data-halo-orb][data-state="done"] {
+  animation: halo-settle 900ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes halo-check-pop {
+  from {
+    scale: 0.4;
+    opacity: 0;
+  }
+}
+@keyframes halo-settle {
+  0% {
+    scale: 0.8;
+  }
+  45% {
+    scale: 1.12;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-orb][data-state="done"] [data-halo-check],
+  [data-halo-island] [data-halo-orb][data-state="done"] {
+    animation: none;
+  }
+}
+
+/* A: with a banner attached the 28px host card owns the glass; the inner surface stays bare. */
+html[data-theme-id="liquid-halo"] [data-slot="composer-host"] [data-chat-composer-main-surface] {
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html[data-theme-id="liquid-halo"]
+  [data-slot="composer-host"]
+  [data-chat-composer-main-surface]::after {
+  display: none;
 }

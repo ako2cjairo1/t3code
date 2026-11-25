@@ -36,6 +36,8 @@ export function CommandOutputPanel(props: {
   readonly exitCode?: number | undefined;
   readonly startedAt?: string | null;
   readonly settledMs?: number | null;
+  /** Liquid Halo collapsed test row: only the test-run card, never the raw output. */
+  readonly cardOnly?: boolean;
 }) {
   const input = { threadId: props.threadId, itemId: props.itemId };
   const { data, error } = useEnvironmentQuery<CommandOutputView, unknown>(
@@ -56,6 +58,7 @@ export function CommandOutputPanel(props: {
   });
 
   if (text.length === 0) {
+    if (props.cardOnly) return null;
     if (error) {
       return (
         <div className="text-destructive">
@@ -117,6 +120,7 @@ export function CommandOutputPanel(props: {
       startedAt={props.startedAt ?? null}
       settledMs={props.settledMs ?? null}
       environmentId={props.environmentId}
+      cardOnly={props.cardOnly === true}
     >
       {raw}
     </HaloTestRunOutput>

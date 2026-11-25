@@ -13,7 +13,6 @@ import { msg, useGT, useMessages } from "gt-react";
 import { AlertCircleIcon, CheckIcon, ChevronRightIcon, ShieldIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { isElectron } from "~/env";
 import { formatContextWindowTokens } from "~/lib/contextWindow";
 import { tickTextContent } from "~/lib/tickTextContent";
 import { cn } from "~/lib/utils";
@@ -28,13 +27,12 @@ import { useEnvironmentProviders } from "../../state/environments";
 import { formatWorkingTimerNow } from "../chat/TimelineWorkGroupRows.logic";
 import { ThreadDetailsContext, ThreadDetailsUsage } from "../chat/ThreadDetailsUsage";
 import { SidebarInset } from "../ui/sidebar";
-import { WorkspacePageHeader } from "../WorkspacePageHeader";
 import { HaloGraphStage } from "./graph/HaloGraphStage";
 import { resolveHaloOrbState } from "./halo.logic";
 import { HaloOrb, useHaloThreadPill } from "./HaloOrb";
 import { deriveHaloRunStages, type HaloRunStages, type HaloStageId } from "./haloStages.logic";
 import { deriveHaloTraceLog, formatHaloTraceOffset, type HaloTraceTone } from "./haloTrace.logic";
-import { HaloViewSwitcher } from "./HaloViewSwitcher";
+import { HaloPageHeader } from "./HaloPageHeader";
 
 const LOG_LIMIT = 120;
 
@@ -99,19 +97,20 @@ export function HaloTracePage({ threadRef }: { threadRef: ScopedThreadRef }) {
 
   return (
     <SidebarInset data-halo-page="" className="h-dvh min-h-0 overflow-hidden overscroll-y-none">
-      <WorkspacePageHeader electron={isElectron} className="justify-end">
-        <HaloViewSwitcher />
-      </WorkspacePageHeader>
+      <HaloPageHeader
+        title={shell?.title ?? gt("Trace", { $context: "run trace view title" })}
+        threadRef={threadRef}
+      />
       <div className="topbar-scroll-fade min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-2 pb-16 @container/halo-trace sm:px-6.5">
         <div className="mt-1.5 mb-5 flex flex-wrap items-end gap-3.5">
           <div className="min-w-0">
-            <h1 className="text-3xl leading-tight font-semibold tracking-tight">
+            <h1 className="text-3xl leading-tight font-semibold">
               {gt("Trace", { $context: "run trace view title" })}
             </h1>
             <p className="mt-1.5 truncate text-sm text-muted-foreground">{subtitle}</p>
           </div>
           <span
-            className="ml-auto flex h-8.5 items-center gap-2.25 rounded-full border border-border/60 bg-card/60 ps-2.5 pe-3.5 text-xs font-medium shadow-xs"
+            className="ml-auto flex h-8.5 items-center gap-2.25 rounded-full border border-(--halo-line) bg-foreground/6 ps-2.5 pe-3.5 text-xs font-medium shadow-(--halo-depth) backdrop-blur-(--glass-blur)"
             role="status"
           >
             <HaloOrb state={resolveHaloOrbState(pill)} className="size-5" />
@@ -211,9 +210,9 @@ export function HaloTracePage({ threadRef }: { threadRef: ScopedThreadRef }) {
 
 function HaloStat({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="rounded-3xl border border-border/60 bg-card/60 px-4.5 py-4 shadow-xs">
+    <div className="rounded-3xl border border-(--halo-line) bg-card/60 px-4.5 py-4 shadow-(--halo-depth) backdrop-blur-(--glass-blur)">
       <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 flex items-baseline text-3xl leading-tight font-semibold tracking-tight whitespace-nowrap tabular-nums">
+      <div className="mt-1 flex items-baseline text-3xl leading-tight font-semibold whitespace-nowrap tabular-nums">
         {children}
       </div>
     </div>
@@ -222,7 +221,7 @@ function HaloStat({ label, children }: { label: string; children: ReactNode }) {
 
 function HaloTraceCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="min-w-0 rounded-3xl border border-border/60 bg-card/60 px-4.5 pt-4 pb-3.5 shadow-xs has-[>div:empty]:hidden">
+    <section className="min-w-0 rounded-3xl border border-(--halo-line) bg-card/60 px-4.5 pt-4 pb-3.5 shadow-(--halo-depth) backdrop-blur-(--glass-blur) has-[>div:empty]:hidden">
       <h2 className="mb-3.5 text-sm font-semibold tracking-tight">{title}</h2>
       <div>{children}</div>
     </section>

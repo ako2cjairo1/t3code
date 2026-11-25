@@ -1799,15 +1799,30 @@ function CheckoutGitActionsControl({
       <>
         {isRepo && !quietEmptyDraft ? (
           <HaloGitPill
-            branch={gitStatusForActions?.refName ?? null}
-            insertions={changesTotals.insertions}
-            deletions={changesTotals.deletions}
+            state={gitActionProgress ? "busy" : visibleInlineSuccess ? "ok" : "idle"}
             primaryLabel={haloPrimaryLabel}
             primaryOpensCommit={commitsChanges}
             primary={
               <>
-                {gitActionProgress ? <Spinner className="size-3.5" /> : null}
-                <span className="max-w-40 truncate">{haloPrimaryLabel}</span>
+                {gitActionProgress ? (
+                  <Spinner className="size-3.5" />
+                ) : visibleInlineSuccess ? (
+                  <CheckIcon aria-hidden className="size-3.5" />
+                ) : commitsChanges ? (
+                  <GitCommitIcon aria-hidden className="size-3.5" />
+                ) : (
+                  <GitQuickActionIcon
+                    quickAction={quickAction}
+                    SourceControlIcon={sourceControlPresentation.Icon}
+                  />
+                )}
+                <span
+                  key={haloPrimaryLabel}
+                  data-halo-blur-in=""
+                  className="max-w-40 truncate @max-[604px]/chat-header:sr-only"
+                >
+                  {haloPrimaryLabel}
+                </span>
               </>
             }
             primaryDisabled={
@@ -1832,23 +1847,105 @@ function CheckoutGitActionsControl({
             }}
             commitForm={
               <>
-                <p className="mb-3 text-sm font-semibold">{messages(COMMIT_DIALOG_TITLE)}</p>
-                <div className="space-y-3">{commitFormFields}</div>
+                <div className="mb-3 flex items-center gap-2">
+                  <p className="min-w-0 flex-1 text-sm font-semibold">
+                    {messages(COMMIT_DIALOG_TITLE)}
+                  </p>
+                  <span className="max-w-40 truncate rounded-full bg-foreground/6 px-2.25 py-0.75 font-mono text-2xs font-medium">
+                    {gitStatusForActions?.refName ?? gt("(detached HEAD)")}
+                  </span>
+                </div>
+                <div className="mb-1.5 flex items-center gap-2 text-xs">
+                  <span className="flex-1 font-semibold">
+                    <T>Files</T>{" "}
+                    {gt("({selected} of {total})", {
+                      selected: selectedFiles.length,
+                      total: allFiles.length,
+                    })}
+                  </span>
+                  {allFiles.length > 0 ? (
+                    <label className="flex cursor-pointer items-center gap-1.5 text-muted-foreground">
+                      <Checkbox
+                        checked={allSelected}
+                        indeterminate={!allSelected && !noneSelected}
+                        onCheckedChange={() =>
+                          setExcludedFiles(
+                            allSelected ? new Set(allFiles.map((f) => f.path)) : new Set(),
+                          )
+                        }
+                      />
+                      {gt("Include all files")}
+                    </label>
+                  ) : null}
+                </div>
+                <div className="mb-3 overflow-hidden rounded-2xl border border-foreground/8 bg-foreground/3">
+                  <ScrollArea className="max-h-44">
+                    <div className="p-1">
+                      {allFiles.map((file) => {
+                        const excluded = excludedFiles.has(file.path);
+                        return (
+                          <label
+                            key={file.path}
+                            className={cn(
+                              "flex h-8.5 cursor-pointer items-center gap-2 rounded-xl px-2 font-mono text-2xs hover:bg-foreground/4",
+                              excluded && "text-muted-foreground line-through",
+                            )}
+                          >
+                            <Checkbox
+                              checked={!excluded}
+                              onCheckedChange={() =>
+                                setExcludedFiles((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(file.path)) next.delete(file.path);
+                                  else next.add(file.path);
+                                  return next;
+                                })
+                              }
+                            />
+                            <StartTruncatedPath path={file.path} className="min-w-0 flex-1" />
+                            {excluded ? null : (
+                              <span className="shrink-0 no-underline">
+                                <span className="text-diff-addition">
+                                  +{formatDiffCount(file.insertions)}
+                                </span>{" "}
+                                <span className="text-diff-deletion">
+                                  -{formatDiffCount(file.deletions)}
+                                </span>
+                              </span>
+                            )}
+                          </label>
+                        );
+                      })}
+                      {allFiles.length === 0 ? (
+                        <p className="px-2 py-2 text-xs text-muted-foreground">
+                          <T context="no files">none</T>
+                        </p>
+                      ) : null}
+                    </div>
+                  </ScrollArea>
+                </div>
+                <Textarea
+                  value={dialogCommitMessage}
+                  onChange={(event) => setDialogCommitMessage(event.target.value)}
+                  placeholder={gt("Leave empty to auto-generate")}
+                  aria-label={gt("Commit message (optional)")}
+                  size="sm"
+                />
                 <div className="mt-3 flex items-center gap-1.5">
-                  <Button variant="ghost" size="sm" onClick={closeCommitForm}>
+                  <Button variant="ghost" size="sm-pill" onClick={closeCommitForm}>
                     <T>Cancel</T>
                   </Button>
                   <span className="flex-1" />
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="sm-pill"
                     disabled={!canWriteSourceControl || noneSelected || !hasPrimaryRemote}
                     onClick={() => runDialogAction("commit_push")}
                   >
                     <T>Commit & push</T>
                   </Button>
                   <Button
-                    size="sm"
+                    size="sm-pill"
                     disabled={!canWriteSourceControl || noneSelected}
                     onClick={() => runDialogAction()}
                   >

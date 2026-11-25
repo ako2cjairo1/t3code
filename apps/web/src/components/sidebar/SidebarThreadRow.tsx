@@ -708,6 +708,7 @@ function ThreadRenameInput(props: {
 const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowProps) {
   const gt = useGT();
   const messages = useMessages();
+  const halo = useHaloExperience();
   const {
     isRenaming,
     onCancelRename,
@@ -1445,12 +1446,19 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
                           <T>Dismiss Woke notification</T>
                         </TooltipPopup>
                       </Tooltip>
-                    ) : inFolder && topStatus ? (
-                      // Folder rows have no status line, so the status takes the time slot.
+                    ) : (inFolder || halo) && topStatus ? (
+                      // Folder and Liquid Halo rows have no status line, so the status takes the time slot.
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 text-xs font-medium",
                           topStatus.className,
+                          halo && "h-5 rounded-full px-2 text-3xs",
+                          halo &&
+                            (topStatus.icon === "approval"
+                              ? "bg-primary text-primary-foreground"
+                              : topStatus.icon === "input"
+                                ? "inset-ring inset-ring-ring/35"
+                                : "bg-current/10"),
                         )}
                       >
                         <TopStatusIcon icon={topStatus.icon} className="size-3" />

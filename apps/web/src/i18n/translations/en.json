@@ -12831,10 +12831,6 @@
   "74699c0024eb35da": "Run status",
   "067a273a8fd01100": "Collapse run status",
   "9d0fcefcc7417392": "{done}/{total}",
-  "0fd49a3865e279e2": "{count, plural, one {# tool call} other {# tool calls}}",
-  "9756b09ffd8a55c6": "In progress",
-  "0dfc582858939130": "Skipped",
-  "cd9e0573b4527cba": "Not started",
   "a73e3933c2a61633": "Trace",
   "aa89d5c5092976e2": "Elapsed",
   "d5b8d8dc328bf7fa": "Tool calls",
@@ -12867,5 +12863,9 @@
   "89bb4ae50b1bb4c2": "of {count}",
   "7bb7da1a192254e8": "Hide output",
   "3f5636e095cddf39": "Show output",
-  "1291d2d26dff3d25": "Fleet"
+  "1291d2d26dff3d25": "Fleet",
+  "a71c440f5b52d254": "Commit message (optional)",
+  "5b325b2ed70b5991": "Or type your answer in the composer.",
+  "9180c8bd9c6572e1": "Recent activity",
+  "bb5b85696f58a300": "{usedTokens} tok"
 }

@@ -57,7 +57,8 @@ function HaloTestRunCard({
   settledMs: number | null;
   environmentId: EnvironmentId;
   outputShown: boolean;
-  onToggleOutput: () => void;
+  /** Omitted when the raw output is not offered (the collapsed-row card). */
+  onToggleOutput: (() => void) | undefined;
 }) {
   const gt = useGT();
   const m = useMessages();
@@ -96,7 +97,7 @@ function HaloTestRunCard({
     <div
       ref={running ? observeVisibleAnimation : undefined}
       data-halo-test-run={run.state}
-      className="cursor-auto rounded-3xl border border-border/60 bg-card/60 px-4 pt-3.5 pb-3 font-sans shadow-xs"
+      className="cursor-auto rounded-3xl border border-(--halo-line) bg-card/55 px-4 pt-3.5 pb-3 font-sans shadow-(--halo-depth) backdrop-blur-(--glass-blur)"
       onClick={(event) => event.stopPropagation()}
     >
       <div className="flex items-center gap-2.5">
@@ -159,7 +160,7 @@ function HaloTestRunCard({
                   // oxlint-disable-next-line react/no-array-index-key -- cells are positional
                   key={index}
                   data-halo-test-cell={cell}
-                  className={cn("h-3.5 w-1.5 rounded-sm", CELL_CLASS[cell])}
+                  className={cn("h-3.5 w-1.5 rounded-xs", CELL_CLASS[cell])}
                 />
               ))}
             </span>
@@ -182,9 +183,11 @@ function HaloTestRunCard({
         </span>
         <span>{gt("of {count}", { count: total })}</span>
         <span className="flex-1" />
-        <Button size="xs" variant="ghost" aria-expanded={outputShown} onClick={onToggleOutput}>
-          {outputShown ? gt("Hide output") : gt("Show output")}
-        </Button>
+        {onToggleOutput ? (
+          <Button size="xs" variant="ghost" aria-expanded={outputShown} onClick={onToggleOutput}>
+            {outputShown ? gt("Hide output") : gt("Show output")}
+          </Button>
+        ) : null}
       </div>
     </div>
   );
@@ -203,6 +206,7 @@ export function HaloTestRunOutput({
   settledMs,
   environmentId,
   children,
+  cardOnly = false,
 }: {
   command: string | undefined;
   output: string | null;
@@ -212,6 +216,8 @@ export function HaloTestRunOutput({
   settledMs: number | null;
   environmentId: EnvironmentId;
   children: ReactNode;
+  /** Collapsed rows show just the card: no raw output, and nothing when it can't be parsed. */
+  cardOnly?: boolean;
 }) {
   const halo = useHaloExperience();
   const [outputShown, setOutputShown] = useState(false);
@@ -219,7 +225,7 @@ export function HaloTestRunOutput({
     halo && command && output && isHaloTestCommand(command)
       ? parseHaloTestRun({ command, output, running, exitCode })
       : null;
-  if (run === null) return children;
+  if (run === null) return cardOnly ? null : children;
   return (
     <>
       <HaloTestRunCard
@@ -228,9 +234,9 @@ export function HaloTestRunOutput({
         settledMs={settledMs}
         environmentId={environmentId}
         outputShown={outputShown}
-        onToggleOutput={() => setOutputShown(!outputShown)}
+        onToggleOutput={cardOnly ? undefined : () => setOutputShown(!outputShown)}
       />
-      {outputShown ? children : null}
+      {outputShown && !cardOnly ? children : null}
     </>
   );
 }

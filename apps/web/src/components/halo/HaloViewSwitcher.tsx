@@ -2,10 +2,16 @@ import type { ScopedThreadRef } from "@t3tools/contracts";
 import { useMatches, useNavigate, useParams } from "@tanstack/react-router";
 import { useGT } from "gt-react";
 import { ActivityIcon, InboxIcon, MessageSquareIcon } from "lucide-react";
+import { scopeThreadRef, scopedThreadKey } from "@t3tools/client-runtime/environment";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { useNowMinute } from "~/hooks/useNowMinute";
+import { useServerConfigs, useVisibleThreadShells } from "~/state/entities";
+import { useUiStateStore } from "~/uiStateStore";
 import { useThreadRouteRef } from "~/hooks/useThreadRouteTarget";
 import { resolveThreadRouteRef } from "~/threadRoutes";
-import { Toggle, ToggleGroup } from "../ui/toggle-group";
+import { resolveThreadLastVisitedAt } from "../Sidebar.logic";
+import { buildHaloInboxBoard } from "./haloInbox.logic";
+import { HaloSegmented } from "./HaloSegmented";
 
 type HaloView = "thread" | "inbox" | "trace";
 
@@ -17,6 +23,10 @@ let lastHaloThreadRef: ScopedThreadRef | null = null;
 
 export function rememberHaloThread(ref: ScopedThreadRef | null) {
   if (ref !== null) lastHaloThreadRef = ref;
+}
+
+export function lastHaloThread() {
+  return lastHaloThreadRef;
 }
 
 /** Router option for moving between Thread, Inbox, and Trace; styles live in `halo.css`. */
@@ -69,27 +79,74 @@ function HaloViewSwitcherLive() {
   });
   const go = useHaloViewNavigation();
   const threadRef = routeThreadRef ?? traceRef ?? (view === "inbox" ? lastHaloThreadRef : null);
+  // The header row is the main pane less ~136px of gutters and panel controls, so this is the
+  // prototype's 1060px main-width break; the island and git label follow at 860 and 740.
+  const label = "@max-[924px]/chat-header:sr-only";
   return (
-    <ToggleGroup
+    <HaloSegmented
+      name="view"
       aria-label={gt("View", { $context: "Thread, Inbox, or Trace view switcher" })}
-      value={[view]}
-      onValueChange={(next) => {
-        const value = next[0];
-        if (value === "thread" || value === "inbox" || value === "trace") void go(value, threadRef);
-      }}
+      value={view}
+      onValueChange={(value) => void go(value, threadRef)}
+      items={[
+        {
+          value: "thread",
+          label: (
+            <>
+              <MessageSquareIcon />
+              <span className={label}>{gt("Thread", { $context: "view switcher" })}</span>
+            </>
+          ),
+        },
+        {
+          value: "inbox",
+          label: (
+            <>
+              <InboxIcon />
+              <span className={label}>{gt("Inbox", { $context: "view switcher" })}</span>
+              <HaloInboxBadge />
+            </>
+          ),
+        },
+        {
+          value: "trace",
+          disabled: threadRef === null,
+          label: (
+            <>
+              <ActivityIcon />
+              <span className={label}>{gt("Trace", { $context: "view switcher" })}</span>
+            </>
+          ),
+        },
+      ]}
+    />
+  );
+}
+
+/** How many inbox cards need the user; hidden at zero, pops when the count changes. */
+function HaloInboxBadge() {
+  const threads = useVisibleThreadShells();
+  const serverConfigs = useServerConfigs();
+  const lastVisitedById = useUiStateStore((state) => state.threadLastVisitedAtById);
+  const nowMinute = useNowMinute();
+  const count = buildHaloInboxBoard(threads, {
+    now: `${nowMinute}:00.000Z`,
+    doneLimit: 0,
+    configLoaded: (thread) => serverConfigs.has(thread.environmentId),
+    lastVisitedAt: (thread) =>
+      resolveThreadLastVisitedAt(
+        thread.lastVisitedAt,
+        lastVisitedById[scopedThreadKey(scopeThreadRef(thread.environmentId, thread.id))],
+      ),
+  }).needs.length;
+  if (count === 0) return null;
+  return (
+    <span
+      key={count}
+      data-halo-badge=""
+      className="ms-0.5 min-w-4 rounded-full bg-primary px-1.25 text-center text-3xs leading-4 font-semibold text-primary-foreground tabular-nums"
     >
-      <Toggle value="thread">
-        <MessageSquareIcon />
-        <span className="max-lg:sr-only">{gt("Thread", { $context: "view switcher" })}</span>
-      </Toggle>
-      <Toggle value="inbox">
-        <InboxIcon />
-        <span className="max-lg:sr-only">{gt("Inbox", { $context: "view switcher" })}</span>
-      </Toggle>
-      <Toggle value="trace" disabled={threadRef === null}>
-        <ActivityIcon />
-        <span className="max-lg:sr-only">{gt("Trace", { $context: "view switcher" })}</span>
-      </Toggle>
-    </ToggleGroup>
+      {count}
+    </span>
   );
 }

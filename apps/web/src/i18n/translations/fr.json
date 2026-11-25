@@ -12822,10 +12822,6 @@
   "74699c0024eb35da": "État de l’exécution",
   "067a273a8fd01100": "Réduire l’état de l’exécution",
   "9d0fcefcc7417392": "{done}/{total}",
-  "0fd49a3865e279e2": "{count, plural, one {# appel d’outil} other {# appels d’outils}}",
-  "9756b09ffd8a55c6": "En cours",
-  "0dfc582858939130": "Ignoré",
-  "cd9e0573b4527cba": "Pas commencé",
   "a73e3933c2a61633": "Trace",
   "aa89d5c5092976e2": "Écoulé",
   "d5b8d8dc328bf7fa": "Appels d’outils",
@@ -12858,5 +12854,9 @@
   "89bb4ae50b1bb4c2": "sur {count}",
   "7bb7da1a192254e8": "Masquer la sortie",
   "3f5636e095cddf39": "Afficher la sortie",
-  "1291d2d26dff3d25": "Flotte"
+  "1291d2d26dff3d25": "Flotte",
+  "a71c440f5b52d254": "Message de commit (facultatif)",
+  "5b325b2ed70b5991": "Ou saisissez votre réponse dans le champ de saisie.",
+  "9180c8bd9c6572e1": "Activité récente",
+  "bb5b85696f58a300": "{usedTokens} tok"
 }

@@ -6,6 +6,8 @@ import {
 import { msg, useGT, useMessages } from "gt-react";
 import { memo } from "react";
 import { EllipsisIcon, TriangleAlertIcon } from "lucide-react";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { isMacPlatform } from "~/lib/utils";
 import { Button, InlineButton } from "../ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "../ui/menu";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
@@ -51,6 +53,7 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
 }: ComposerPendingApprovalActionsProps) {
   const gt = useGT();
   const m = useMessages();
+  const halo = useHaloExperience();
   // Provider options carry server-authored labels; only the built-in defaults are translated.
   const optionLabel = (label: string) => (options === DEFAULT_APPROVAL_OPTIONS ? m(label) : label);
   const primaryOptions = options.filter(
@@ -66,6 +69,7 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
         const buttonProps = {
           disabled: disabled || isResponding || !canRespond,
           "aria-description": option.warning,
+          "data-approval-action": option.decision,
           onClick: () => {
             if (!disabled && !isResponding && canRespond) {
               void onRespondToApproval(requestId, option.decision);
@@ -78,6 +82,14 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
             <span className={presentation === "inline" ? "whitespace-normal" : "max-w-40 truncate"}>
               {optionLabel(option.label)}
             </span>
+            {halo &&
+            presentation === "inline" &&
+            option.decision === "accept" &&
+            !option.warning ? (
+              <kbd data-halo-kbd="" aria-hidden="true">
+                {isMacPlatform(navigator.platform) ? "⌘⏎" : "Ctrl⏎"}
+              </kbd>
+            ) : null}
           </>
         );
         const button =

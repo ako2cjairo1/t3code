@@ -935,80 +935,185 @@ const LIQUID_HALO_CSS = `
 .dark {
   --halo-depth: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 20px 48px -20px rgb(0 0 0 / 70%), 0 0 0 1px rgb(255 255 255 / 5%);
 }
-[data-workspace-area="conversation"] {
-  background:
-    radial-gradient(70% 45% at 50% -10%, var(--halo), transparent 70%),
-    radial-gradient(40% 30% at 100% 100%, color-mix(in oklab, var(--primary) 7%, transparent), transparent 70%),
-    var(--background);
+/* A: glass, line, elevation and type tokens. :root:root outranks the app's dark glass tokens. */
+:root:root {
+  --glass-blur: 20px;
+  --glass-saturation: 1.4;
+  --primary-light: #b9b0ff;
+  --halo-line: rgb(255 255 255 / 8%);
+  --halo-line-2: rgb(255 255 255 / 14%);
+  --halo-hl: inset 0 1px 0 rgb(255 255 255 / 8%);
+  --halo-card: rgb(20 23 33 / 55%);
+  --halo-card-shadow: var(--halo-hl), 0 24px 48px -20px rgb(0 0 0 / 55%);
+  --e1: 0 1px 2px rgb(0 0 0 / 35%);
+  --e2: 0 8px 24px -10px rgb(0 0 0 / 55%);
+  --e3: 0 24px 48px -20px rgb(0 0 0 / 60%);
+  --e4: 0 30px 70px -18px rgb(0 0 0 / 75%);
+  --font-sans: "Geist Variable", "Geist", -apple-system, BlinkMacSystemFont, "Inter Variable", system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
+:root:root:not(.dark) {
+  --primary-light: #5544d2;
+  --halo-line: rgb(24 27 38 / 7%);
+  --halo-line-2: rgb(24 27 38 / 12%);
+  --halo-hl: inset 0 1px 0 rgb(255 255 255 / 90%);
+  --halo-card: rgb(255 255 255 / 74%);
+  --halo-card-shadow: var(--halo-hl), var(--e2);
+  --e1: 0 1px 2px rgb(20 24 40 / 6%), 0 2px 6px rgb(20 24 40 / 4%);
+  --e2: 0 1px 2px rgb(20 24 40 / 5%), 0 6px 20px rgb(20 24 40 / 7%);
+  --e3: 0 2px 4px rgb(20 24 40 / 5%), 0 14px 36px rgb(20 24 40 / 10%);
+  --e4: 0 4px 10px rgb(20 24 40 / 6%), 0 28px 64px rgb(20 24 40 / 18%);
+}
+/* A: one ambient field behind every floating card (static: no animated blur blobs). */
+body {
+  letter-spacing: -0.005em;
+  background:
+    radial-gradient(60% 50% at 6% 0%, rgb(139 124 255 / 11%), transparent 70%),
+    radial-gradient(45% 45% at 100% 30%, rgb(217 70 239 / 8%), transparent 70%),
+    radial-gradient(50% 40% at 35% 100%, rgb(34 211 238 / 8%), transparent 70%),
+    radial-gradient(120% 80% at 50% 0%, #121521, #0c0e13 70%) !important;
+}
+:root:not(.dark) body {
+  background:
+    radial-gradient(60% 50% at 6% 0%, rgb(96 78 221 / 6%), transparent 70%),
+    radial-gradient(45% 45% at 100% 30%, rgb(217 70 239 / 4.5%), transparent 70%),
+    radial-gradient(50% 40% at 35% 100%, rgb(34 211 238 / 4.5%), transparent 70%),
+    radial-gradient(120% 80% at 50% 0%, #f3f4f8, #e9ebf1 70%) !important;
+}
+::selection {
+  background: color-mix(in srgb, var(--ring) 35%, transparent);
+}
+[data-workspace-area="conversation"],
+html[data-theme-id] [data-chat-header] {
+  background: transparent;
+}
+/* A: composer card, 28px glass with a violet focus glow. */
 [data-slot="composer-host"] {
-  border-radius: 22px !important;
-  box-shadow: 0 0 0 1px var(--halo), var(--halo-depth) !important;
-  transition: box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: 28px !important;
+  background: color-mix(in srgb, var(--card) 62%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  box-shadow: var(--halo-hl), 0 0 0 1px var(--halo-line), 0 24px 48px -20px rgb(0 0 0 / 55%) !important;
+  transition: box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 [data-slot="composer-host"]:focus-within {
-  box-shadow: 0 0 0 1px var(--halo-strong), 0 0 0 5px var(--halo), var(--halo-depth) !important;
+  box-shadow: var(--halo-hl), 0 0 0 1px color-mix(in srgb, var(--ring) 35%, transparent), 0 24px 60px -20px color-mix(in srgb, var(--ring) 45%, transparent) !important;
+}
+:root:not(.dark) [data-slot="composer-host"] {
+  background: rgb(255 255 255 / 90%);
+  box-shadow: var(--halo-hl), var(--e3) !important;
+}
+:root:not(.dark) [data-slot="composer-host"]:focus-within {
+  box-shadow: var(--halo-hl), 0 0 0 1px color-mix(in srgb, var(--primary) 32%, transparent), 0 24px 60px -20px color-mix(in srgb, var(--primary) 30%, transparent) !important;
 }
 [data-user-message-bubble] {
-  border-radius: 20px;
+  /* C: prototype bubble: glass fill, tail corner bottom-right. */
+  border-radius: 20px 20px 6px 20px;
+  background: rgb(255 255 255 / 0.08);
+  border: 1px solid var(--halo-line, rgb(255 255 255 / 0.08));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+:root:not(.dark) [data-user-message-bubble] {
+  background: #fff;
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgb(20 24 40 / 0.05), 0 6px 20px rgb(20 24 40 / 0.07);
 }
 :is([data-slot="popover-popup"], [data-slot="menu-popup"], [data-slot="dialog-popup"]) {
   border-radius: 16px;
   background: color-mix(in srgb, var(--popover) 82%, transparent) !important;
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  box-shadow: 0 0 0 1px var(--halo), var(--halo-depth);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(1.5);
+  backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(1.5);
+  border-color: var(--halo-line-2, rgb(255 255 255 / 14%)) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 28px 60px -16px rgb(0 0 0 / 70%);
+}
+:is([data-slot="popover-popup"], [data-slot="menu-popup"]) {
+  border-radius: 24px;
 }
 [data-thread-details-card] {
-  border-radius: 18px;
-  box-shadow: 0 0 0 1px var(--halo), var(--halo-depth);
+  border-radius: 24px;
+  border-color: var(--halo-line-2, rgb(255 255 255 / 14%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 28px 60px -16px rgb(0 0 0 / 70%);
 }
 [data-slot="tooltip-popup"] {
   border-radius: 10px;
 }
+/* A: neutral sidebar rows; the active row is a lifted glass chip, not a violet glow. */
 [data-thread-item] > * {
-  border-radius: 10px;
+  border-radius: 12px;
   transition: background-color 160ms ease-out, box-shadow 220ms ease-out;
 }
+[data-thread-item] > :hover {
+  background: color-mix(in srgb, var(--foreground) 4.5%, transparent);
+}
 [data-thread-item] > [aria-current="page"] {
-  background: var(--app-theme-accent-surface);
-  box-shadow: 0 0 0 1px var(--halo-strong), 0 6px 18px -10px var(--halo-strong);
+  background: rgb(255 255 255 / 8%);
+  box-shadow: var(--halo-hl), 0 0 0 1px rgb(255 255 255 / 5%);
 }
+:root:not(.dark) [data-thread-item] > [aria-current="page"] {
+  background: #fff;
+  box-shadow: var(--e1);
+}
+/* A: the sidebar is a floating glass card; the composer host owns its own glass. */
 [data-slot="sidebar-inner"] {
-  -webkit-backdrop-filter: saturate(var(--glass-saturation));
-  backdrop-filter: saturate(var(--glass-saturation));
-}
-[data-chat-composer-form] {
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--halo-card);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  border: 1px solid var(--halo-line);
+  box-shadow: var(--halo-card-shadow);
+}
+:root:not(.dark) [data-slot="sidebar-inner"] {
+  border-color: transparent;
+}
+[data-chat-composer-form] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:is([data-slot="composer-shell"], [data-slot="composer-host"])::before {
+  display: none;
+}
+[data-slot="composer-host"]::after {
+  border-color: transparent !important;
 }
 [data-approval-card] {
-  margin-block: 6px;
-  padding: 10px 12px 8px;
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--card) 72%, transparent);
-  box-shadow: 0 0 0 1px var(--halo-strong), var(--halo-depth);
+  /* C: prototype approval card. */
+  margin-block: 12px 16px;
+  padding: 12px;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--card) 55%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 8px 24px -10px rgb(0 0 0 / 0.55), 0 0 0 1px var(--halo-strong);
 }
 [data-approval-card] code {
   margin-block: 2px 6px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--muted) 70%, transparent);
-  box-shadow: inset 0 0 0 1px var(--border);
+  font-size: 12px;
+  line-height: 1.6;
+  background: rgb(6 8 13 / 0.6);
+  box-shadow: inset 0 0 0 1px var(--halo-line, var(--border));
+}
+:root:not(.dark) [data-approval-card] {
+  background: rgb(255 255 255 / 0.74);
+  box-shadow: 0 8px 24px -10px rgb(20 24 40 / 0.18), 0 0 0 1px var(--halo-strong);
+}
+:root:not(.dark) [data-approval-card] code {
+  background: rgb(24 27 38 / 0.04);
 }
 [data-command-palette] {
-  border-radius: 18px;
+  border-radius: 28px;
   background: color-mix(in srgb, var(--popover) 80%, transparent) !important;
   -webkit-backdrop-filter: blur(28px) saturate(1.5);
   backdrop-filter: blur(28px) saturate(1.5);
-  box-shadow: 0 0 0 1px var(--halo-strong), 0 40px 80px -24px color-mix(in oklab, var(--primary) 36%, transparent), var(--halo-depth);
+  border-color: var(--halo-line-2, rgb(255 255 255 / 14%)) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 40px 80px -20px rgb(0 0 0 / 75%);
 }
 [data-slot="toast-viewport"] {
   --toast-footer-offset: 7.5rem;
 }
 [data-slot="toast-viewport"] > * {
-  border-radius: 18px;
-  box-shadow: 0 0 0 1px var(--halo), var(--halo-depth);
   transition-timing-function: var(--spring), ease-out, ease-out;
 }
 [data-slot="toast-viewport"] > [data-ending-style] {
@@ -1023,6 +1128,11 @@ const LIQUID_HALO_CSS = `
 :root:not(.dark) [data-slot="composer-host"],
 :root:not(.dark) [data-thread-details-card] {
   border-color: transparent;
+}
+/* A: light mode lifts white cards on soft layered shadows instead of hairlines. */
+:root:not(.dark) :is([data-halo-card], [data-halo-column], [data-halo-test-run]) {
+  border-color: transparent;
+  box-shadow: var(--halo-hl), var(--e2);
 }
 @media (prefers-reduced-motion: reduce) {
   :is([data-slot="composer-host"], [data-thread-item] > *) {
@@ -1039,32 +1149,32 @@ export const LIQUID_HALO_THEME: ThemeDefinition = {
   label: "Liquid Halo",
   appearance: "light",
   colors: {
-    canvas: "#f5f5f9",
-    chrome: "#f5f5f9",
-    toolbar: "#f5f5f9",
-    toolbarForeground: "#16171f",
-    toolbarBorder: "#e3e3ec",
+    canvas: "#e9ebf1",
+    chrome: "#e9ebf1",
+    toolbar: "#e9ebf1",
+    toolbarForeground: "#15161c",
+    toolbarBorder: "#dadce3",
     toolbarControl: "#ffffff",
     toolbarControlForeground: "#16171f",
     toolbarControlHover: "#ececf3",
     surface: "#ffffff",
-    surfaceRaised: "#fafafd",
+    surfaceRaised: "#f3f4f8",
     surfaceOverlay: "#ffffff",
-    text: "#16171f",
-    textMuted: "#62657a",
-    border: "#e3e3ec",
+    text: "#15161c",
+    textMuted: "#4a4f5e",
+    border: "#dadce3",
     input: "#d5d5e2",
     focus: "#604edd",
     accent: "#604edd",
     accentForeground: "#ffffff",
     secondary: "#ececf3",
-    secondaryForeground: "#16171f",
+    secondaryForeground: "#15161c",
     muted: "#f0f0f5",
-    mutedForeground: "#62657a",
-    placeholder: "#62657a",
-    secondaryLabel: "#62657a",
-    iconMuted: "#62657a",
-    error: "#d64545",
+    mutedForeground: "#4a4f5e",
+    placeholder: "#5c6272",
+    secondaryLabel: "#5c6272",
+    iconMuted: "#5c6272",
+    error: "#b04848",
     errorForeground: "#b42318",
     errorSurface: "#fbeceb",
     warning: "#d9930f",
@@ -1074,28 +1184,28 @@ export const LIQUID_HALO_THEME: ThemeDefinition = {
     updateForeground: "#4a39c4",
     updateSurface: "#ebe8fb",
     accentSurface: "#ebe8fb",
-    accentSurfaceForeground: "#16171f",
+    accentSurfaceForeground: "#15161c",
     messageSurface: "#ebe8fb",
-    messageForeground: "#16171f",
-    messageAction: "#4a39c4",
+    messageForeground: "#15161c",
+    messageAction: "#604edd",
     messageActionForeground: "#ffffff",
-    messageActionHover: "#5545d0",
+    messageActionHover: "#5544d2",
     codeBackground: "#fafafd",
-    codeForeground: "#16171f",
+    codeForeground: "#15161c",
     searchMatchBackground: "#ffde8b",
     searchMatchForeground: "#21180a",
     searchMatchActiveBackground: "#eea52b",
     searchMatchActiveForeground: "#21180a",
-    sidebar: "#eeeef4",
-    sidebarForeground: "#16171f",
-    sidebarMutedForeground: "#62657a",
+    sidebar: "#f3f4f8",
+    sidebarForeground: "#15161c",
+    sidebarMutedForeground: "#4a4f5e",
     sidebarControlSurface: "#e6e6ef",
     sidebarRowHover: "#e6e6ef",
     sidebarRowActive: "#ffffff",
     sidebarRowSelected: "#ffffff",
     sidebarBorder: "#e3e3ec",
     terminalBackground: "#fafafd",
-    terminalForeground: "#16171f",
+    terminalForeground: "#15161c",
     terminalCursor: "#604edd",
     terminalSelection: "#d9d4f7",
     terminalScrollbar: "#d5d5e2",
@@ -1103,31 +1213,31 @@ export const LIQUID_HALO_THEME: ThemeDefinition = {
   },
   variants: {
     dark: {
-      canvas: "#0e1017",
-      chrome: "#0e1017",
-      toolbar: "#0e1017",
-      toolbarForeground: "#ecedf3",
-      toolbarBorder: "#252836",
+      canvas: "#0c0e13",
+      chrome: "#0c0e13",
+      toolbar: "#0c0e13",
+      toolbarForeground: "#e9ecf3",
+      toolbarBorder: "#1d2029",
       toolbarControl: "#1b1e28",
       toolbarControlForeground: "#ecedf3",
       toolbarControlHover: "#232634",
-      surface: "#151821",
+      surface: "#141721",
       surfaceRaised: "#1b1e28",
       surfaceOverlay: "#1f2230",
-      text: "#ecedf3",
-      textMuted: "#8f94a3",
-      border: "#252836",
+      text: "#e9ecf3",
+      textMuted: "#a3a9b8",
+      border: "#1d2029",
       input: "#2e3242",
       focus: "#8b7cff",
       accent: "#8b7cff",
-      accentForeground: "#0e1017",
+      accentForeground: "#0c0e13",
       secondary: "#1f2230",
-      secondaryForeground: "#ecedf3",
+      secondaryForeground: "#e9ecf3",
       muted: "#1b1e28",
-      mutedForeground: "#8f94a3",
-      placeholder: "#8a8fa0",
-      secondaryLabel: "#8f94a3",
-      iconMuted: "#8f94a3",
+      mutedForeground: "#a3a9b8",
+      placeholder: "#7f8698",
+      secondaryLabel: "#7f8698",
+      iconMuted: "#7f8698",
       error: "#d48a8a",
       errorForeground: "#f0a3a3",
       errorSurface: "#2a1719",
@@ -1138,28 +1248,28 @@ export const LIQUID_HALO_THEME: ThemeDefinition = {
       updateForeground: "#b3a9ff",
       updateSurface: "#262341",
       accentSurface: "#262341",
-      accentSurfaceForeground: "#ecedf3",
+      accentSurfaceForeground: "#e9ecf3",
       messageSurface: "#262341",
-      messageForeground: "#ecedf3",
-      messageAction: "#b3a9ff",
-      messageActionForeground: "#0e1017",
-      messageActionHover: "#c4bcff",
+      messageForeground: "#e9ecf3",
+      messageAction: "#6a57e8",
+      messageActionForeground: "#ffffff",
+      messageActionHover: "#7865f0",
       codeBackground: "#12141c",
-      codeForeground: "#ecedf3",
+      codeForeground: "#e9ecf3",
       searchMatchBackground: "oklch(0.55 0.1 85)",
       searchMatchForeground: "oklch(0.970151 0 0)",
       searchMatchActiveBackground: "oklch(0.774202 0.151946 74.331)",
       searchMatchActiveForeground: "oklch(0.216164 0.028283 77.423)",
-      sidebar: "#12141c",
-      sidebarForeground: "#ecedf3",
-      sidebarMutedForeground: "#8f94a3",
+      sidebar: "#141721",
+      sidebarForeground: "#e9ecf3",
+      sidebarMutedForeground: "#a3a9b8",
       sidebarControlSurface: "#1b1e28",
       sidebarRowHover: "#1b1e28",
       sidebarRowActive: "#211f36",
       sidebarRowSelected: "#262341",
-      sidebarBorder: "#252836",
-      terminalBackground: "#0e1017",
-      terminalForeground: "#ecedf3",
+      sidebarBorder: "#1d2029",
+      terminalBackground: "#0c0e13",
+      terminalForeground: "#e9ecf3",
       terminalCursor: "#8b7cff",
       terminalSelection: "#2f2a55",
       terminalScrollbar: "#2e3242",

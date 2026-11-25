@@ -1,4 +1,7 @@
 import { useGT } from "gt-react";
+import { ChevronDownIcon, GitBranchIcon } from "lucide-react";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { useThreadShell } from "../../state/entities";
 import { workspaceAreaProps } from "../../lib/workspaceFocus";
 import {
   useLayoutEffect,
@@ -70,6 +73,10 @@ export function ThreadDetailsCard({
       useRightPanelStore.getState().setThreadPanelOpen(threadRef, "popover", false);
   }, [mode, popoverOpen, threadRef]);
   const [contentElement, setContentElement] = useState<HTMLDivElement | null>(null);
+  // Liquid Halo rests the inline card as a branch pill that springs open on click.
+  const haloPill = useHaloExperience() && mode === "inline";
+  const [haloOpen, setHaloOpen] = useState(false);
+  const branch = useThreadShell(haloPill ? threadRef : null)?.branch ?? null;
   const { environmentId, threadId } = threadRef;
   // Re-measures when the density or measurement key changes, so each density's
   // height is measured once it renders.
@@ -120,12 +127,33 @@ export function ThreadDetailsCard({
         "dropdown-glass isolate contain-paint grid max-h-full grid-rows-[minmax(0,1fr)] overflow-hidden rounded-2xl",
         mode === "popover" &&
           "max-h-[min(calc(100dvh-6.5rem),calc(var(--available-height,100dvh)-1rem))]",
+        haloPill && "grid-rows-[auto_minmax(0,0fr)] data-halo-open:grid-rows-[auto_minmax(0,1fr)]",
       )}
       style={placement ? { maxHeight: height } : undefined}
       onContextMenu={onContextMenu}
       data-thread-details-card
+      data-halo-pill={haloPill ? "" : undefined}
+      data-halo-open={haloPill && haloOpen ? "" : undefined}
     >
-      <ScrollArea scrollFade className="min-h-0">
+      {haloPill ? (
+        <button
+          type="button"
+          aria-expanded={haloOpen}
+          aria-label={gt("Thread details")}
+          onClick={() => setHaloOpen(!haloOpen)}
+          className="flex h-9 min-w-0 cursor-pointer items-center gap-2 ps-3 pe-2 text-xs whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        >
+          <GitBranchIcon aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+          <span className="min-w-0 flex-1 truncate text-start font-mono text-2xs">
+            {branch ?? gt("Thread details")}
+          </span>
+          <ChevronDownIcon
+            aria-hidden
+            className="size-3.5 shrink-0 text-muted-foreground transition-transform duration-320 in-data-halo-open:rotate-180"
+          />
+        </button>
+      ) : null}
+      <ScrollArea scrollFade className="min-h-0" inert={haloPill && !haloOpen}>
         <div ref={setContentElement}>{children(density)}</div>
       </ScrollArea>
     </div>

@@ -13,7 +13,7 @@ const QUICK_REPLIES = [
 
 /**
  * Liquid Halo: after the user declines an approval, ask how the agent should proceed. The
- * provider can't be made to ask, so the composer does; a reply prefills the draft.
+ * provider can't be made to ask, so the composer does; a quick reply is sent as the next message.
  */
 export function haloDeclineAskBannerItem(
   input: { readonly onReply: (text: string) => void; readonly onDismiss: () => void },
@@ -28,10 +28,11 @@ export function haloDeclineAskBannerItem(
     dismissLabel: resolve(msg("Dismiss")),
     onDismiss: input.onDismiss,
     children: (
-      <div className="flex flex-wrap gap-1.5">
-        {QUICK_REPLIES.map((reply) => (
+      <div data-halo-ask="" className="flex flex-wrap items-center gap-1.5">
+        {QUICK_REPLIES.map((reply, index) => (
           <Button
             key={reply}
+            data-halo-ask-chip={index === 0 ? "primary" : ""}
             size="xs"
             variant="outline"
             onPointerDown={(event) => event.preventDefault()}
@@ -40,6 +41,9 @@ export function haloDeclineAskBannerItem(
             {resolve(reply)}
           </Button>
         ))}
+        <span className="basis-full text-2xs text-muted-foreground">
+          {resolve(msg("Or type your answer in the composer."))}
+        </span>
       </div>
     ),
   };

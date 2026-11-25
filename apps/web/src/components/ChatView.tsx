@@ -2005,6 +2005,11 @@ export default function ChatView(props: ChatViewProps) {
   };
   const respondToApprovalFromTimelineStable = useStableCallback(respondToApprovalFromTimeline);
   const replyToHaloDeclineAskStable = useStableCallback((text: string) => {
+    // A quick reply is the user's next message; prefill only when it can't be sent.
+    if (composerRef.current?.sendPrompt(text)) {
+      setHaloDeclineAsk(null);
+      return;
+    }
     composerRef.current?.insertTextAtEnd(text, { ensureLeadingBoundary: true });
     focusComposerStable();
   });
@@ -3605,6 +3610,7 @@ export default function ChatView(props: ChatViewProps) {
   const content = (
     <div
       ref={setWorkspaceLayoutElement}
+      data-workspace-layout
       className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden bg-background"
     >
       {embedded ? null : (

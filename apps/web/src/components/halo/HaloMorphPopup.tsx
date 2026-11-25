@@ -30,8 +30,9 @@ export function HaloMorphPopup({
       >
         <PopoverPrimitive.Popup
           {...props}
+          data-halo-morph=""
           className={cn(
-            "group/halo-morph relative overflow-hidden rounded-3xl border border-border bg-popover/92 text-popover-foreground shadow-(--halo-depth) outline-none backdrop-blur-2xl backdrop-saturate-150 [-webkit-app-region:no-drag]",
+            "group/halo-morph relative overflow-hidden rounded-3xl border text-popover-foreground outline-none [-webkit-app-region:no-drag]",
             "[clip-path:inset(-4rem_round_24px)] transition-[clip-path] duration-440 ease-(--spring) data-ending-style:duration-320 data-ending-style:ease-in-out motion-reduce:duration-120",
             align === "start"
               ? "data-starting-style:[clip-path:inset(0_calc(100%_-_var(--anchor-width))_calc(100%_-_var(--anchor-height))_0_round_15px)] data-ending-style:[clip-path:inset(0_calc(100%_-_var(--anchor-width))_calc(100%_-_var(--anchor-height))_0_round_15px)]"

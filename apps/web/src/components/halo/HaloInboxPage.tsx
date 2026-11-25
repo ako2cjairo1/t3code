@@ -1,3 +1,4 @@
+import { observeVisibleAnimation } from "~/lib/visibleAnimation";
 import { thrownErrorMessage } from "@t3tools/client-runtime/errors";
 import { scopeThreadRef, scopedThreadKey } from "@t3tools/client-runtime/environment";
 import type { EnvironmentThreadShell } from "@t3tools/client-runtime/state/models";
@@ -30,7 +31,6 @@ import {
   type RefObject,
 } from "react";
 
-import { isElectron } from "~/env";
 import { useNowMinute } from "~/hooks/useNowMinute";
 import { useStableCallback } from "~/hooks/useStableCallback";
 import { useThreadActions } from "~/hooks/useThreadActions";
@@ -42,7 +42,6 @@ import { RelativeTimeLabel } from "../sidebar/SidebarThreadRow";
 import { Button } from "../ui/button";
 import { SidebarInset } from "../ui/sidebar";
 import { stackedThreadToast, toastManager } from "../ui/toast";
-import { WorkspacePageHeader } from "../WorkspacePageHeader";
 import { resolveHaloOrbState } from "./halo.logic";
 import {
   buildHaloInboxBoard,
@@ -51,7 +50,8 @@ import {
   type HaloInboxColumn,
 } from "./haloInbox.logic";
 import { HaloOrb } from "./HaloOrb";
-import { haloDepthTransition, HaloViewSwitcher, rememberHaloThread } from "./HaloViewSwitcher";
+import { HaloPageHeader } from "./HaloPageHeader";
+import { haloDepthTransition, lastHaloThread, rememberHaloThread } from "./HaloViewSwitcher";
 
 type Card = HaloInboxCard<EnvironmentThreadShell>;
 
@@ -187,14 +187,10 @@ export function HaloInboxPage() {
 
   return (
     <SidebarInset data-halo-page="" className="h-dvh min-h-0 overflow-hidden overscroll-y-none">
-      <WorkspacePageHeader electron={isElectron} className="justify-end">
-        <HaloViewSwitcher />
-      </WorkspacePageHeader>
+      <HaloPageHeader title={gt("Agent inbox")} threadRef={lastHaloThread()} />
       <div className="topbar-scroll-fade min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-2 pb-16 sm:px-6.5">
         <div className="mt-1.5 mb-5 flex flex-wrap items-end gap-3">
-          <h1 className="text-3xl leading-tight font-semibold tracking-tight">
-            {gt("Agent inbox")}
-          </h1>
+          <h1 className="text-3xl leading-tight font-semibold">{gt("Agent inbox")}</h1>
           <p className="flex gap-3 pb-1 text-xs text-muted-foreground">
             {gt("{count, plural, one {# needs you} other {# need you}}", {
               count: board.needs.length,
@@ -375,18 +371,24 @@ function HaloInboxColumnView(props: {
       aria-label={props.title}
       className={cn(
         "flex min-h-30 min-w-0 flex-col gap-2 rounded-3xl border border-border/60 bg-foreground/[0.025] p-2 transition-[background-color,box-shadow] duration-300",
-        accepts && isOver && "bg-primary/8 ring-2 ring-ring/60 ring-inset",
+        accepts && isOver && "bg-primary/14 ring-2 ring-primary/34 ring-inset",
       )}
     >
       <h2 className="flex h-7 items-center gap-1.75 px-1.5 text-xs font-semibold">
         <span
           aria-hidden
+          data-halo-dot={props.column}
+          ref={
+            props.column === "done" || props.cards.length === 0
+              ? undefined
+              : observeVisibleAnimation
+          }
           className={cn(
-            "size-1.75 shrink-0 rounded-full",
+            "relative size-1.75 shrink-0 rounded-full",
             props.column === "needs"
               ? "bg-primary"
               : props.column === "running"
-                ? "bg-info"
+                ? "bg-(--primary-light,var(--primary))"
                 : "bg-muted-foreground",
           )}
         />
@@ -396,7 +398,9 @@ function HaloInboxColumnView(props: {
         </span>
       </h2>
       {props.cards.length === 0 ? (
-        <p className="py-4 text-center text-xs text-muted-foreground">{gt("Nothing here")}</p>
+        <p data-halo-empty="" className="py-4 text-center text-xs text-muted-foreground">
+          {gt("Nothing here")}
+        </p>
       ) : (
         props.children
       )}
@@ -482,11 +486,12 @@ function HaloInboxCardBody({
     <article
       ref={setNode}
       data-halo-card={lifted ? undefined : card.key}
+      data-halo-placeholder={placeholder ? "" : undefined}
       className={cn(
-        "relative flex touch-none flex-col gap-1.75 rounded-3xl border bg-card/72 px-3 py-2.75 shadow-sm transition-[border-color,background-color] duration-200 select-none hover:border-border hover:bg-card/80",
-        card.column === "needs" ? "border-primary/40" : "border-border/60",
+        "relative flex touch-none flex-col gap-1.75 rounded-2xl border bg-card/72 px-3 py-2.75 transition-[border-color,background-color] duration-200 select-none hover:border-border hover:bg-card/80",
+        card.column === "needs" ? "border-primary/34" : "border-border/60",
         lifted && "border-primary/40 shadow-xl",
-        placeholder && "border-primary/50 bg-primary/8 shadow-none *:invisible",
+        placeholder && "border-primary/34 bg-primary/14 shadow-none *:invisible",
       )}
     >
       <div className="flex items-center gap-1.5 text-xs">
@@ -503,7 +508,7 @@ function HaloInboxCardBody({
         params={{ environmentId: card.thread.environmentId, threadId: card.thread.id }}
         viewTransition={haloDepthTransition()}
         draggable={false}
-        className="text-sm leading-snug font-semibold outline-none after:absolute after:inset-0 after:rounded-3xl focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-inset"
+        className="text-sm leading-snug font-semibold outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-inset"
         {...linkProps}
       >
         {card.thread.title}

@@ -12829,10 +12829,6 @@
   "74699c0024eb35da": "Körningsstatus",
   "067a273a8fd01100": "Fäll ihop körningsstatus",
   "9d0fcefcc7417392": "{done}/{total}",
-  "0fd49a3865e279e2": "{count, plural, one {# verktygsanrop} other {# verktygsanrop}}",
-  "9756b09ffd8a55c6": "Pågår",
-  "0dfc582858939130": "Överhoppad",
-  "cd9e0573b4527cba": "Inte påbörjad",
   "a73e3933c2a61633": "Spårning",
   "aa89d5c5092976e2": "Förfluten tid",
   "d5b8d8dc328bf7fa": "Verktygsanrop",
@@ -12865,5 +12861,9 @@
   "89bb4ae50b1bb4c2": "av {count}",
   "7bb7da1a192254e8": "Dölj utdata",
   "3f5636e095cddf39": "Visa utdata",
-  "1291d2d26dff3d25": "Flotta"
+  "1291d2d26dff3d25": "Flotta",
+  "a71c440f5b52d254": "Commit-meddelande (valfritt)",
+  "5b325b2ed70b5991": "Eller skriv ditt svar i inmatningsfältet.",
+  "9180c8bd9c6572e1": "Senaste aktivitet",
+  "bb5b85696f58a300": "{usedTokens} tok"
 }

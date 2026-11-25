@@ -12822,10 +12822,6 @@
   "74699c0024eb35da": "Laufstatus",
   "067a273a8fd01100": "Laufstatus einklappen",
   "9d0fcefcc7417392": "{done}/{total}",
-  "0fd49a3865e279e2": "{count, plural, one {# Tool-Aufruf} other {# Tool-Aufrufe}}",
-  "9756b09ffd8a55c6": "In Arbeit",
-  "0dfc582858939130": "Übersprungen",
-  "cd9e0573b4527cba": "Nicht gestartet",
   "a73e3933c2a61633": "Trace",
   "aa89d5c5092976e2": "Verstrichen",
   "d5b8d8dc328bf7fa": "Tool-Aufrufe",
@@ -12858,5 +12854,9 @@
   "89bb4ae50b1bb4c2": "von {count}",
   "7bb7da1a192254e8": "Ausgabe ausblenden",
   "3f5636e095cddf39": "Ausgabe anzeigen",
-  "1291d2d26dff3d25": "Flotte"
+  "1291d2d26dff3d25": "Flotte",
+  "a71c440f5b52d254": "Commit-Nachricht (optional)",
+  "5b325b2ed70b5991": "Oder gib deine Antwort im Eingabefeld ein.",
+  "9180c8bd9c6572e1": "Letzte Aktivität",
+  "bb5b85696f58a300": "{usedTokens} Tok."
 }

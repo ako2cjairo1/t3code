@@ -1,10 +1,11 @@
 import { useGT, useMessages } from "gt-react";
-import { EllipsisIcon, PaletteIcon } from "lucide-react";
+import { EllipsisIcon, InfoIcon, PaletteIcon, PanelBottomIcon, PanelRightIcon } from "lucide-react";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { useTheme } from "~/hooks/useTheme";
 import { APPEARANCE_OPTIONS, notifyThemeSaveFailure } from "../CommandPaletteThemeItems";
 import { PanelLayoutControls, type PanelLayoutControlsProps } from "../chat/PanelLayoutControls";
 import { Button } from "../ui/button";
+import { HaloSegmented } from "./HaloSegmented";
 import {
   Menu,
   MenuCheckboxItem,
@@ -12,10 +13,6 @@ import {
   MenuGroupLabel,
   MenuItem,
   MenuPopup,
-  MenuRadioGroup,
-  MenuRadioItem,
-  MenuRadioItemIndicator,
-  MenuSeparator,
   MenuShortcut,
   MenuTrigger,
 } from "../ui/menu";
@@ -37,27 +34,18 @@ export function HaloPanelLayoutControls(props: PanelLayoutControlsProps) {
         <PanelLayoutControls {...props} showTerminalControl={false} showRightPanelControl={false} />
       ) : null}
       <HaloOverflowMenu
-        {...props}
-        showThreadPanelItem={props.threadPanelPresentation !== "popover"}
+        panels={{ ...props, showThreadPanelItem: props.threadPanelPresentation !== "popover" }}
       />
     </div>
   );
 }
 
-function HaloOverflowMenu({
-  showThreadPanelItem,
-  terminalAvailable,
-  terminalOpen,
-  terminalShortcutLabel,
-  threadPanelOpen,
-  threadPanelShortcutLabel,
-  rightPanelAvailable,
-  rightPanelOpen,
-  rightPanelShortcutLabel,
-  onToggleTerminal,
-  onToggleThreadPanel,
-  onToggleRightPanel,
-}: PanelLayoutControlsProps & { showThreadPanelItem: boolean }) {
+/** Panel toggles (on a thread) and the appearance pill, behind one round "more" button. */
+export function HaloOverflowMenu({
+  panels,
+}: {
+  panels?: PanelLayoutControlsProps & { showThreadPanelItem: boolean };
+}) {
   const gt = useGT();
   const messages = useMessages();
   const { appearanceMode, setAppearanceMode, setTheme } = useTheme();
@@ -65,72 +53,85 @@ function HaloOverflowMenu({
     <Menu>
       <MenuTrigger
         render={
-          <Button variant="ghost" size="icon-sm" aria-label={gt("Panels and theme")}>
+          <Button variant="ghost" size="icon-sm-pill" aria-label={gt("Panels and theme")}>
             <EllipsisIcon />
           </Button>
         }
       />
-      <MenuPopup align="end" className="w-62">
-        <MenuGroup>
-          <MenuGroupLabel>{gt("Panels")}</MenuGroupLabel>
-          <MenuCheckboxItem
-            checked={terminalOpen}
-            disabled={!terminalAvailable}
-            onCheckedChange={onToggleTerminal}
-          >
-            <span className="flex items-center gap-2">
-              {gt("Terminal drawer")}
-              {terminalShortcutLabel ? <MenuShortcut>{terminalShortcutLabel}</MenuShortcut> : null}
-            </span>
-          </MenuCheckboxItem>
-          {showThreadPanelItem ? (
-            <MenuCheckboxItem checked={threadPanelOpen} onCheckedChange={onToggleThreadPanel}>
-              <span className="flex items-center gap-2">
-                {gt("Thread details")}
-                {threadPanelShortcutLabel ? (
-                  <MenuShortcut>{threadPanelShortcutLabel}</MenuShortcut>
+      <MenuPopup align="end" className="w-65.5" data-halo-overflow="">
+        {panels ? (
+          <MenuGroup>
+            <MenuGroupLabel>{gt("Panels")}</MenuGroupLabel>
+            <MenuCheckboxItem
+              checked={panels.terminalOpen}
+              disabled={!panels.terminalAvailable}
+              onCheckedChange={panels.onToggleTerminal}
+            >
+              <span className="flex items-center gap-2.5">
+                <PanelBottomIcon className="size-3.5" />
+                {gt("Terminal drawer")}
+                {panels.terminalShortcutLabel ? (
+                  <MenuShortcut>{panels.terminalShortcutLabel}</MenuShortcut>
                 ) : null}
               </span>
             </MenuCheckboxItem>
-          ) : null}
-          <MenuCheckboxItem
-            checked={rightPanelOpen}
-            disabled={!rightPanelAvailable}
-            onCheckedChange={onToggleRightPanel}
-          >
-            <span className="flex items-center gap-2">
-              {gt("Right panel")}
-              {rightPanelShortcutLabel ? (
-                <MenuShortcut>{rightPanelShortcutLabel}</MenuShortcut>
-              ) : null}
-            </span>
-          </MenuCheckboxItem>
-        </MenuGroup>
-        <MenuSeparator />
-        <MenuGroup>
-          <MenuGroupLabel>{gt("Appearance")}</MenuGroupLabel>
-          <MenuRadioGroup
-            value={appearanceMode}
-            onValueChange={(mode: (typeof APPEARANCE_OPTIONS)[number]["mode"]) => {
-              if (!setAppearanceMode(mode)) notifyThemeSaveFailure();
-            }}
-          >
-            {APPEARANCE_OPTIONS.map(({ mode, label, icon: Icon }) => (
-              <MenuRadioItem key={mode} value={mode}>
-                <span className="flex items-center gap-2">
-                  <Icon className="size-4 text-muted-foreground" />
-                  {messages(label)}
-                  <MenuRadioItemIndicator className="ms-auto" />
+            {panels.showThreadPanelItem ? (
+              <MenuCheckboxItem
+                checked={panels.threadPanelOpen}
+                onCheckedChange={panels.onToggleThreadPanel}
+              >
+                <span className="flex items-center gap-2.5">
+                  <InfoIcon className="size-3.5" />
+                  {gt("Thread details")}
+                  {panels.threadPanelShortcutLabel ? (
+                    <MenuShortcut>{panels.threadPanelShortcutLabel}</MenuShortcut>
+                  ) : null}
                 </span>
-              </MenuRadioItem>
-            ))}
-          </MenuRadioGroup>
+              </MenuCheckboxItem>
+            ) : null}
+            <MenuCheckboxItem
+              checked={panels.rightPanelOpen}
+              disabled={!panels.rightPanelAvailable}
+              onCheckedChange={panels.onToggleRightPanel}
+            >
+              <span className="flex items-center gap-2.5">
+                <PanelRightIcon className="size-3.5" />
+                {gt("Right panel")}
+                {panels.rightPanelShortcutLabel ? (
+                  <MenuShortcut>{panels.rightPanelShortcutLabel}</MenuShortcut>
+                ) : null}
+              </span>
+            </MenuCheckboxItem>
+          </MenuGroup>
+        ) : null}
+        <MenuGroup>
+          <MenuGroupLabel>{gt("Theme")}</MenuGroupLabel>
+          <div className="px-1 pb-1">
+            <HaloSegmented
+              name="appearance"
+              aria-label={gt("Appearance")}
+              value={appearanceMode}
+              onValueChange={(mode) => {
+                if (!setAppearanceMode(mode)) notifyThemeSaveFailure();
+              }}
+              className="h-8.5 w-full *:data-segment:flex-1 *:data-segment:justify-center"
+              items={APPEARANCE_OPTIONS.map(({ mode, label, icon: Icon }) => ({
+                value: mode,
+                label: (
+                  <>
+                    <Icon className="size-3.5!" />
+                    {messages(label)}
+                  </>
+                ),
+              }))}
+            />
+          </div>
           <MenuItem
             onClick={() => {
               if (!setTheme(appearanceMode)) notifyThemeSaveFailure();
             }}
           >
-            <PaletteIcon />
+            <PaletteIcon className="size-3.5" />
             {gt("Use the default theme")}
           </MenuItem>
         </MenuGroup>

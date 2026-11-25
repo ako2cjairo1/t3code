@@ -1,20 +1,17 @@
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
-import { formatDiffCount } from "@t3tools/client-runtime/diff-count";
 import { useGT } from "gt-react";
-import { ChevronDownIcon, GitBranchIcon } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 import { useRef, type ReactNode } from "react";
 import { cn } from "~/lib/utils";
 import { Menu, MenuPopup, MenuTrigger } from "../ui/menu";
 import { HaloMorphPopup } from "./HaloMorphPopup";
 
 /**
- * Liquid Halo's header git control: branch and change counts, a primary action, and the
- * action menu. The commit form springs out of the pill; GitActionsControl owns every action.
+ * Liquid Halo's header git control: a primary action and the action menu. The commit form
+ * springs out of the pill; GitActionsControl owns every action.
  */
 export function HaloGitPill({
-  branch,
-  insertions,
-  deletions,
+  state,
   primary,
   primaryDisabled,
   primaryLabel,
@@ -27,9 +24,8 @@ export function HaloGitPill({
   menuDisabled,
   onMenuOpen,
 }: {
-  branch: string | null;
-  insertions: number;
-  deletions: number;
+  /** busy while an action runs; ok briefly after one succeeds. */
+  state: "idle" | "busy" | "ok";
   primary: ReactNode;
   primaryDisabled: boolean;
   primaryLabel: string;
@@ -50,23 +46,13 @@ export function HaloGitPill({
         ref={pillRef}
         role="group"
         aria-label={gt("Git actions")}
+        data-state={state}
+        data-halo-git-pill=""
         className={cn(
-          "flex h-7.5 shrink-0 items-stretch overflow-hidden rounded-full bg-foreground text-xs font-medium text-background shadow-(--halo-depth) transition-opacity duration-160",
+          "flex h-7.5 shrink-0 items-stretch overflow-hidden rounded-full bg-foreground text-xs font-medium text-background transition-[background-color,color,opacity] duration-260 data-[state=busy]:bg-foreground/8 data-[state=busy]:text-foreground data-[state=ok]:bg-primary data-[state=ok]:text-primary-foreground",
           commitOpen && "pointer-events-none opacity-0",
         )}
       >
-        {branch !== null ? (
-          <span className="flex min-w-0 items-center gap-1.5 ps-3 pe-1 @max-4xl/chat-header:hidden">
-            <GitBranchIcon aria-hidden className="size-3.5 shrink-0 opacity-70" />
-            <span className="max-w-32 truncate">{branch}</span>
-            {insertions > 0 || deletions > 0 ? (
-              <span className="flex gap-1 font-mono text-2xs tabular-nums">
-                <span className="text-diff-addition">+{formatDiffCount(insertions)}</span>
-                <span className="text-diff-deletion">-{formatDiffCount(deletions)}</span>
-              </span>
-            ) : null}
-          </span>
-        ) : null}
         <button
           type="button"
           aria-haspopup={primaryOpensCommit ? "dialog" : undefined}
@@ -74,7 +60,7 @@ export function HaloGitPill({
           aria-label={primaryLabel}
           disabled={primaryDisabled}
           onClick={onPrimary}
-          className="flex min-w-0 cursor-pointer items-center gap-1.5 ps-2.5 pe-2.5 whitespace-nowrap transition-colors outline-none hover:bg-background/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:cursor-default disabled:opacity-70"
+          className="flex min-w-0 cursor-pointer items-center gap-1.5 ps-2.75 pe-2.5 whitespace-nowrap transition-colors outline-none hover:bg-background/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:cursor-default disabled:opacity-70 in-data-[state=busy]:opacity-100 in-data-[state=ok]:opacity-100"
         >
           {primary}
         </button>
@@ -89,7 +75,7 @@ export function HaloGitPill({
             render={
               <button
                 type="button"
-                className="flex w-7 cursor-pointer items-center justify-center border-s border-background/15 transition-colors outline-none hover:bg-background/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:cursor-default disabled:opacity-60"
+                className="flex w-7 cursor-pointer items-center justify-center border-s border-current/14 transition-colors outline-none hover:bg-background/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:cursor-default disabled:opacity-60"
               />
             }
           >

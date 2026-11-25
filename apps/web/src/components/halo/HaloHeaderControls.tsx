@@ -2,7 +2,7 @@ import type { DraftId } from "~/composerDraftStore";
 import type { ScopedThreadRef } from "@t3tools/contracts";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
 import ThreadGitActionsControl from "../GitActionsControl";
-import { HaloStatusIsland } from "./HaloStatusIsland";
+import { HaloIdleIsland, HaloStatusIsland } from "./HaloStatusIsland";
 import { HaloViewSwitcher } from "./HaloViewSwitcher";
 
 /** The Liquid Halo header cluster: run island, view switcher, git pill. Nothing elsewhere. */
@@ -30,7 +30,9 @@ export function HaloHeaderControls({
     >
       {isServerThread ? (
         <HaloStatusIsland threadRef={threadRef} workStartedAt={workStartedAt} />
-      ) : null}
+      ) : (
+        <HaloIdleIsland />
+      )}
       <HaloViewSwitcher />
       {gitCwd ? (
         <ThreadGitActionsControl

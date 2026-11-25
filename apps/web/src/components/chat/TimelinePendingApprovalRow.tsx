@@ -5,6 +5,8 @@ import {
 import { msg, T, useMessages } from "gt-react";
 import { ShieldIcon } from "lucide-react";
 import { memo, use } from "react";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { HaloOrb } from "../halo/HaloOrb";
 import { type PendingApproval } from "../../session-logic";
 import { InlineButton } from "../ui/button";
 import { Popover, PopoverPopup, PopoverTrigger } from "../ui/popover";
@@ -47,6 +49,7 @@ export const TimelinePendingApprovalRow = memo(function TimelinePendingApprovalR
 }) {
   const { respondingRequestIds, canOperateThread, onRespondToApproval } = use(TimelineRowCtx);
   const m = useMessages();
+  const halo = useHaloExperience();
   const presentation = APPROVAL_PRESENTATION[approval.requestKind];
   const canRespond = approval.responseCapability === "live";
   return (
@@ -57,22 +60,33 @@ export const TimelinePendingApprovalRow = memo(function TimelinePendingApprovalR
       data-approval-card="pending"
       wrapLabel
       icon={
-        <ToolActivityIconView
-          icon={undefined}
-          fallbackName={presentation.icon}
-          className="block size-4 shrink-0 stroke-2 text-icon-muted"
-          muted
-        />
+        halo ? (
+          <HaloOrb state="approval" className="size-4" data-halo-approval-orb="" />
+        ) : (
+          <ToolActivityIconView
+            icon={undefined}
+            fallbackName={presentation.icon}
+            className="block size-4 shrink-0 stroke-2 text-icon-muted"
+            muted
+          />
+        )
       }
       label={
-        <code
-          aria-label={m(presentation.detailLabel)}
-          className="block max-h-40 min-w-0 overflow-auto whitespace-pre-wrap font-mono text-xs leading-5 text-foreground select-text! wrap-anywhere [scrollbar-width:thin] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/70"
-          data-approval-detail="complete"
-          tabIndex={0}
-        >
-          {approval.detail || m(presentation.label)}
-        </code>
+        <>
+          {halo ? (
+            <span data-approval-title="" className="mb-1 block text-xs font-semibold">
+              {m(presentation.label)}
+            </span>
+          ) : null}
+          <code
+            aria-label={m(presentation.detailLabel)}
+            className="block max-h-40 min-w-0 overflow-auto whitespace-pre-wrap font-mono text-xs leading-5 text-foreground select-text! wrap-anywhere [scrollbar-width:thin] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/70"
+            data-approval-detail="complete"
+            tabIndex={0}
+          >
+            {approval.detail || m(presentation.label)}
+          </code>
+        </>
       }
     >
       <div className="ms-7.5 flex min-w-0 flex-col gap-1 pb-1 text-xs">

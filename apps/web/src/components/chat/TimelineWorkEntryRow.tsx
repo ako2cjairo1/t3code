@@ -42,6 +42,8 @@ import * as DateTime from "effect/DateTime";
 import { formatDuration } from "@t3tools/shared/orchestrationTimingCopy";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { turnItemDurationMs } from "../halo/halo.logic";
+import { isHaloTestCommand } from "../halo/haloStages.logic";
+import { CommandOutputPanel, useCommandOutputStreaming } from "./CommandOutputPanel";
 import { ChevronRightIcon, CircleAlertIcon, XIcon, RotateCcwIcon } from "lucide-react";
 import { Button, InlineButton } from "../ui/button";
 import { useAssetUrls } from "../../assets/assetUrls";
@@ -693,6 +695,7 @@ function WorkEntryLogRow(props: WorkEntryRowProps) {
         </>
       }
     >
+      {halo && !expanded ? <HaloCollapsedTestCard workEntry={workEntry} /> : null}
       {expanded && viewedImage && threadRef ? (
         <WorkLogDetails kind="media">
           <ChatMarkdownAssetImage
@@ -748,6 +751,38 @@ function WorkEntryLogRow(props: WorkEntryRowProps) {
         </WorkLogDetails>
       ) : null}
     </WorkLogRow>
+  );
+}
+
+/**
+ * Liquid Halo: a test command's run card stays visible under its collapsed row. Only test
+ * commands subscribe to output while collapsed; every other row stays free.
+ */
+function HaloCollapsedTestCard({ workEntry }: { workEntry: TimelineWorkEntry }) {
+  const { activeThreadEnvironmentId, turnItemSource } = use(TimelineRowCtx);
+  const streams = useCommandOutputStreaming(activeThreadEnvironmentId);
+  const projected = workEntry.projectedItem;
+  const item = projected?.item;
+  if (!projected || item?.type !== "command_execution" || !isHaloTestCommand(item.input)) {
+    return null;
+  }
+  if (turnItemSource === undefined ? !streams : turnItemSource.commandOutput === undefined) {
+    return null;
+  }
+  return (
+    <div className="ms-7.5 my-1.5 empty:hidden">
+      <CommandOutputPanel
+        cardOnly
+        environmentId={activeThreadEnvironmentId}
+        threadId={projected.sourceThreadId}
+        itemId={projected.sourceItemId}
+        source={turnItemSource?.commandOutput}
+        command={item.input}
+        exitCode={item.exitCode}
+        startedAt={item.startedAt === null ? null : DateTime.formatIso(item.startedAt)}
+        settledMs={turnItemDurationMs(item)}
+      />
+    </div>
   );
 }
 

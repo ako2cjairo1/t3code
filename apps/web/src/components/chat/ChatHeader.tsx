@@ -278,7 +278,9 @@ export const ChatHeader = memo(function ChatHeader({
       >
         {activeProject ? (
           <>
-            <WorkspaceBreadcrumbItem className="shrink">
+            <WorkspaceBreadcrumbItem
+              className={cn("shrink", haloExperience && "@max-[724px]/chat-header:hidden")}
+            >
               <Tooltip>
                 <TooltipTrigger
                   render={
@@ -305,7 +307,9 @@ export const ChatHeader = memo(function ChatHeader({
                 </TooltipPopup>
               </Tooltip>
             </WorkspaceBreadcrumbItem>
-            <WorkspaceBreadcrumbSeparator>
+            <WorkspaceBreadcrumbSeparator
+              className={cn(haloExperience && "@max-[724px]/chat-header:hidden")}
+            >
               <WorkspaceBreadcrumbText>/</WorkspaceBreadcrumbText>
             </WorkspaceBreadcrumbSeparator>
           </>

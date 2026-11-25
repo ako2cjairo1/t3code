@@ -350,6 +350,8 @@ export interface ChatComposerHandle {
     detectTrigger?: boolean;
   }) => void;
   addTerminalContext: (selection: TerminalContextSelection) => void;
+  /** Sends `text` as the next message without touching the typed draft; false when it can't. */
+  sendPrompt: (text: string) => boolean;
   getSendContext: () => {
     answeringPendingUserInput: boolean;
     prompt: string;
@@ -3322,6 +3324,13 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
         countPreparingComposerImages(attachmentTargetKey) > 0 ||
         pendingDraftWork.has(attachmentTargetKey),
       insertTextAtEnd: insertComposerTextAtEndStable,
+      sendPrompt: (text: string) => {
+        const send = captureDetachedSend?.();
+        const sendContext = composerRef.current?.getSendContext();
+        if (!send || !sendContext) return false;
+        send(undefined, "auto", "foreground", undefined, { prompt: text, sendContext });
+        return true;
+      },
       pasteTextAtEnd: (text: string, options) => {
         if (speechInput.freezesEditor) return false;
         const shortcutArmed = consumePasteAsTextShortcut(pasteAsTextShortcutUntilRef);

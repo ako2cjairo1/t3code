@@ -8,6 +8,7 @@ import {
   type RefObject,
 } from "react";
 
+import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { cn } from "~/lib/utils";
 import { Button } from "../ui/button";
 import { SidebarInput, SidebarMenuButton } from "../ui/sidebar";
@@ -49,6 +50,7 @@ export function SidebarThreadHeader({
   onClearSearch,
 }: SidebarThreadHeaderProps) {
   const gt = useGT();
+  const halo = useHaloExperience();
   const resultsVisible = isSearching && searchResultCount > 0;
   // Shrinking results can remove the active option; never leave aria-activedescendant pointing at it.
   const activeResultExists = resultsVisible && activeSearchResultIndex < searchResultCount;
@@ -58,7 +60,14 @@ export function SidebarThreadHeader({
 
   return (
     <div className="flex items-center gap-1">
-      <div className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-sidebar-muted-foreground hover:bg-sidebar-row-hover hover:text-sidebar-foreground focus-within:bg-sidebar-row-hover focus-within:text-sidebar-foreground focus-within:ring-1 focus-within:ring-inset focus-within:ring-ring/70">
+      <div
+        className={cn(
+          "flex h-8 min-w-0 flex-1 items-center gap-2 py-1.5 text-sm font-medium text-sidebar-muted-foreground hover:text-sidebar-foreground focus-within:text-sidebar-foreground focus-within:ring-1 focus-within:ring-inset focus-within:ring-ring/70",
+          halo
+            ? "rounded-full border border-(--halo-line) bg-foreground/5 px-3"
+            : "rounded-md px-2 hover:bg-sidebar-row-hover focus-within:bg-sidebar-row-hover",
+        )}
+      >
         <SearchIcon className="size-4 shrink-0 text-(--sidebar-icon-color)" />
         <SidebarInput
           ref={searchInputRef}
