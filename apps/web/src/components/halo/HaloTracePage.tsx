@@ -11,7 +11,7 @@ import type { CommandOutputView } from "@t3tools/client-runtime/state/command-ou
 import type { EnvironmentId, ScopedThreadRef, ThreadId, TurnItemId } from "@t3tools/contracts";
 import { formatDuration } from "@t3tools/shared/orchestrationTimingCopy";
 import { msg, useGT, useMessages } from "gt-react";
-import { AlertCircleIcon, CheckIcon, ChevronRightIcon, ShieldIcon } from "lucide-react";
+import { AlertCircleIcon, CheckIcon, ChevronRightIcon, ShieldIcon, SquareIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { formatContextWindowTokens } from "~/lib/contextWindow";
@@ -51,6 +51,7 @@ const TONE_ICON: Record<HaloTraceTone, ReactNode> = {
   ok: <CheckIcon className="size-3 text-primary" />,
   need: <ShieldIcon className="size-3 text-warning-foreground" />,
   bad: <AlertCircleIcon className="size-3 text-destructive-foreground" />,
+  stop: <SquareIcon className="size-2.5 fill-current text-muted-foreground" />,
   run: <ChevronRightIcon className="size-3" />,
 };
 

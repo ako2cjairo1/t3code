@@ -2350,27 +2350,22 @@ html[data-theme-id="liquid-halo"]
 }
 
 /* A: buttons are prototype pills: background eases, press springs. */
-/* Grouped buttons keep the group's squared inner corners. A dialog Close rendered as a Button
-   carries the Close's slot instead, so it is matched by its own slot. */
+/* Grouped buttons keep the group's squared inner corners. [data-button] still marks a Button that a
+   wrapper (tooltip, menu, dialog close) rendered with its own data-slot. */
 html[data-theme-id="liquid-halo"]
-  :is([data-slot="button"], [data-slot$="dialog-close"]):not(
-    :is([data-slot="group"], [data-slot="input-group"]) *
-  ),
+  [data-button]:not(:is([data-slot="group"], [data-slot="input-group"]) *),
 html[data-theme-id="liquid-halo"]
-  :is([data-slot="button"], [data-slot$="dialog-close"]):not(
-    :is([data-slot="group"], [data-slot="input-group"]) *
-  )::before {
+  [data-button]:not(:is([data-slot="group"], [data-slot="input-group"]) *)::before {
   border-radius: 999px;
 }
-html[data-theme-id="liquid-halo"] :is([data-slot="button"], [data-slot$="dialog-close"]) {
+html[data-theme-id="liquid-halo"] [data-button] {
   transition:
     background-color 160ms,
     color 160ms,
     box-shadow 150ms,
     scale 120ms var(--halo-spring);
 }
-html[data-theme-id="liquid-halo"]
-  :is([data-slot="button"], [data-slot$="dialog-close"]):active:not(:disabled) {
+html[data-theme-id="liquid-halo"] [data-button]:active:not(:disabled) {
   scale: 0.97;
 }
 html[data-theme-id="liquid-halo"] [data-sidebar="menu-button"][data-size="icon"] {

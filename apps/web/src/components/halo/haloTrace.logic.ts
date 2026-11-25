@@ -3,7 +3,7 @@ import type { ThreadStructureTurnItem } from "@t3tools/client-runtime/state/mode
 import * as DateTime from "effect/DateTime";
 import { turnItemDurationMs } from "./halo.logic";
 
-export type HaloTraceTone = "ok" | "need" | "bad" | "run";
+export type HaloTraceTone = "ok" | "need" | "bad" | "stop" | "run";
 
 export interface HaloTraceEntry {
   readonly id: string;
@@ -55,7 +55,9 @@ export function deriveHaloTraceLog(
           ? "need"
           : item.status === "completed"
             ? "ok"
-            : "run";
+            : item.status === "cancelled" || item.status === "interrupted"
+              ? "stop"
+              : "run";
     const offsetMs =
       item.startedAt === null || Number.isNaN(startMs)
         ? null

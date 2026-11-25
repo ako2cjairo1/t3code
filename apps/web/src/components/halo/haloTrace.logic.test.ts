@@ -44,6 +44,18 @@ describe("deriveHaloTraceLog", () => {
     );
     expect(log).toEqual([{ id: "b", label: "b", tone: "run", offsetMs: null, durationMs: null }]);
   });
+
+  it("a tool the user's Stop cut short reads stopped, not still running", () => {
+    const log = deriveHaloTraceLog(
+      [
+        item("a", { type: "file_change", fileName: "a", status: "interrupted" }),
+        item("b", { type: "file_change", fileName: "b", status: "cancelled" }),
+      ],
+      null,
+      10,
+    );
+    expect(log.map((entry) => entry.tone)).toEqual(["stop", "stop"]);
+  });
 });
 
 describe("formatHaloTraceOffset", () => {
