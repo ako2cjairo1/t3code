@@ -226,6 +226,7 @@ import {
 } from "./ComposerAttachmentStrip";
 import { CollapsedComposerStopAction, ComposerPrimaryActions } from "./ComposerPrimaryActions";
 import { ComposerFooterPrimaryActions } from "./ComposerFooterControls";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { HaloThreadOrb } from "../halo/HaloOrb";
 import { ComposerPendingUserInputPanel } from "./ComposerPendingUserInputPanel";
 import { resolveComposerMenuActiveItemId } from "./composerMenuHighlight";
@@ -528,6 +529,7 @@ const NO_PROVIDER_SLASH_COMMANDS: ServerProvider["slashCommands"] = [];
 
 export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps) {
   const gt = useGT();
+  const halo = useHaloExperience();
   const m = useMessages();
   const {
     composerDraftTarget,
@@ -3920,9 +3922,16 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
               <div
                 className={cn(
                   "relative transition-opacity duration-150",
+                  halo && "ps-7",
                   composerSendHeld && "opacity-65",
                 )}
               >
+                {halo ? (
+                  // The prototype's orb leads the input rather than sitting in the footer.
+                  <span className="absolute start-0 top-0.5 inline-flex">
+                    <HaloThreadOrb threadRef={routeThreadRef} className="size-4.5" />
+                  </span>
+                ) : null}
                 {previewFile ? (
                   <ComposerFilePreviewDialog
                     file={previewFile}
@@ -4135,7 +4144,6 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
                     keepFullHistory={props.keepFullHistory}
                     onToggleKeepFullHistory={props.onToggleKeepFullHistory}
                   >
-                    <HaloThreadOrb threadRef={routeThreadRef} className="mx-1" />
                     {speechInput.available ? (
                       <>
                         <ComposerSpeechRecordingPill

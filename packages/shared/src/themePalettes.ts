@@ -1120,7 +1120,7 @@ html[data-theme-id] [data-chat-header] {
   transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }
 [data-terminal-drawer-frame] {
-  transition-timing-function: var(--spring);
+  transition-timing-function: var(--spring-settle);
 }
 :is([data-right-panel-shell], [data-slot="sidebar-gap"], [data-slot="sidebar-container"]) {
   transition-timing-function: var(--spring-settle);

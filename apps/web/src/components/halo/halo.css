@@ -2268,7 +2268,10 @@ html[data-theme-id="liquid-halo"] [data-timeline-root]:has(> [data-halo-trail]) 
 
 /* B: select, combobox and alert dialogs share the menu glass, radius and entry motion. */
 html[data-theme-id="liquid-halo"]
-  :is([data-slot="select-popup"] > div, [data-slot="combobox-positioner"] > span) {
+  :is(
+    [data-slot="select-popup"] > div:has(> [data-slot="select-list"]),
+    [data-slot="combobox-positioner"] > span
+  ) {
   border-radius: 20px;
   background: color-mix(in srgb, var(--popover) 82%, transparent);
   -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(1.5);
@@ -2298,7 +2301,7 @@ html[data-theme-id="liquid-halo"] [data-slot="alert-dialog-popup"] {
 }
 html[data-theme-id="liquid-halo"]
   :is(
-    [data-slot="select-popup"] > div,
+    [data-slot="select-popup"] > div:has(> [data-slot="select-list"]),
     [data-slot="combobox-positioner"] > span,
     [data-slot="alert-dialog-popup"]
   ) {
@@ -2409,4 +2412,44 @@ html[data-theme-id="liquid-halo"]
   [data-chat-composer-footer]
   button[type="submit"]:active:not(:disabled) {
   scale: 0.95;
+}
+
+/* A: child-thread approvals are glass cards like the inline ones. */
+html[data-theme-id="liquid-halo"] [data-approval-card="child"] {
+  border-radius: 20px;
+  border-color: var(--halo-line);
+  background: var(--halo-card);
+  box-shadow: var(--halo-hl), var(--e2);
+}
+
+/* B: popovers open with the menu motion (morph popups and panels have their own). */
+html[data-theme-id="liquid-halo"]
+  [data-slot="popover-popup"]:not([data-variant], [data-halo-morph], [data-ending-style]) {
+  animation: halo-pop-enter 220ms var(--halo-ease-out) both;
+}
+html[data-theme-id="liquid-halo"] [data-slot="popover-popup"][data-side="bottom"] {
+  --halo-pop-dy: -6px;
+}
+
+/* B: text fields are the prototype's 14px wells with an accent focus halo. */
+html[data-theme-id="liquid-halo"] [data-slot="input-control"]:not([data-size="compact"]) {
+  border-radius: 14px;
+}
+html[data-theme-id="liquid-halo"] [data-slot="input-control"] {
+  border-color: var(--halo-line-2);
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+html[data-theme-id="liquid-halo"] [data-slot="input-control"]::before {
+  border-radius: inherit;
+}
+html[data-theme-id="liquid-halo"] [data-slot="input-control"]:has(:focus-visible) {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 15%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-id="liquid-halo"] [data-slot="popover-popup"] {
+    animation: none;
+  }
 }

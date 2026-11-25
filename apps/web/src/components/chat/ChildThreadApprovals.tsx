@@ -25,6 +25,7 @@ function ChildApproval({ entry }: { entry: ChildThreadApproval }) {
   return (
     <section
       aria-label={gt("Approval from {title}", { title: entry.title })}
+      data-approval-card="child"
       className="rounded-lg border border-border bg-background p-3 text-xs"
     >
       <p className="mb-2 font-medium">
