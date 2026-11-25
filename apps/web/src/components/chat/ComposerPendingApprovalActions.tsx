@@ -19,6 +19,8 @@ interface ComposerPendingApprovalActionsProps {
   isResponding: boolean;
   canRespond: boolean;
   disabled?: boolean;
+  /** Halo inline approvals slide to approve; compact surfaces such as inbox cards keep a button. */
+  slideToApprove?: boolean;
   options?: ReadonlyArray<ProviderApprovalOption> | undefined;
   onRespondToApproval: (
     requestId: RuntimeRequestId,
@@ -48,6 +50,7 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
   isResponding,
   canRespond,
   disabled = false,
+  slideToApprove = true,
   options = DEFAULT_APPROVAL_OPTIONS,
   onRespondToApproval,
 }: ComposerPendingApprovalActionsProps) {
@@ -66,7 +69,13 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
   return (
     <>
       {primaryOptions.map((option) => {
-        if (halo && presentation === "inline" && option.decision === "accept" && !option.warning) {
+        if (
+          halo &&
+          slideToApprove &&
+          presentation === "inline" &&
+          option.decision === "accept" &&
+          !option.warning
+        ) {
           return (
             <HaloSlideToApprove
               key={option.decision}

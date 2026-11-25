@@ -238,7 +238,7 @@ export function HaloInboxPage() {
               <div
                 ref={overlayRef}
                 data-halo-card-lifted=""
-                className="rotate-(--halo-tilt,0deg) scale-104 cursor-grabbing transition-[rotate] duration-300 ease-out"
+                className="rotate-(--halo-tilt,0deg) scale-104 cursor-grabbing transition-[rotate] duration-420 ease-(--halo-spring)"
               >
                 <HaloInboxCardBody
                   card={dragging}
@@ -601,6 +601,7 @@ function HaloInboxApproval({ card }: { card: Card }) {
       >
         <ComposerPendingApprovalActions
           presentation="inline"
+          slideToApprove={false}
           requestId={approval.requestId}
           isResponding={responding}
           canRespond={approval.responseCapability === "live"}

@@ -206,12 +206,18 @@ export function HaloStatusIsland({
             <span data-halo-title="" className="min-w-0 flex-1 truncate font-semibold">
               {title}
             </span>
-            <span
-              ref={elapsedRef}
-              className="shrink-0 font-mono text-2xs text-muted-foreground tabular-nums"
-            >
-              {elapsedText}
-            </span>
+            {tone === "needs" ? (
+              <span className="shrink-0 font-mono text-2xs text-(--primary-light)">
+                {gt("Waiting on you")}
+              </span>
+            ) : (
+              <span
+                ref={elapsedRef}
+                className="shrink-0 font-mono text-2xs text-muted-foreground tabular-nums"
+              >
+                {elapsedText}
+              </span>
+            )}
           </div>
           <ol className="mb-3 grid grid-cols-4 gap-1.5">
             {stages.map((stage) => (

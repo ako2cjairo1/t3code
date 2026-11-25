@@ -1,5 +1,6 @@
 const flown = new Set<string>();
 const FRESH_MS = 5000;
+const FLIGHT_DELAY_MS = 380;
 
 /**
  * Ref for an approval card's orb: once per request, a ghost of the header island's orb flies
@@ -11,10 +12,10 @@ export function haloOrbFlight(key: string, createdAt: string) {
     if (target === null || flown.has(key) || !target.closest("[data-timeline-row-id]")) return;
     if (Date.now() - Date.parse(createdAt) > FRESH_MS) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    // Measure once the virtualized row has been laid out at its real position; a row that
-    // unmounts before then leaves the flight to the one that replaces it.
+    // The prototype waits 380ms so the card's pop-in settles first; by then the virtualized
+    // row sits at its real position. A row that unmounts first leaves the flight to its successor.
     target.style.opacity = "0";
-    requestAnimationFrame(() => requestAnimationFrame(() => fly(key, target)));
+    window.setTimeout(() => fly(key, target), FLIGHT_DELAY_MS);
   };
 }
 

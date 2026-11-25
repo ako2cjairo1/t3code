@@ -212,7 +212,11 @@ export function HaloTracePage({ threadRef }: { threadRef: ScopedThreadRef }) {
             {log.length === 0 ? (
               <p className="py-1.5 text-xs text-muted-foreground">{gt("No events yet.")}</p>
             ) : (
-              <ol className="max-h-[min(52vh,460px)] overflow-auto font-mono text-xs leading-normal">
+              <ol
+                ref={live ? followTraceLog : undefined}
+                data-halo-trace-live={live || undefined}
+                className="max-h-[min(52vh,460px)] overflow-auto font-mono text-xs leading-normal"
+              >
                 {log.map((entry) => (
                   <li
                     key={entry.id}
@@ -344,4 +348,22 @@ function HaloStageBars({ stages }: { stages: HaloRunStages }) {
       ))}
     </ol>
   );
+}
+
+/** While the run is live, new events keep the log pinned to its end unless the user scrolled up. */
+function followTraceLog(list: HTMLOListElement) {
+  let atEnd = true;
+  const onScroll = () => {
+    atEnd = list.scrollHeight - list.scrollTop - list.clientHeight <= 4;
+  };
+  const observer = new MutationObserver(() => {
+    if (atEnd) list.scrollTop = list.scrollHeight;
+  });
+  list.scrollTop = list.scrollHeight;
+  list.addEventListener("scroll", onScroll, { passive: true });
+  observer.observe(list, { childList: true });
+  return () => {
+    observer.disconnect();
+    list.removeEventListener("scroll", onScroll);
+  };
 }

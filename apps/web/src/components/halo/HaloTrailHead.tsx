@@ -83,7 +83,7 @@ export function HaloTrailStep({
   return (
     <div
       data-halo-trail-step={state ?? ""}
-      ref={state === "active" ? observeVisibleAnimation : undefined}
+      ref={state === "active" || state === "wait" ? observeVisibleAnimation : undefined}
     >
       {children}
     </div>
