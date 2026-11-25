@@ -12832,7 +12832,6 @@
   "a73e3933c2a61633": "Spårning",
   "aa89d5c5092976e2": "Förfluten tid",
   "d5b8d8dc328bf7fa": "Verktygsanrop",
-  "bb44e6f4c3a13cb5": "Kontext",
   "bde316c29d562910": "Subagenter",
   "7fe6ac101c7980f3": "{count} aktiva",
   "4d7dff60ceb701ff": "Steg",
@@ -12865,5 +12864,9 @@
   "a71c440f5b52d254": "Commit-meddelande (valfritt)",
   "5b325b2ed70b5991": "Eller skriv ditt svar i inmatningsfältet.",
   "9180c8bd9c6572e1": "Senaste aktivitet",
-  "bb5b85696f58a300": "{usedTokens} tok"
+  "bb5b85696f58a300": "{usedTokens} tok",
+  "a18430b6199675e3": "Svara",
+  "f8ded9316d65a5b5": "Token",
+  "d21e2a69a76033a9": "Godkända tester",
+  "b0f9b9586702a5fb": "Agentspår"
 }

@@ -1,4 +1,10 @@
-const motionTiming = { duration: 150, easing: "ease-out" };
+const baseTiming = { duration: 150, easing: "ease-out" };
+// Liquid Halo rows glide with the prototype's 300ms spring-soft (same curve as --spring-settle).
+const haloTiming = {
+  duration: 300,
+  easing:
+    "linear(0, 0.142, 0.383, 0.596, 0.752, 0.855, 0.919, 0.956, 0.977, 0.988, 0.994, 0.997, 0.999, 1)",
+};
 const rowTravel = (height: number) => Math.min(height, 40);
 // Fades clone removed rows and animate clones and entries; intervening layout reads force reflows.
 const MAX_FADED_ROWS_PER_UPDATE = 40;
@@ -13,6 +19,10 @@ function progress(animation: Animation) {
 
 /** Position the list so all direct children's offsetTop share an origin. */
 export function createSidebarListMotion(parent: HTMLUListElement) {
+  const motionTiming =
+    parent.ownerDocument.documentElement.dataset.themeId === "liquid-halo"
+      ? haloTiming
+      : baseTiming;
   let positions: Map<HTMLElement, RowPosition> | null = null;
   let disposed = false;
   const reducedMotion = parent.ownerDocument.defaultView?.matchMedia(

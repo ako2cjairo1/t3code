@@ -8,6 +8,9 @@ import {
   type RefObject,
 } from "react";
 
+import { useAtomValue } from "@effect/atom-react";
+import { shortcutLabelForCommand } from "../../keybindings";
+import { primaryServerKeybindingsAtom } from "../../state/server";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { cn } from "~/lib/utils";
 import { Button } from "../ui/button";
@@ -51,6 +54,10 @@ export function SidebarThreadHeader({
 }: SidebarThreadHeaderProps) {
   const gt = useGT();
   const halo = useHaloExperience();
+  const paletteShortcut = shortcutLabelForCommand(
+    useAtomValue(primaryServerKeybindingsAtom),
+    "commandPalette.toggle",
+  );
   const resultsVisible = isSearching && searchResultCount > 0;
   // Shrinking results can remove the active option; never leave aria-activedescendant pointing at it.
   const activeResultExists = resultsVisible && activeSearchResultIndex < searchResultCount;
@@ -89,6 +96,11 @@ export function SidebarThreadHeader({
           }
           className="min-w-0 flex-1"
         />
+        {halo && !isSearching ? (
+          <kbd data-halo-kbd="" className="font-mono">
+            {paletteShortcut ?? "⌘K"}
+          </kbd>
+        ) : null}
         {isSearching ? (
           <Button
             type="button"

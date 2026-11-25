@@ -24,8 +24,8 @@ export function HaloGitPill({
   menuDisabled,
   onMenuOpen,
 }: {
-  /** busy while an action runs; ok briefly after one succeeds. */
-  state: "idle" | "busy" | "ok";
+  /** busy while an action runs; ok briefly after one succeeds; needs when there is work to commit. */
+  state: "idle" | "busy" | "ok" | "needs";
   primary: ReactNode;
   primaryDisabled: boolean;
   primaryLabel: string;

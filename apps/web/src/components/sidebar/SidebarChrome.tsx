@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 
 import { useAtomValue } from "@effect/atom-react";
 import { useEnvironmentIdentificationMode } from "../../hooks/useSettings";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { shortcutLabelForCommand } from "../../keybindings";
 import {
   navigateHistory,
@@ -184,6 +185,19 @@ function SidebarBrand({ onBackdrop }: { onBackdrop: boolean }) {
 }
 
 function SidebarBrandMark({ onBackdrop }: { onBackdrop: boolean }) {
+  const halo = useHaloExperience();
+  if (halo) {
+    return (
+      <span className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold tracking-tight">
+        <span data-halo-glyph="">T3</span>
+        <span className="truncate">
+          {"T3 "}
+          {/* oxlint-disable-next-line t3code/no-untranslated-copy -- product wordmark */}
+          <span className="font-medium text-muted-foreground">{"Code"}</span>
+        </span>
+      </span>
+    );
+  }
   return (
     <span className="inline-flex min-w-0 items-baseline gap-1 text-sm font-medium tracking-tight">
       <T3Wordmark aria-label="T3" className="h-[1cap] w-auto shrink-0" />

@@ -1,5 +1,6 @@
 import { useGT } from "gt-react";
 import { ChevronDownIcon, GitBranchIcon } from "lucide-react";
+import { formatDiffCount } from "@t3tools/client-runtime/diff-count";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { useThreadShell } from "../../state/entities";
 import { workspaceAreaProps } from "../../lib/workspaceFocus";
@@ -28,9 +29,12 @@ export function ThreadDetailsCard({
   anchor,
   handle,
   contentKey,
+  haloDiff,
   onContextMenu,
   children,
 }: {
+  /** Liquid Halo: line totals shown on the collapsed branch pill. */
+  haloDiff?: { insertions: number; deletions: number } | null;
   threadRef: ScopedThreadRef;
   anchor: RefObject<Element | null>;
   handle: ReturnType<typeof PopoverCreateHandle>;
@@ -147,6 +151,16 @@ export function ThreadDetailsCard({
           <span className="min-w-0 flex-1 truncate text-start font-mono text-2xs">
             {branch ?? gt("Thread details")}
           </span>
+          {haloDiff && (haloDiff.insertions > 0 || haloDiff.deletions > 0) ? (
+            <span className="flex shrink-0 gap-1.5 font-mono text-2xs tabular-nums">
+              <span className="text-diff-addition-foreground">
+                +{formatDiffCount(haloDiff.insertions)}
+              </span>
+              <span className="text-diff-deletion-foreground">
+                -{formatDiffCount(haloDiff.deletions)}
+              </span>
+            </span>
+          ) : null}
           <ChevronDownIcon
             aria-hidden
             className="size-3.5 shrink-0 text-muted-foreground transition-transform duration-320 in-data-halo-open:rotate-180"

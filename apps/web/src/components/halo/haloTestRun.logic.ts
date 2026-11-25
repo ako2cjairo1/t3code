@@ -2,6 +2,7 @@
  * Reads a test command's terminal output, streaming or final, into per-file results for the
  * Liquid Halo test-run card. Unknown or unparseable output returns null so the raw output shows.
  */
+import { isHaloTestCommand } from "./haloStages.logic";
 
 export type HaloTestRunner =
   | "vitest"
@@ -495,4 +496,17 @@ export function parseHaloTestRun(input: {
 function sumDurations(files: ReadonlyArray<HaloTestFile>): number | null {
   const known = files.filter((file) => file.durationMs !== null);
   return known.length === 0 ? null : known.reduce((sum, file) => sum + file.durationMs!, 0);
+}
+
+/** The run's newest test command, whose results the Trace view's "Tests passed" stat shows. */
+export function latestHaloTestCommand<
+  T extends { readonly type: string; readonly input?: unknown; readonly ordinal: number },
+>(items: ReadonlyArray<T>): (T & { readonly input: string }) | null {
+  let latest: (T & { readonly input: string }) | null = null;
+  for (const item of items) {
+    if (item.type !== "command_execution" || typeof item.input !== "string") continue;
+    if (!isHaloTestCommand(item.input)) continue;
+    if (latest === null || item.ordinal > latest.ordinal) latest = item as T & { input: string };
+  }
+  return latest;
 }

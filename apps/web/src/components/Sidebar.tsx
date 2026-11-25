@@ -3509,7 +3509,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                           scopeThreadRef(thread.environmentId, thread.id),
                         );
                         const isCard =
-                          !halo &&
+                          !(halo && environmentLabelById.size <= 1) &&
                           (section === "active" || section === "pinned" || section === "working");
                         const rowVariant = folderRow
                           ? folderRowsMultiline

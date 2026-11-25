@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { parseHaloTestRun } from "./haloTestRun.logic";
+import { latestHaloTestCommand, parseHaloTestRun } from "./haloTestRun.logic";
 
 const parse = (command: string, output: string, running = false, exitCode?: number) =>
   parseHaloTestRun({ command, output, running, exitCode });
@@ -283,5 +283,18 @@ Ran 4 tests across 2 files. [27.00ms]
     expect(parse("cargo test", " Running tests/a.rs (x)\ntest a ... ok\n", false, 101)?.state).toBe(
       "failed",
     );
+  });
+});
+
+describe("latestHaloTestCommand", () => {
+  it("picks the newest test command and ignores other commands and tools", () => {
+    const items = [
+      { id: "a", type: "command_execution", input: "vp test run src", ordinal: 1 },
+      { id: "b", type: "command_execution", input: "git status", ordinal: 5 },
+      { id: "c", type: "command_execution", input: "cd web && pnpm test", ordinal: 3 },
+      { id: "d", type: "file_change", ordinal: 4 },
+    ];
+    expect(latestHaloTestCommand(items)?.id).toBe("c");
+    expect(latestHaloTestCommand(items.slice(1, 2))).toBeNull();
   });
 });

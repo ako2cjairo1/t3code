@@ -114,6 +114,7 @@ import { preventThumbButtonFocus, takeThumbButtonNavigation } from "./preview/th
 import { PierreEntryIcon } from "./chat/PierreEntryIcon";
 import { resolvePullRequestState } from "./pullRequest/pullRequestPresentation";
 import { PullRequestGlyph } from "~/components/pullRequest/pullRequestIcons";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { observeResize } from "~/lib/observeResize";
 import { surfaceShortcutKey } from "~/lib/surfaceShortcutKey";
 
@@ -1124,6 +1125,7 @@ function RightPanelTab(
 
 export function RightPanelTabs(props: RightPanelTabsProps) {
   const gt = useGT();
+  const halo = useHaloExperience();
   const messages = useMessages();
   const focusedSurface = props.surfaces.find((surface) => surface.id === props.activeSurfaceId);
   const ownsDesktopTitleBar = isElectron && props.mode === "inline";
@@ -1418,6 +1420,23 @@ export function RightPanelTabs(props: RightPanelTabsProps) {
     activeTab?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [props.activeSurfaceId, tabScrollState.hasOverflow]);
 
+  // Liquid Halo: one thumb springs under the active tab (transform only, see halo.css).
+  // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- measures the active tab DOM node into CSS variables on the tab strip
+  useEffect(() => {
+    if (!halo) return;
+    const strip =
+      tabListRef.current?.querySelector<HTMLElement>("[data-halo-tab-thumb]")?.parentElement;
+    if (!strip) return;
+    const place = () => {
+      const active = strip.querySelector<HTMLElement>("[data-active-tab='true']");
+      strip.style.setProperty("--thumb-w", `${active?.offsetWidth ?? 0}px`);
+      strip.style.setProperty("--thumb-x", `${active?.offsetLeft ?? 0}px`);
+    };
+    place();
+    return observeResize(strip, place);
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- re-measures when the active tab or the tab set changes
+  }, [halo, props.activeSurfaceId, props.surfaces]);
+
   const attachTabList = (root: HTMLDivElement | null) => {
     tabListRef.current = root;
     const viewport = tabScrollViewport(root);
@@ -1504,7 +1523,8 @@ export function RightPanelTabs(props: RightPanelTabsProps) {
           )}
           data-right-panel-tab-list
         >
-          <div className="flex h-full w-max min-w-full items-center gap-1">
+          <div className="relative flex h-full w-max min-w-full items-center gap-1">
+            {halo ? <span aria-hidden data-halo-tab-thumb="" /> : null}
             <SortableTabList surfaces={props.surfaces} onMove={props.onMoveSurface}>
               {props.surfaces.map((surface) => {
                 const previewTabId = previewTabIdOf(surface, props.previewSessions);

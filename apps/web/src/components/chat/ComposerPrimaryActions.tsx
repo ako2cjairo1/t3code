@@ -163,6 +163,7 @@ function StopGenerationButton({
         render={
           <button
             type="button"
+            data-halo-stop={halo ? "" : undefined}
             className={cn(
               "flex shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors duration-150 disabled:cursor-default disabled:opacity-64 [&_svg]:pointer-events-none",
               halo

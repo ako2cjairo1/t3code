@@ -7,6 +7,7 @@ import { ShieldIcon } from "lucide-react";
 import { memo, use } from "react";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { HaloOrb } from "../halo/HaloOrb";
+import { haloOrbFlight } from "../halo/haloOrbFlight";
 import { type PendingApproval } from "../../session-logic";
 import { InlineButton } from "../ui/button";
 import { Popover, PopoverPopup, PopoverTrigger } from "../ui/popover";
@@ -61,7 +62,9 @@ export const TimelinePendingApprovalRow = memo(function TimelinePendingApprovalR
       wrapLabel
       icon={
         halo ? (
-          <HaloOrb state="approval" className="size-4" data-halo-approval-orb="" />
+          <span ref={haloOrbFlight(approval.requestId, approval.createdAt)} className="inline-flex">
+            <HaloOrb state="approval" className="size-4" data-halo-approval-orb="" />
+          </span>
         ) : (
           <ToolActivityIconView
             icon={undefined}

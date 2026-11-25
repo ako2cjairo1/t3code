@@ -3700,6 +3700,7 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
       }}
       className="mx-auto w-full min-w-0 max-w-(--chat-content-max-width)"
       data-chat-composer-form="true"
+      data-running={phase === "running" || phase === "connecting" ? "true" : undefined}
       {...threadContextDropTargetProps()}
     >
       <ComposerBanner.Dock>

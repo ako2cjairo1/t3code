@@ -188,16 +188,151 @@
   }
 }
 
-/* Agent trail: a vertical line through the work-row icons, broken around each icon node. */
-html[data-theme-id="liquid-halo"] [data-work-entry-id]:not(:has([aria-expanded="true"]))::before {
+/* C: Agent trail card. Each virtualized trail row paints one segment (data-halo-trail), so
+   adjacent rows read as one glass card; nothing paints across a row boundary but the
+   last segment's drop shadow. No backdrop blur per segment: it would seam at each row. */
+html[data-theme-id="liquid-halo"] [data-halo-trail] {
+  --trail-line: color-mix(in srgb, var(--foreground) 7%, transparent);
+}
+html[data-theme-id="liquid-halo"] [data-halo-trail] > div {
+  /* Own formatting context, so a child's margin stays inside the segment's paint. */
+  display: flow-root;
+  padding: 0 16px;
+  background: var(--halo-card);
+  border-inline: 1px solid var(--halo-line);
+}
+html[data-theme-id="liquid-halo"]
+  [data-halo-trail]:is([data-halo-trail="first"], [data-halo-trail="only"]) {
+  padding-top: 12px;
+}
+html[data-theme-id="liquid-halo"]
+  [data-halo-trail]:is([data-halo-trail="first"], [data-halo-trail="only"])
+  > div {
+  padding-top: 14px;
+  border-top: 1px solid var(--halo-line);
+  border-radius: 24px 24px 0 0;
+  box-shadow: var(--halo-hl);
+}
+html[data-theme-id="liquid-halo"]
+  [data-halo-trail]:is([data-halo-trail="last"], [data-halo-trail="only"]) {
+  padding-bottom: 14px;
+}
+html[data-theme-id="liquid-halo"]
+  [data-halo-trail]:is([data-halo-trail="last"], [data-halo-trail="only"])
+  > div {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--halo-line);
+  border-radius: 0 0 24px 24px;
+  box-shadow: var(--e3);
+}
+html[data-theme-id="liquid-halo"] [data-halo-trail="only"] > div {
+  border-radius: 24px;
+  box-shadow: var(--halo-hl), var(--e3);
+}
+[data-halo-trail-head] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  white-space: nowrap;
+  font-size: 13px;
+}
+[data-halo-trail-model] {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  border: 1px solid var(--halo-line);
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+[data-halo-trail-title] {
+  font-weight: 600;
+}
+[data-halo-trail-meta] {
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+html[data-theme-id="liquid-halo"] [data-halo-trail] [data-approval-card] {
+  margin-block: 6px 8px;
+}
+/* Steps: a 16px node on a 2px connector; the connector breaks around each node. */
+[data-halo-trail-step] {
+  position: relative;
+  padding-left: 28px;
+}
+[data-halo-trail-step]::after {
   content: "";
   position: absolute;
+  left: 7px;
   top: 0;
   bottom: 0;
-  left: calc(0.125rem + 0.75rem - 0.5px);
-  width: 1px;
-  background: linear-gradient(var(--border) 0 2px, transparent 2px 22px, var(--border) 22px);
+  width: 2px;
+  border-radius: 1px;
+  background: linear-gradient(
+    var(--trail-line) 0 2px,
+    transparent 2px 22px,
+    var(--trail-line) 22px
+  );
   pointer-events: none;
+}
+/* C: like the prototype, the connector under a finished step fills with the accent. */
+[data-halo-trail] [data-halo-trail-step="done"] {
+  --trail-line: var(--primary);
+}
+[data-halo-trail="first"] [data-halo-trail-step]::after {
+  background: linear-gradient(transparent 0 22px, var(--trail-line) 22px);
+}
+[data-halo-trail="last"] [data-halo-trail-step]::after {
+  background: linear-gradient(var(--trail-line) 0 2px, transparent 2px);
+}
+[data-halo-trail="only"] [data-halo-trail-step]::after,
+[data-halo-trail="last"] [data-halo-trail-step=""]::after {
+  display: none;
+}
+[data-halo-trail]:not([data-halo-trail="first"], [data-halo-trail="only"])
+  [data-halo-trail-step=""]::after {
+  background: var(--trail-line);
+}
+[data-halo-trail-step]:not([data-halo-trail-step=""])::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--foreground) 25%, transparent);
+  pointer-events: none;
+}
+[data-halo-trail] [data-halo-trail-step="done"]::before,
+[data-halo-trail] [data-halo-trail-step="bad"]::before {
+  border-color: transparent;
+  background: var(--primary)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
+    center / 10px no-repeat;
+}
+[data-halo-trail] [data-halo-trail-step="bad"]::before {
+  background-color: color-mix(in srgb, var(--foreground) 45%, transparent);
+}
+[data-halo-trail] [data-halo-trail-step="active"]::before {
+  border-color: color-mix(in srgb, var(--primary-light, var(--ring)) 25%, transparent);
+  border-top-color: var(--primary-light, var(--ring));
+  animation: halo-spin 0.8s linear infinite;
+  animation-play-state: var(--visible-animation-state, paused);
+}
+[data-halo-trail] [data-halo-trail-step="wait"]::before {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-trail-step]::before {
+    animation: none !important;
+  }
 }
 
 /* Depth: Thread ↔ Inbox ↔ Trace. Only the main pane moves; the sidebar stays put.
@@ -535,31 +670,29 @@ html[data-theme-id="liquid-halo"]
 }
 
 /* B: light mode keeps the same geometry with soft layered shadows instead of dark depth. */
-@variant light {
-  html[data-theme-id="liquid-halo"]
-    :is(
-      [data-slot="popover-popup"],
-      [data-slot="menu-popup"],
-      [data-slot="dialog-popup"],
-      [data-command-palette],
-      [data-thread-details-card]
-    ) {
-    border-color: transparent !important;
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 60%),
-      0 2px 6px rgb(20 24 40 / 6%),
-      0 24px 56px -16px rgb(20 24 40 / 22%);
-  }
-  html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > * {
-    border-color: transparent;
-    background: rgb(255 255 255 / 96%);
-    box-shadow:
-      0 2px 6px rgb(20 24 40 / 6%),
-      0 24px 56px -16px rgb(20 24 40 / 22%);
-  }
-  html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
-    background: rgb(20 24 40 / 18%);
-  }
+html[data-theme-id="liquid-halo"]:not(.dark)
+  :is(
+    [data-slot="popover-popup"],
+    [data-slot="menu-popup"],
+    [data-slot="dialog-popup"],
+    [data-command-palette],
+    [data-thread-details-card]
+  ) {
+  border-color: transparent !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 60%),
+    0 2px 6px rgb(20 24 40 / 6%),
+    0 24px 56px -16px rgb(20 24 40 / 22%);
+}
+html[data-theme-id="liquid-halo"]:not(.dark) [data-slot="toast-viewport"] > * {
+  border-color: transparent;
+  background: rgb(255 255 255 / 96%);
+  box-shadow:
+    0 2px 6px rgb(20 24 40 / 6%),
+    0 24px 56px -16px rgb(20 24 40 / 22%);
+}
+html[data-theme-id="liquid-halo"]:not(.dark) [data-slot="command-dialog-backdrop"] {
+  background: rgb(20 24 40 / 18%);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -620,9 +753,19 @@ html[data-theme-id="liquid-halo"] [data-timeline-row-id] {
   padding-inline: 24px;
 }
 
-/* C: approval actions: 26px pills, Approve filled, kbd chip. */
-html[data-theme-id="liquid-halo"] [data-approval-card] [data-approval-action],
-html[data-theme-id="liquid-halo"] [data-approval-card] [data-slot="inline-button"] {
+/* C: approval actions: 26px pills, Approve filled, kbd chip. The inbox card reuses them. */
+html[data-theme-id="liquid-halo"] {
+  --halo-accent-fill: #6a57e8;
+}
+html[data-theme-id="liquid-halo"]:not(.dark) {
+  --halo-accent-fill: var(--primary);
+}
+html[data-theme-id="liquid-halo"]
+  :is([data-approval-card], [data-halo-inbox-actions])
+  [data-approval-action],
+html[data-theme-id="liquid-halo"]
+  :is([data-approval-card], [data-halo-inbox-actions])
+  [data-slot="inline-button"] {
   min-height: 26px;
   padding: 0 11px;
   border-radius: 999px;
@@ -634,8 +777,10 @@ html[data-theme-id="liquid-halo"] [data-approval-card] [data-slot="inline-button
   align-items: center;
   gap: 6px;
 }
-html[data-theme-id="liquid-halo"] [data-approval-card] [data-approval-action="accept"] {
-  background: #6a57e8;
+html[data-theme-id="liquid-halo"]
+  :is([data-approval-card], [data-halo-inbox-actions])
+  [data-approval-action="accept"] {
+  background: var(--halo-accent-fill);
   color: #fff;
   box-shadow: none;
 }
@@ -647,6 +792,66 @@ html[data-theme-id="liquid-halo"] [data-approval-card] [data-approval-action="ac
   color: inherit;
 }
 
+/* C: inbox needs card: command preview, Approve before Decline. mod+Enter only works in a thread. */
+[data-halo-inbox-cmd] {
+  margin: 0;
+  padding: 6px 9px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--background) 60%, transparent);
+  border: 1px solid var(--halo-line, var(--border));
+  font: 11px/1.5 var(--font-mono, ui-monospace, monospace);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+[data-halo-inbox-actions] [data-approval-action="accept"] {
+  order: -1;
+}
+[data-halo-inbox-actions] [data-halo-kbd] {
+  display: none;
+}
+
+/* C: message code — 12px mono inline chips; code blocks are 20px sunk glass with a 32px header. */
+html[data-theme-id="liquid-halo"] .chat-markdown :not(pre) > code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--foreground) 7%, transparent);
+  color: var(--foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+}
+html[data-theme-id="liquid-halo"] .chat-markdown .chat-markdown-codeblock.chat-markdown-codeblock {
+  margin-block: 10px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--halo-line, var(--border));
+  background: rgb(6 8 13 / 0.55);
+  box-shadow: var(--halo-hl);
+}
+html[data-theme-id="liquid-halo"]
+  .chat-markdown
+  .chat-markdown-codeblock
+  .chat-markdown-codeblock-header {
+  height: 32px;
+  padding: 0 8px 0 14px;
+  border-bottom: 1px solid var(--halo-line, var(--border));
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+html[data-theme-id="liquid-halo"]
+  .chat-markdown
+  .chat-markdown-codeblock.chat-markdown-codeblock
+  pre {
+  padding: 12px 14px;
+  line-height: 1.65;
+}
+html[data-theme-id="liquid-halo"]:not(.dark)
+  .chat-markdown
+  .chat-markdown-codeblock.chat-markdown-codeblock {
+  background: rgb(238 240 245 / 0.55);
+}
+
 /* C: decline-ask chips are 26px pills; the first is the accent choice. */
 html[data-theme-id="liquid-halo"] [data-halo-ask-chip] {
   min-height: 26px;
@@ -655,7 +860,7 @@ html[data-theme-id="liquid-halo"] [data-halo-ask-chip] {
   font-weight: 500;
 }
 html[data-theme-id="liquid-halo"] [data-halo-ask-chip="primary"] {
-  background: #6a57e8;
+  background: var(--halo-accent-fill);
   border-color: transparent;
   color: #fff;
 }
@@ -708,7 +913,7 @@ html[data-theme-id="liquid-halo"]:active-view-transition-type(
 /* A: composer controls are 30px pills; the context strip floats as its own glass pill. */
 html[data-theme-id="liquid-halo"]
   [data-chat-composer-footer]
-  button:not([type="submit"]):not(:has(> svg:only-child)) {
+  button:not([type="submit"]):not([data-halo-stop]):not(:has(> svg:only-child)) {
   height: 30px;
   border-radius: 999px;
   padding-inline: 10px;
@@ -717,7 +922,7 @@ html[data-theme-id="liquid-halo"]
 }
 html[data-theme-id="liquid-halo"]
   [data-chat-composer-footer]
-  button:has(> svg:only-child):not([type="submit"]) {
+  button:has(> svg:only-child):not([type="submit"]):not([data-halo-stop]) {
   width: 30px;
   height: 30px;
   border-radius: 999px;
@@ -1074,4 +1279,120 @@ html[data-theme-id="liquid-halo"]
   [data-slot="composer-host"]
   [data-chat-composer-main-surface]::after {
   display: none;
+}
+
+/* A: Stop is the prototype's 76px labelled pill; the footer pill rules above skip it. */
+html[data-theme-id="liquid-halo"] [data-halo-stop] {
+  min-width: 76px;
+  height: 32px;
+}
+
+/* A: composer glow while the agent runs (prototype .cmp.running); wins over the focus glow. */
+html[data-theme-id="liquid-halo"]
+  [data-slot="composer-host"]:has([data-chat-composer-form][data-running="true"]) {
+  box-shadow:
+    var(--halo-hl),
+    0 0 0 1px color-mix(in srgb, var(--primary-light) 25%, transparent),
+    0 24px 60px -20px color-mix(in srgb, var(--primary-light) 30%, transparent) !important;
+}
+
+/* A: attachment chips pop in with the prototype's spring. */
+html[data-theme-id="liquid-halo"]
+  :is([data-chat-composer-expanded-image], [data-chat-composer-resting-images] > button) {
+  animation: halo-chip-in 320ms var(--spring) both;
+}
+@keyframes halo-chip-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(4px);
+  }
+}
+
+/* A: sidebar brand glyph and the search pill's kbd hint. */
+[data-halo-glyph] {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  font: 700 10px/1 var(--font-sans);
+  letter-spacing: -0.04em;
+  color: #fff;
+  background: linear-gradient(135deg, #8b7cff, #d946ef);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 35%),
+    0 4px 14px -4px color-mix(in srgb, var(--primary) 70%, transparent);
+}
+[data-halo-kbd] {
+  flex: none;
+  padding: 3px 5px;
+  border-radius: 6px;
+  font: 500 10.5px/1 var(--font-mono);
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  border: 1px solid var(--halo-line);
+}
+/* A: right-panel tabs share one sliding thumb (JS sets --thumb-x/--thumb-w; transform moves it). */
+html[data-theme-id="liquid-halo"] [data-right-panel-tab-list] [data-active-tab] {
+  position: relative;
+  border-radius: 999px;
+  background: transparent !important;
+}
+[data-halo-tab-thumb] {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--thumb-w, 0);
+  height: 24px;
+  margin-top: -12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+  box-shadow: var(--halo-hl);
+  transform: translateX(var(--thumb-x, 0));
+  transition:
+    transform 320ms var(--spring-settle),
+    width 320ms var(--spring-settle);
+  pointer-events: none;
+}
+
+/* B: toast springs up from its bottom-right anchor. */
+html[data-theme-id="liquid-halo"] [data-slot="toast-viewport"] > * {
+  transform-origin: 100% 100%;
+}
+
+/* B: git pill "needs" nudge: three transform pulses when uncommitted work appears. */
+[data-halo-git-pill][data-state="needs"] {
+  animation: halo-needs 1.8s ease-in-out 3;
+}
+@keyframes halo-needs {
+  50% {
+    transform: scale(1.05);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-git-pill][data-state="needs"],
+  [data-halo-tab-thumb],
+  html[data-theme-id="liquid-halo"]
+    :is([data-chat-composer-expanded-image], [data-chat-composer-resting-images] > button) {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* A: palette scrim has no blur (prototype .scrim); light mode gets a pale scrim. */
+html[data-theme-id="liquid-halo"] [data-slot="command-dialog-backdrop"] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html[data-theme-id="liquid-halo"]:not(.dark) [data-slot="command-dialog-backdrop"] {
+  background: rgb(238 240 245 / 45%);
+}
+
+/* C: the timeline lane clips x-overflow, which cut the light card shadow into hard-edged bands.
+   Chrome ignores overflow-clip-margin here, so lanes holding a trail card (whose card clips its
+   own content) stop clipping. */
+html[data-theme-id="liquid-halo"] [data-timeline-root]:has(> [data-halo-trail]) {
+  overflow: visible;
 }

@@ -21,6 +21,9 @@ import ProjectScriptsControl, {
 } from "../ProjectScriptsControl";
 import { T, useGT } from "gt-react";
 import { useState, type ComponentProps } from "react";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
+import { vcsEnvironment } from "~/state/vcs";
+import { resolveChangesTotals } from "../GitActionsControl.logic";
 import { ThreadDetailsCard } from "./ThreadDetailsCard";
 import { OpenInPicker } from "./OpenInPicker";
 import { ThreadDetailsSection } from "./ThreadDetailsSection";
@@ -155,8 +158,21 @@ export function ThreadDetailsPanel(props: ThreadDetailsPanelProps) {
       : {}),
   };
 
+  // The pill's +/- reads the same cached status query the header git control uses.
+  const halo = useHaloExperience();
+  const haloStatus = useEnvironmentQuery(
+    halo && props.gitCwd !== null
+      ? vcsEnvironment.status({ environmentId: props.environmentId, input: { cwd: props.gitCwd } })
+      : null,
+  ).data;
+  const haloTotals = resolveChangesTotals(haloStatus);
+  const haloDiff = haloTotals
+    ? { insertions: haloTotals.insertions, deletions: haloTotals.deletions }
+    : null;
+
   return (
     <ThreadDetailsCard
+      haloDiff={haloDiff}
       threadRef={{ environmentId: props.environmentId, threadId: props.threadId }}
       anchor={props.anchor}
       handle={props.handle}

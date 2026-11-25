@@ -12820,7 +12820,6 @@
   "a73e3933c2a61633": "Traza",
   "aa89d5c5092976e2": "Transcurrido",
   "d5b8d8dc328bf7fa": "Llamadas a herramientas",
-  "bb44e6f4c3a13cb5": "Contexto",
   "bde316c29d562910": "Subagentes",
   "7fe6ac101c7980f3": "{count} activos",
   "4d7dff60ceb701ff": "Etapas",
@@ -12853,5 +12852,9 @@
   "a71c440f5b52d254": "Mensaje del commit (opcional)",
   "5b325b2ed70b5991": "O escribe tu respuesta en el editor.",
   "9180c8bd9c6572e1": "Actividad reciente",
-  "bb5b85696f58a300": "{usedTokens} tok"
+  "bb5b85696f58a300": "{usedTokens} tok",
+  "a18430b6199675e3": "Responder",
+  "f8ded9316d65a5b5": "Tokens",
+  "d21e2a69a76033a9": "Pruebas superadas",
+  "b0f9b9586702a5fb": "Rastro del agente"
 }

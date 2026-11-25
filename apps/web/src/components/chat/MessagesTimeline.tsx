@@ -124,6 +124,8 @@ import {
   LiveWorkEntryTimelineRow,
   WorkGroupToggleTimelineRow,
 } from "./TimelineWorkGroupRows";
+import { HaloTrailHead, HaloTrailStep } from "../halo/HaloTrailHead";
+import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { ViewedImagesTimelineRow } from "./TimelineWorkEntryRow";
 import { UserMessageRow } from "./TimelineUserMessageRow";
 import {
@@ -750,6 +752,7 @@ const ConversationTimeline = memo(function ConversationTimeline({
   const pendingApprovalRequestIds = new Set(
     pendingApprovals.filter(isVisiblePendingApproval).map((approval) => approval.requestId),
   );
+  const halo = useHaloExperience();
   const rawRows = useIncrementalTimelineRows(`${listIdentityKey}\0${workspaceRoot ?? ""}`, {
     timelineEntries,
     pendingApprovalRequestIds,
@@ -769,6 +772,7 @@ const ConversationTimeline = memo(function ConversationTimeline({
     worktreeSetup,
     toolCallVisibility,
     revealedMessageId,
+    ...(halo ? { haloTrail: true } : {}),
   });
   const rows = useStableRows(rawRows, listIdentityKey);
   const matchedApprovalRequestIds = new Set<string>();
@@ -1661,6 +1665,22 @@ const TimelineRowContent = memo(function TimelineRowContent({ row }: { row: Time
     (row.kind === "work-toggle" || row.kind === "work-live" || row.kind === "thinking") &&
     row.expanded === true;
 
+  const workLogContent = (
+    <>
+      {row.kind === "work" ? (
+        <WorkGroupSection
+          anchorKey={row.id}
+          groupedEntries={row.groupedEntries}
+          isExpandedToolGroup={row.isExpandedToolGroup}
+          displayLabel={row.displayLabel}
+        />
+      ) : null}
+      {row.kind === "work-live" ? <LiveWorkEntryTimelineRow row={row} /> : null}
+      {row.kind === "work-toggle" ? <WorkGroupToggleTimelineRow row={row} /> : null}
+      {row.kind === "thinking" ? <ThinkingTimelineRow row={row} /> : null}
+    </>
+  );
+
   return (
     <div
       className={cn(
@@ -1689,6 +1709,7 @@ const TimelineRowContent = memo(function TimelineRowContent({ row }: { row: Time
       )}
       data-timeline-row-id={row.id}
       data-timeline-row-kind={row.kind}
+      data-halo-trail={row.haloTrail}
       data-message-id={
         row.kind === "message" || row.kind === "assistant-meta" ? row.message.id : undefined
       }
@@ -1705,17 +1726,12 @@ const TimelineRowContent = memo(function TimelineRowContent({ row }: { row: Time
                 : "standalone"
           }
         >
-          {row.kind === "work" ? (
-            <WorkGroupSection
-              anchorKey={row.id}
-              groupedEntries={row.groupedEntries}
-              isExpandedToolGroup={row.isExpandedToolGroup}
-              displayLabel={row.displayLabel}
-            />
-          ) : null}
-          {row.kind === "work-live" ? <LiveWorkEntryTimelineRow row={row} /> : null}
-          {row.kind === "work-toggle" ? <WorkGroupToggleTimelineRow row={row} /> : null}
-          {row.kind === "thinking" ? <ThinkingTimelineRow row={row} /> : null}
+          {row.haloTrailHead !== undefined ? <HaloTrailHead runId={row.haloTrailHead} /> : null}
+          {row.haloTrail ? (
+            <HaloTrailStep row={row}>{workLogContent}</HaloTrailStep>
+          ) : (
+            workLogContent
+          )}
         </WorkLogBlock>
       ) : null}
       {row.kind === "turn-fold" ? <TurnFoldTimelineRow key={row.id} row={row} /> : null}

@@ -82,6 +82,7 @@ import {
   formatSearchToolLabel,
 } from "@t3tools/shared/toolActivityCopy";
 import { isHostPath } from "@t3tools/shared/path";
+import { haloTrailSlots, type HaloTrailPosition } from "../halo/haloTrail.logic";
 
 export function timelineEntryRunId(entry: TimelineEntry): RunId | null {
   if (entry.kind === "message") {
@@ -529,6 +530,10 @@ const LIVE_ACTIVITY_ROW_ID = "live-activity-row";
 
 export type MessagesTimelineRow = MessagesTimelineRowContent & {
   readonly continuesWorkLog?: boolean;
+  /** Liquid Halo: this row's segment of the run's Agent trail card. */
+  readonly haloTrail?: HaloTrailPosition;
+  /** Liquid Halo: the trail segment that carries the card header, keyed by its run. */
+  readonly haloTrailHead?: RunId | null;
 };
 
 type MessagesTimelineRowContent =
@@ -1638,6 +1643,8 @@ export function deriveMessagesTimelineRows(
     worktreeSetup?: WorktreeSetupSnapshot | null;
     toolCallVisibility?: ToolCallVisibility;
     revealedMessageId?: MessageId | null;
+    /** Liquid Halo groups adjacent work rows into one Agent trail card. */
+    haloTrail?: boolean;
   },
   resolve: MessageResolver = m,
 ): MessagesTimelineRow[] {
@@ -2432,7 +2439,7 @@ export function deriveMessagesTimelineRows(
   const result = attachTrailingToolGroupsToAssistant(
     attachCreatedThreadSummaries(nextRows, timelineEntries, collapsedFoldMemberIds),
   );
-  return result.map((row, index) => {
+  const rows = result.map((row, index) => {
     if (timelineRowIsWorkLog(row) && timelineRowIsWorkLog(result[index + 1])) {
       return { ...row, continuesWorkLog: true };
     }
@@ -2445,6 +2452,29 @@ export function deriveMessagesTimelineRows(
     if (!groupedWithNext && !groupedWithPrevious) return row;
     return { ...row, groupedWithNext, groupedWithPrevious, continuesSteer };
   });
+  return input.haloTrail ? withHaloTrail(rows) : rows;
+}
+
+function withHaloTrail(rows: MessagesTimelineRow[]): MessagesTimelineRow[] {
+  const slots = haloTrailSlots(
+    rows.map((row) => ({ kind: row.kind, runId: timelineRowRunId(row) })),
+  );
+  return rows.map((row, index) => {
+    const slot = slots[index];
+    if (!slot) return row;
+    return {
+      ...row,
+      haloTrail: slot.position,
+      ...(slot.head ? { haloTrailHead: timelineRowRunId(row) } : {}),
+    };
+  });
+}
+
+function timelineRowRunId(row: MessagesTimelineRow): RunId | null {
+  if (row.kind === "work") return row.groupedEntries[0]?.runId ?? null;
+  if (row.kind === "work-live") return row.entry.runId ?? null;
+  if (row.kind === "work-toggle") return row.runId ?? null;
+  return null;
 }
 
 function timelineRowIsOwnUserMessage(
@@ -2777,6 +2807,7 @@ export function computeStableMessagesTimelineRows(
 
 function isRowUnchanged(a: MessagesTimelineRow, b: MessagesTimelineRow): boolean {
   if (a.kind !== b.kind || a.id !== b.id) return false;
+  if (a.haloTrail !== b.haloTrail || a.haloTrailHead !== b.haloTrailHead) return false;
 
   switch (a.kind) {
     case "working":

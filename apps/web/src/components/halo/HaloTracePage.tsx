@@ -7,7 +7,8 @@ import {
   deriveThreadStructureRuntime,
 } from "@t3tools/client-runtime/state/thread-execution";
 import { deriveThreadTurnSubagents } from "@t3tools/client-runtime/state/thread-subagents";
-import type { ScopedThreadRef } from "@t3tools/contracts";
+import type { CommandOutputView } from "@t3tools/client-runtime/state/command-output";
+import type { EnvironmentId, ScopedThreadRef, ThreadId, TurnItemId } from "@t3tools/contracts";
 import { formatDuration } from "@t3tools/shared/orchestrationTimingCopy";
 import { msg, useGT, useMessages } from "gt-react";
 import { AlertCircleIcon, CheckIcon, ChevronRightIcon, ShieldIcon } from "lucide-react";
@@ -33,6 +34,9 @@ import { HaloOrb, useHaloThreadPill } from "./HaloOrb";
 import { deriveHaloRunStages, type HaloRunStages, type HaloStageId } from "./haloStages.logic";
 import { deriveHaloTraceLog, formatHaloTraceOffset, type HaloTraceTone } from "./haloTrace.logic";
 import { HaloPageHeader } from "./HaloPageHeader";
+import { latestHaloTestCommand, parseHaloTestRun } from "./haloTestRun.logic";
+import { orchestrationEnvironment } from "../../state/orchestration";
+import { useEnvironmentQuery } from "../../state/query";
 
 const LOG_LIMIT = 120;
 
@@ -74,14 +78,21 @@ export function HaloTracePage({ threadRef }: { threadRef: ScopedThreadRef }) {
   const activeProviderThread = projection?.providerThreads.find(
     (thread) => thread.id === projection.thread.activeProviderThreadId,
   );
+  const tokenUsage =
+    projection === null
+      ? null
+      : latestProviderTurnTokenUsage(projection.providerTurns, projection, activeProviderThread);
   const contextWindow =
     projection === null
       ? null
       : deriveLatestContextWindowSnapshot(
           projection.visibleTurnItems,
-          latestProviderTurnTokenUsage(projection.providerTurns, projection, activeProviderThread),
+          tokenUsage,
           activeProviderThread,
         );
+  const testCommand = latestHaloTestCommand(
+    runItems.filter((item) => item.type === "command_execution"),
+  );
   const project = shell
     ? projects.find(
         (entry) => entry.environmentId === shell.environmentId && entry.id === shell.projectId,
@@ -130,20 +141,41 @@ export function HaloTracePage({ threadRef }: { threadRef: ScopedThreadRef }) {
               {settledMs !== null && settledMs > 0 ? formatDuration(settledMs, messages) : "-"}
             </span>
           </HaloStat>
+          <HaloStat label={gt("Tokens", { $context: "run trace stat: tokens used" })}>
+            {tokenUsage ? formatContextWindowTokens(tokenUsage.usedTokens) : "-"}
+          </HaloStat>
           <HaloStat label={gt("Tool calls", { $context: "run trace stat" })}>
             {stages.toolCount}
           </HaloStat>
-          <HaloStat label={gt("Context", { $context: "run trace stat: context window tokens" })}>
-            {contextWindow ? formatContextWindowTokens(contextWindow.usedTokens) : "-"}
-          </HaloStat>
-          <HaloStat label={gt("Subagents", { $context: "run trace stat" })}>
-            {fleet?.subagents.length ?? 0}
-            {fleet && fleet.liveCount > 0 ? (
-              <small className="ms-1 text-sm font-medium text-muted-foreground">
-                {gt("{count} live", { count: fleet.liveCount })}
-              </small>
-            ) : null}
-          </HaloStat>
+          {testCommand ? (
+            <HaloStat label={gt("Tests passed", { $context: "run trace stat" })}>
+              {testCommand.output !== undefined && testCommand.outputOmitted !== true ? (
+                <HaloTestsPassed
+                  command={testCommand.input}
+                  output={testCommand.output}
+                  running={testCommand.status === "running"}
+                  exitCode={testCommand.exitCode}
+                />
+              ) : (
+                <HaloTestsPassedFetched
+                  environmentId={environmentId}
+                  threadId={threadRef.threadId}
+                  itemId={testCommand.id}
+                  command={testCommand.input}
+                  exitCode={testCommand.exitCode}
+                />
+              )}
+            </HaloStat>
+          ) : (
+            <HaloStat label={gt("Subagents", { $context: "run trace stat" })}>
+              {fleet?.subagents.length ?? 0}
+              {fleet && fleet.liveCount > 0 ? (
+                <small className="ms-1 text-sm font-medium text-muted-foreground">
+                  {gt("{count} live", { count: fleet.liveCount })}
+                </small>
+              ) : null}
+            </HaloStat>
+          )}
         </div>
 
         <div className="grid grid-cols-1 items-start gap-3 @min-[56rem]/halo-trace:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
@@ -205,6 +237,46 @@ export function HaloTracePage({ threadRef }: { threadRef: ScopedThreadRef }) {
         </div>
       </div>
     </SidebarInset>
+  );
+}
+
+function HaloTestsPassed(props: {
+  command: string;
+  output: string;
+  running: boolean;
+  exitCode: number | undefined;
+}) {
+  const run = parseHaloTestRun(props);
+  if (run === null) return "-";
+  return (
+    <>
+      {run.totals.passed}
+      <small className="text-sm font-medium text-muted-foreground">/{run.totals.total}</small>
+    </>
+  );
+}
+
+function HaloTestsPassedFetched(props: {
+  environmentId: EnvironmentId;
+  threadId: ThreadId;
+  itemId: TurnItemId;
+  command: string;
+  exitCode: number | undefined;
+}) {
+  const { data } = useEnvironmentQuery<CommandOutputView, unknown>(
+    orchestrationEnvironment.v2.commandOutput({
+      environmentId: props.environmentId,
+      input: { threadId: props.threadId, itemId: props.itemId },
+    }),
+  );
+  if (!data) return "-";
+  return (
+    <HaloTestsPassed
+      command={props.command}
+      output={data.output.text}
+      running={data.running}
+      exitCode={props.exitCode}
+    />
   );
 }
 

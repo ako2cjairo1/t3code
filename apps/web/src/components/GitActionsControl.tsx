@@ -1799,7 +1799,15 @@ function CheckoutGitActionsControl({
       <>
         {isRepo && !quietEmptyDraft ? (
           <HaloGitPill
-            state={gitActionProgress ? "busy" : visibleInlineSuccess ? "ok" : "idle"}
+            state={
+              gitActionProgress
+                ? "busy"
+                : visibleInlineSuccess
+                  ? "ok"
+                  : commitsChanges
+                    ? "needs"
+                    : "idle"
+            }
             primaryLabel={haloPrimaryLabel}
             primaryOpensCommit={commitsChanges}
             primary={

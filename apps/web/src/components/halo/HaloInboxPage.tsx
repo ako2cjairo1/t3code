@@ -39,6 +39,12 @@ import { useProjects, useServerConfigs, useVisibleThreadShells } from "~/state/e
 import { useUiStateStore } from "~/uiStateStore";
 import { resolveThreadLastVisitedAt } from "../Sidebar.logic";
 import { RelativeTimeLabel } from "../sidebar/SidebarThreadRow";
+import { useAtomValue } from "@effect/atom-react";
+import { AuthOrchestrationOperateScope } from "@t3tools/contracts";
+import { useEnvironmentScope } from "~/state/session";
+import { environmentThreadDetails, threadEnvironment } from "~/state/threads";
+import { useAtomCommand } from "~/state/use-atom-command";
+import { ComposerPendingApprovalActions } from "../chat/ComposerPendingApprovalActions";
 import { Button } from "../ui/button";
 import { SidebarInset } from "../ui/sidebar";
 import { stackedThreadToast, toastManager } from "../ui/toast";
@@ -516,6 +522,12 @@ function HaloInboxCardBody({
       {meta ? (
         <div className="truncate font-mono text-2xs text-muted-foreground">{meta}</div>
       ) : null}
+      {!lifted && !placeholder && card.pill?.kind === "approval" ? (
+        <HaloInboxApproval card={card} />
+      ) : null}
+      {!lifted && !placeholder && card.pill?.kind === "input" ? (
+        <HaloInboxQuestion card={card} />
+      ) : null}
       {canSettle ? (
         <div className="relative flex gap-1.25">
           <Button size="xs" variant="outline" onClick={() => onSettle?.(card)}>
@@ -525,5 +537,85 @@ function HaloInboxCardBody({
         </div>
       ) : null}
     </article>
+  );
+}
+
+/** Answers a thread's oldest approval from its card, as the thread's own approval row does. */
+function HaloInboxApproval({ card }: { card: Card }) {
+  const gt = useGT();
+  const m = useMessages();
+  const threadRef = scopeThreadRef(card.thread.environmentId, card.thread.id);
+  const approval = useAtomValue(environmentThreadDetails.pendingRequestsAtom(threadRef))
+    ?.approvals[0];
+  const canOperate = useEnvironmentScope(threadRef.environmentId, AuthOrchestrationOperateScope);
+  const respond = useAtomCommand(threadEnvironment.respondToApproval, { reportFailure: false });
+  const [responding, setResponding] = useState(false);
+  if (approval === undefined) return null;
+  return (
+    <>
+      {approval.detail ? (
+        <pre data-halo-inbox-cmd="">
+          {approval.requestKind === "command" ? `$ ${approval.detail}` : approval.detail}
+        </pre>
+      ) : null}
+      <div
+        data-halo-inbox-actions=""
+        className="relative flex flex-wrap items-center gap-1.25 text-xs"
+      >
+        <ComposerPendingApprovalActions
+          presentation="inline"
+          requestId={approval.requestId}
+          isResponding={responding}
+          canRespond={approval.responseCapability === "live"}
+          disabled={!canOperate}
+          options={approval.options}
+          onRespondToApproval={async (requestId, decision) => {
+            setResponding(true);
+            const result = await respond({
+              environmentId: threadRef.environmentId,
+              input: { threadId: threadRef.threadId, requestId, decision },
+            });
+            if (result._tag === "Failure" && !isAtomCommandInterrupted(result)) {
+              toastManager.add({
+                type: "error",
+                title: gt("Failed to submit approval decision."),
+                description: thrownErrorMessage(squashAtomCommandFailure(result), m) ?? undefined,
+              });
+            }
+            setResponding(false);
+            return result;
+          }}
+        />
+      </div>
+    </>
+  );
+}
+
+/** The agent's question and a Reply that opens the thread, whose composer takes focus on entry. */
+function HaloInboxQuestion({ card }: { card: Card }) {
+  const gt = useGT();
+  const threadRef = scopeThreadRef(card.thread.environmentId, card.thread.id);
+  const question = useAtomValue(environmentThreadDetails.pendingRequestsAtom(threadRef))
+    ?.userInputs[0]?.questions[0]?.question;
+  return (
+    <>
+      {question ? <p className="text-xs leading-snug text-muted-foreground">{question}</p> : null}
+      <div className="relative flex gap-1.25">
+        <Button
+          size="xs"
+          variant="outline"
+          render={
+            <Link
+              to="/$environmentId/$threadId"
+              params={{ environmentId: card.thread.environmentId, threadId: card.thread.id }}
+              viewTransition={haloDepthTransition()}
+              draggable={false}
+            />
+          }
+        >
+          {gt("Reply", { $context: "open a thread to answer the agent's question" })}
+        </Button>
+      </div>
+    </>
   );
 }
