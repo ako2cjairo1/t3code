@@ -2324,6 +2324,11 @@ html[data-theme-id="liquid-halo"] [data-slot="alert-dialog-popup"] {
     inset 0 1px 0 rgb(255 255 255 / 8%),
     0 28px 60px -16px rgb(0 0 0 / 70%);
 }
+@media (max-width: 639px) {
+  html[data-theme-id="liquid-halo"] [data-slot="alert-dialog-popup"] {
+    border-radius: 16px 16px 0 0;
+  }
+}
 html[data-theme-id="liquid-halo"]
   :is(
     [data-slot="select-popup"] > div:has(> [data-slot="select-list"]),
@@ -2345,21 +2350,27 @@ html[data-theme-id="liquid-halo"]
 }
 
 /* A: buttons are prototype pills: background eases, press springs. */
-/* Grouped buttons keep the group's squared inner corners. */
+/* Grouped buttons keep the group's squared inner corners. A dialog Close rendered as a Button
+   carries the Close's slot instead, so it is matched by its own slot. */
 html[data-theme-id="liquid-halo"]
-  [data-slot="button"]:not(:is([data-slot="group"], [data-slot="input-group"]) *),
+  :is([data-slot="button"], [data-slot$="dialog-close"]):not(
+    :is([data-slot="group"], [data-slot="input-group"]) *
+  ),
 html[data-theme-id="liquid-halo"]
-  [data-slot="button"]:not(:is([data-slot="group"], [data-slot="input-group"]) *)::before {
+  :is([data-slot="button"], [data-slot$="dialog-close"]):not(
+    :is([data-slot="group"], [data-slot="input-group"]) *
+  )::before {
   border-radius: 999px;
 }
-html[data-theme-id="liquid-halo"] [data-slot="button"] {
+html[data-theme-id="liquid-halo"] :is([data-slot="button"], [data-slot$="dialog-close"]) {
   transition:
     background-color 160ms,
     color 160ms,
     box-shadow 150ms,
     scale 120ms var(--halo-spring);
 }
-html[data-theme-id="liquid-halo"] [data-slot="button"]:active:not(:disabled) {
+html[data-theme-id="liquid-halo"]
+  :is([data-slot="button"], [data-slot$="dialog-close"]):active:not(:disabled) {
   scale: 0.97;
 }
 html[data-theme-id="liquid-halo"] [data-sidebar="menu-button"][data-size="icon"] {

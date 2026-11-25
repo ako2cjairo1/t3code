@@ -139,12 +139,20 @@ export function HaloSlideToApprove({
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerCancel}
           onLostPointerCapture={onPointerCancel}
-          onClick={() => {
+          onClick={(event) => {
             if (moved.current) {
               moved.current = false;
               return;
             }
             if (locked) return;
+            // A risky approval needs the slide: a pointer tap only nudges the knob. Keyboard
+            // activation (detail 0) still approves, so it stays operable without a drag.
+            if (warning && event.detail > 0) {
+              setX(Math.min(24, maxTravel()));
+              window.clearTimeout(timer.current);
+              timer.current = window.setTimeout(() => setX(0), 160);
+              return;
+            }
             setApproved(true);
             setX(maxTravel());
             onApprove();
