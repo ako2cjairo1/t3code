@@ -7,10 +7,10 @@ import { msg, useGT, useMessages } from "gt-react";
 import { memo } from "react";
 import { EllipsisIcon, TriangleAlertIcon } from "lucide-react";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
-import { isMacPlatform } from "~/lib/utils";
 import { Button, InlineButton } from "../ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "../ui/menu";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
+import { HaloSlideToApprove } from "../halo/HaloSlideToApprove";
 import { composerFloatingLayerProps } from "./composerEventScope";
 
 interface ComposerPendingApprovalActionsProps {
@@ -66,6 +66,16 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
   return (
     <>
       {primaryOptions.map((option) => {
+        if (halo && presentation === "inline" && option.decision === "accept" && !option.warning) {
+          return (
+            <HaloSlideToApprove
+              key={option.decision}
+              ariaLabel={optionLabel(option.label)}
+              disabled={disabled || isResponding || !canRespond}
+              onApprove={() => void onRespondToApproval(requestId, option.decision)}
+            />
+          );
+        }
         const buttonProps = {
           disabled: disabled || isResponding || !canRespond,
           "aria-description": option.warning,
@@ -82,14 +92,6 @@ export const ComposerPendingApprovalActions = memo(function ComposerPendingAppro
             <span className={presentation === "inline" ? "whitespace-normal" : "max-w-40 truncate"}>
               {optionLabel(option.label)}
             </span>
-            {halo &&
-            presentation === "inline" &&
-            option.decision === "accept" &&
-            !option.warning ? (
-              <kbd data-halo-kbd="" aria-hidden="true">
-                {isMacPlatform(navigator.platform) ? "⌘⏎" : "Ctrl⏎"}
-              </kbd>
-            ) : null}
           </>
         );
         const button =
