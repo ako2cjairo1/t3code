@@ -1383,9 +1383,11 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
               {inFolder ? null : (
                 <span
                   className={cn(
-                    "flex shrink-0 items-center transition-opacity",
+                    "flex shrink-0 items-center transition-[opacity,filter] duration-200",
                     (!props.isActive || variantAction === "unsettle") &&
-                      "opacity-40 grayscale group-focus-within/sidebar-row:opacity-100 group-focus-within/sidebar-row:grayscale-0 group-hover/sidebar-row:opacity-100 group-hover/sidebar-row:grayscale-0",
+                      (halo ? "opacity-55" : "opacity-40"),
+                    (!props.isActive || variantAction === "unsettle") &&
+                      "grayscale group-focus-within/sidebar-row:opacity-100 group-focus-within/sidebar-row:grayscale-0 group-hover/sidebar-row:opacity-100 group-hover/sidebar-row:grayscale-0",
                   )}
                 >
                   {props.project ? (

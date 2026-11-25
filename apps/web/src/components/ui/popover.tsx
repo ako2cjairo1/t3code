@@ -109,6 +109,7 @@ function PopoverPopup({
             className,
           )}
           data-slot="popover-popup"
+          data-variant={variant === "panel" ? "panel" : tooltipStyle ? "tooltip" : undefined}
           {...props}
         >
           <Viewport

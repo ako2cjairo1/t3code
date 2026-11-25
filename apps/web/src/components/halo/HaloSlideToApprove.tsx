@@ -23,6 +23,7 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
     pointerX: number;
     originX: number;
     max: number;
+    x: number;
     lastX: number;
     lastT: number;
     velocity: number;
@@ -61,6 +62,7 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
       pointerX: event.clientX,
       originX: drawnX,
       max: maxTravel(),
+      x: drawnX,
       lastX: event.clientX,
       lastT: event.timeStamp,
       velocity: 0,
@@ -78,13 +80,16 @@ export function HaloSlideToApprove({ ariaLabel, disabled, onApprove }: HaloSlide
     if (dt > 0) drag.velocity = (event.clientX - drag.lastX) / dt;
     drag.lastX = event.clientX;
     drag.lastT = event.timeStamp;
-    setX(Math.max(0, Math.min(drag.max, drag.originX + dx)));
+    drag.x = Math.max(0, Math.min(drag.max, drag.originX + dx));
+    setX(drag.x);
   };
   const onPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
     const drag = start.current;
     if (!drag) return;
     start.current = null;
     setDragging(false);
+    // Read the position from the gesture, not render state: a fast release can beat the re-render.
+    const x = drag.x;
     // A flick past halfway counts: project 100ms ahead at release velocity (px/ms), as the
     // prototype does. Below halfway it never approves, however fast.
     const velocity = event.timeStamp - drag.lastT > 100 ? 0 : drag.velocity;

@@ -5,6 +5,7 @@ import {
 import { msg, T, useMessages } from "gt-react";
 import { ShieldIcon } from "lucide-react";
 import { memo, use } from "react";
+import { cn } from "~/lib/utils";
 import { useHaloExperience } from "~/hooks/useHaloExperience";
 import { HaloOrb } from "../halo/HaloOrb";
 import { haloOrbFlight } from "../halo/haloOrbFlight";
@@ -102,7 +103,12 @@ export const TimelinePendingApprovalRow = memo(function TimelinePendingApprovalR
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           {canRespond ? (
             <>
-              <span className="inline-flex items-center gap-1 text-warning">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1",
+                  halo ? "text-(--primary-light)" : "text-warning",
+                )}
+              >
                 <ShieldIcon aria-hidden className="size-3 shrink-0" />
                 <T>Waiting for approval</T>
               </span>

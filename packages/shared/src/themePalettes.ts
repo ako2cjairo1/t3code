@@ -1018,7 +1018,7 @@ html[data-theme-id] [data-chat-header] {
   border-color: transparent;
   box-shadow: 0 1px 2px rgb(20 24 40 / 0.05), 0 6px 20px rgb(20 24 40 / 0.07);
 }
-:is([data-slot="popover-popup"], [data-slot="menu-popup"], [data-slot="dialog-popup"]) {
+:is([data-slot="popover-popup"]:not([data-variant]), [data-slot="menu-popup"], [data-slot="dialog-popup"]) {
   border-radius: 16px;
   background: color-mix(in srgb, var(--popover) 82%, transparent) !important;
   -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(1.5);
@@ -1026,7 +1026,7 @@ html[data-theme-id] [data-chat-header] {
   border-color: var(--halo-line-2, rgb(255 255 255 / 14%)) !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 28px 60px -16px rgb(0 0 0 / 70%);
 }
-:is([data-slot="popover-popup"], [data-slot="menu-popup"]) {
+:is([data-slot="popover-popup"]:not([data-variant]), [data-slot="menu-popup"]) {
   border-radius: 24px;
 }
 [data-thread-details-card] {
